@@ -27,8 +27,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Share Site Settings to ALL views globally
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
-            $settings = \App\Models\Setting::pluck('value', 'key');
-            $view->with('global_settings', $settings);
+            try {
+                $settings = \App\Models\Setting::pluck('value', 'key');
+                $view->with('global_settings', $settings);
+            } catch (\Exception $e) {
+                $view->with('global_settings', collect([]));
+            }
         });
 
         \Illuminate\Support\Facades\View::composer('layouts.sidebar', function ($view) {
