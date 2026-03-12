@@ -36,7 +36,32 @@ class SetupController extends Controller
         ]);
 
         try {
-            // ... (PDO connection and env update logic)
+            // 1. Test Connection
+            $dsn = "mysql:host={$request->db_host};dbname={$request->db_name};charset=utf8mb4";
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ];
+            new PDO($dsn, $request->db_user, $request->db_pass, $options);
+
+            // 2. Update .env file
+            $this->updateEnv([
+                'DB_HOST' => $request->db_host,
+                'DB_DATABASE' => $request->db_name,
+                'DB_USERNAME' => $request->db_user,
+                'DB_PASSWORD' => $request->db_pass,
+                'APP_URL' => url('/'), // Update APP_URL to current if needed
+            ]);
+
+            // 3. Clear Config Cache so new env is loaded
+            Artisan::call('config:clear');
+            
+            // Re-configure connection for the current request
+            config(['database.connections.mysql.host' => $request->db_host]);
+            config(['database.connections.mysql.database' => $request->db_name]);
+            config(['database.connections.mysql.username' => $request->db_user]);
+            config(['database.connections.mysql.password' => $request->db_pass]);
+            DB::purge('mysql');
 
             // 4. Run Migrations
             Artisan::call('migrate', ['--force' => true]);
