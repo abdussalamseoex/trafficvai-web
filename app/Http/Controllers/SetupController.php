@@ -46,17 +46,19 @@ class SetupController extends Controller
 
             // 2. Update .env file
             $this->updateEnv([
+                'DB_CONNECTION' => 'mysql',
                 'DB_HOST' => $request->db_host,
                 'DB_DATABASE' => $request->db_name,
                 'DB_USERNAME' => $request->db_user,
                 'DB_PASSWORD' => $request->db_pass,
-                'APP_URL' => url('/'), // Update APP_URL to current if needed
+                'APP_URL' => url('/'),
             ]);
 
             // 3. Clear Config Cache so new env is loaded
             Artisan::call('config:clear');
             
             // Re-configure connection for the current request
+            config(['database.default' => 'mysql']);
             config(['database.connections.mysql.host' => $request->db_host]);
             config(['database.connections.mysql.database' => $request->db_name]);
             config(['database.connections.mysql.username' => $request->db_user]);
@@ -91,11 +93,14 @@ class SetupController extends Controller
             $content = File::get($path);
 
             foreach ($data as $key => $value) {
-                // If value contains spaces, wrap it in quotes
-                $formattedValue = str_contains($value, ' ') ? "\"$value\"" : $value;
+                // Wrap in quotes if value has spaces or special characters
+                $formattedValue = (str_contains($value, ' ') || preg_match('/[#@$!%*?&]/', $value)) 
+                    ? "\"$value\"" 
+                    : $value;
                 
-                if (str_contains($content, "{$key}=")) {
-                    $content = preg_replace("/^{$key}=.*/m", "{$key}={$formattedValue}", $content);
+                // Un-comment the line if it was commented out, and update value
+                if (preg_match("/^#?\s*{$key}=/m", $content)) {
+                    $content = preg_replace("/^#?\s*{$key}=.*/m", "{$key}={$formattedValue}", $content);
                 } else {
                     $content .= "\n{$key}={$formattedValue}";
                 }
