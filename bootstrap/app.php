@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             '/stripe/webhook',
             '/plisio/callback',
+            '/setup',
+            '/setup/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

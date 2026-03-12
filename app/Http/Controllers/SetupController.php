@@ -79,8 +79,8 @@ class SetupController extends Controller
         }
 
         try {
-            // Force reload config for this request
-            Artisan::call('config:clear');
+            // Force reload config for this request by reading .env directly
+            $this->forceEnvReload();
 
             // Run Migrations
             Artisan::call('migrate', ['--force' => true]);
@@ -104,6 +104,42 @@ class SetupController extends Controller
                 'message' => 'Migration Error: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function forceEnvReload()
+    {
+        $path = base_path('.env');
+        if (!File::exists($path)) return;
+
+        $content = File::get($path);
+        $lines = explode("\n", $content);
+        $envData = [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (!$line || str_starts_with($line, '#')) continue;
+            
+            if (str_contains($line, '=')) {
+                list($key, $value) = explode('=', $line, 2);
+                $key = trim($key);
+                $value = trim($value, " \t\n\r\0\x0B\"'"); // Trim quotes too
+                $envData[$key] = $value;
+            }
+        }
+
+        // Force into config
+        if (isset($envData['DB_CONNECTION'])) {
+            config(['database.default' => $envData['DB_CONNECTION']]);
+        }
+        
+        if (isset($envData['DB_HOST'])) {
+            config(['database.connections.mysql.host' => $envData['DB_HOST']]);
+            config(['database.connections.mysql.database' => $envData['DB_DATABASE'] ?? '']);
+            config(['database.connections.mysql.username' => $envData['DB_USERNAME'] ?? '']);
+            config(['database.connections.mysql.password' => $envData['DB_PASSWORD'] ?? '']);
+        }
+
+        DB::purge();
     }
 
     private function updateEnv($data)
