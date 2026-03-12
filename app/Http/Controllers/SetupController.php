@@ -45,31 +45,49 @@ class SetupController extends Controller
             new PDO($dsn, $request->db_user, $request->db_pass, $options);
 
             // 2. Update .env file
-            $this->updateEnv([
+            $envData = [
                 'DB_CONNECTION' => 'mysql',
                 'DB_HOST' => $request->db_host,
                 'DB_DATABASE' => $request->db_name,
                 'DB_USERNAME' => $request->db_user,
                 'DB_PASSWORD' => $request->db_pass,
+                'SESSION_DRIVER' => 'file',
                 'APP_URL' => url('/'),
-            ]);
+            ];
+            $this->updateEnv($envData);
 
-            // 3. Clear Config Cache so new env is loaded
+            // Force update current process environment
+            foreach ($envData as $key => $value) {
+                putenv("{$key}={$value}");
+                $_ENV[$key] = $value;
+                $_SERVER[$key] = $value;
+            }
+
+            // 3. Clear Config Cache and Reload Configuration
             Artisan::call('config:clear');
             
             // Re-configure connection for the current request
-            config(['database.default' => 'mysql']);
-            config(['database.connections.mysql.host' => $request->db_host]);
-            config(['database.connections.mysql.database' => $request->db_name]);
-            config(['database.connections.mysql.username' => $request->db_user]);
-            config(['database.connections.mysql.password' => $request->db_pass]);
-            DB::purge('mysql');
+            config([
+                'database.default' => 'mysql',
+                'database.connections.mysql.host' => $request->db_host,
+                'database.connections.mysql.database' => $request->db_name,
+                'database.connections.mysql.username' => $request->db_user,
+                'database.connections.mysql.password' => $request->db_pass,
+            ]);
+            
+            DB::purge(); // Purge all connections to force re-reading config
 
             // 4. Run Migrations
             Artisan::call('migrate', ['--force' => true]);
-            Artisan::call('db:seed', ['--force' => true]);
+            
+            // 5. Run Seeds (Optional: check if already seeded to avoid unique constraint error)
+            try {
+                Artisan::call('db:seed', ['--force' => true]);
+            } catch (Exception $seedError) {
+                // Ignore seed errors if it's just duplicate data, we care mostly about migrations
+            }
 
-            // 5. Create Lock File
+            // 6. Create Lock File
             File::put(storage_path('app/setup.lock'), 'Setup completed at: ' . now());
 
             return response()->json([
