@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'index'])->name('setup.index');
 Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'setup'])->name('setup.save');
+Route::post('/setup/migrate', [\App\Http\Controllers\SetupController::class, 'migrate'])->name('setup.migrate');
 
 Route::get('/', function () {
     $preview = request()->has('preview') && auth()->check() && auth()->user()->is_admin;

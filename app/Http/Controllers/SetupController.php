@@ -23,7 +23,6 @@ class SetupController extends Controller
 
     public function setup(Request $request)
     {
-        // Double check lock
         if (File::exists(storage_path('app/setup.lock'))) {
             return response()->json(['success' => false, 'message' => 'Setup is locked.'], 403);
         }
@@ -45,7 +44,7 @@ class SetupController extends Controller
             new PDO($dsn, $request->db_user, $request->db_pass, $options);
 
             // 2. Update .env file
-            $envData = [
+            $this->updateEnv([
                 'DB_CONNECTION' => 'mysql',
                 'DB_HOST' => $request->db_host,
                 'DB_DATABASE' => $request->db_name,
@@ -53,52 +52,56 @@ class SetupController extends Controller
                 'DB_PASSWORD' => $request->db_pass,
                 'SESSION_DRIVER' => 'file',
                 'APP_URL' => url('/'),
-            ];
-            $this->updateEnv($envData);
-
-            // Force update current process environment
-            foreach ($envData as $key => $value) {
-                putenv("{$key}={$value}");
-                $_ENV[$key] = $value;
-                $_SERVER[$key] = $value;
-            }
-
-            // 3. Clear Config Cache and Reload Configuration
-            Artisan::call('config:clear');
-            
-            // Re-configure connection for the current request
-            config([
-                'database.default' => 'mysql',
-                'database.connections.mysql.host' => $request->db_host,
-                'database.connections.mysql.database' => $request->db_name,
-                'database.connections.mysql.username' => $request->db_user,
-                'database.connections.mysql.password' => $request->db_pass,
             ]);
-            
-            DB::purge(); // Purge all connections to force re-reading config
 
-            // 4. Run Migrations
-            Artisan::call('migrate', ['--force' => true]);
-            
-            // 5. Run Seeds (Optional: check if already seeded to avoid unique constraint error)
-            try {
-                Artisan::call('db:seed', ['--force' => true]);
-            } catch (Exception $seedError) {
-                // Ignore seed errors if it's just duplicate data, we care mostly about migrations
-            }
-
-            // 6. Create Lock File
-            File::put(storage_path('app/setup.lock'), 'Setup completed at: ' . now());
+            // 3. Clear Config Cache
+            Artisan::call('config:clear');
+            Artisan::call('cache:clear');
 
             return response()->json([
                 'success' => true,
-                'message' => 'Database configured, migrated, and setup locked successfully!'
+                'step' => 2,
+                'message' => 'Environment updated! Now running migrations...'
             ]);
 
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Connection Failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function migrate()
+    {
+        if (File::exists(storage_path('app/setup.lock'))) {
+            return redirect()->route('login');
+        }
+
+        try {
+            // Force reload config for this request
+            Artisan::call('config:clear');
+
+            // Run Migrations
+            Artisan::call('migrate', ['--force' => true]);
+            
+            try {
+                Artisan::call('db:seed', ['--force' => true]);
+            } catch (Exception $e) {
+                // Ignore seed errors if already seeded
+            }
+
+            // Create Lock File
+            File::put(storage_path('app/setup.lock'), 'Setup completed at: ' . now());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Setup finished successfully!'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Migration Error: ' . $e->getMessage()
             ], 500);
         }
     }

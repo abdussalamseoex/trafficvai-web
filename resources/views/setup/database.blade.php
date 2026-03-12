@@ -70,23 +70,32 @@
             status.classList.add('hidden');
 
             try {
+                // Step 1: Save .env
                 const response = await fetch('/setup', {
                     method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                     body: formData
                 });
 
                 const data = await response.json();
+                if (!data.success) throw new Error(data.message);
 
-                if (data.success) {
-                    status.className = 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20 text-sm p-4 rounded-xl block';
-                    status.innerText = 'Success! Database connected and migrations finished. Redirecting...';
-                    setTimeout(() => window.location.href = '/login', 2000);
-                } else {
-                    throw new Error(data.message);
-                }
+                status.className = 'text-blue-400 bg-blue-400/10 border-blue-400/20 text-sm p-4 rounded-xl block';
+                status.innerText = 'Environment saved! Finalizing database tables...';
+                
+                // Step 2: Run Migrations (Fresh Request)
+                const migrateResp = await fetch('/setup/migrate', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                });
+
+                const migrateData = await migrateResp.json();
+                if (!migrateData.success) throw new Error(migrateData.message);
+
+                status.className = 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20 text-sm p-4 rounded-xl block';
+                status.innerText = 'Success! System is ready. Redirecting...';
+                setTimeout(() => window.location.href = '/login', 2000);
+
             } catch (err) {
                 status.className = 'text-rose-400 bg-rose-400/10 border-rose-400/20 text-sm p-4 rounded-xl block';
                 status.innerText = err.message;
