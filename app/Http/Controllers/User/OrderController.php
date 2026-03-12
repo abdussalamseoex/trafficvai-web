@@ -1,0 +1,143 @@
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
+{
+    public function index()
+    {
+        $orders = auth()->user()->orders()
+            ->with(['package.service', 'guestPostSite'])
+            ->withCount(['messages as unread_messages_count' => function ($query) {
+            $query->where('is_read', false)
+                ->whereHas('user', function ($q) {
+                $q->where('is_admin', true);
+            }
+            );
+        }])
+            ->latest()
+            ->get();
+        return view('client.orders.index', compact('orders'));
+    }
+
+    public function show(\App\Models\Order $order)
+    {
+        if ($order->user_id !== auth()->id())
+            abort(403);
+
+        $order->load(['package.service.requirements', 'requirements.serviceRequirement', 'guestPostSite', 'messages.user']);
+
+        // Mark admin messages as read
+        $order->messages()
+            ->where('is_read', false)
+            ->whereHas('user', function ($q) {
+            $q->where('is_admin', true);
+        })->update(['is_read' => true]);
+
+        return view('client.orders.show', compact('order'));
+    }
+
+    public function update(Request $request, \App\Models\Order $order)
+    {
+        if ($order->user_id !== auth()->id())
+            abort(403);
+
+        if ($order->package) {
+            $order->load('package.service.requirements');
+            $rules = [];
+            foreach ($order->package->service->requirements as $req) {
+                $rules['requirements.' . $req->id] = $req->is_required ? 'required|string' : 'nullable|string';
+                if ($req->type === 'url') {
+                    $rules['requirements.' . $req->id] .= '|url';
+                }
+            }
+            $validated = $request->validate($rules);
+            foreach ($validated['requirements'] as $reqId => $val) {
+                $order->requirements()->updateOrCreate(
+                ['service_requirement_id' => $reqId],
+                ['value' => $val]
+                );
+            }
+        }
+        else if ($order->guestPostSite) {
+            $rules = [
+                'guest_post_url' => 'required|url|max:255',
+                'guest_post_anchor' => 'required|string|max:255',
+            ];
+
+            if ($order->service_tier === 'placement') {
+                $rules['article_body'] = 'required|string';
+            }
+
+            $validated = $request->validate($rules);
+            $order->update($validated);
+        }
+
+        $expectedDeliveryDate = null;
+        if ($order->package && $order->package->turnaround_time_days) {
+            $days = $order->package->turnaround_time_days;
+            if ($order->is_emergency) {
+                $days = $order->package->express_turnaround_time_days ?? ceil($days / 2);
+            }
+            $expectedDeliveryDate = now()->addDays($days);
+        }
+        elseif ($order->guestPostSite) {
+            $days = $order->guestPostSite->delivery_time_days ?: 7; // Fallback to 7 days
+            if ($order->is_emergency) {
+                $days = $order->guestPostSite->express_delivery_time_days ?: ceil($days / 2);
+            }
+            $expectedDeliveryDate = now()->addDays($days);
+        }
+
+        $newStatus = 'processing';
+        if ($order->status === 'pending_payment') {
+            $newStatus = 'pending_payment';
+        }
+
+        $order->update([
+            'status' => $newStatus,
+            'expected_delivery_date' => $expectedDeliveryDate
+        ]);
+
+        return redirect()->route('client.orders.show', $order)->with('success', 'Requirements submitted successfully. We are now processing your order.');
+    }
+
+    public function submitProof(Request $request, \App\Models\Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'transaction_id' => 'nullable|string|max:255',
+            'sender_number' => 'required|string|max:20',
+            'payment_proof' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        ]);
+
+        $data = [
+            'transaction_id' => $request->transaction_id,
+            'sender_number' => $request->sender_number,
+        ];
+
+        if ($request->hasFile('payment_proof')) {
+            $path = $request->file('payment_proof')->store('payment_proofs', 'public');
+            $data['payment_proof'] = $path;
+        }
+
+        $order->update($data);
+
+        return redirect()->route('client.orders.show', $order)->with('success', 'Payment details submitted successfully. Our team will verify and activate your order shortly.');
+    }
+    public function invoice(\App\Models\Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $order->load(['package.service', 'guestPostSite', 'addons']);
+        return view('client.orders.invoice', compact('order'));
+    }
+}

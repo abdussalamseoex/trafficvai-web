@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Mail\BulkAnnouncement;
+use App\Models\Announcement;
+use App\Models\User;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
+
+class SendBulkEmailJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $announcement;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(Announcement $announcement)
+    {
+        $this->announcement = $announcement;
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        // Change status to processing
+        $this->announcement->update(['status' => 'processing']);
+
+        // Only send to actual clients (is_admin = 0 and role = 'client')
+        $clients = User::where('is_admin', false)->where('role', 'client')->get();
+
+        foreach ($clients as $client) {
+            Mail::to($client->email)->send(new BulkAnnouncement($this->announcement));
+        }
+
+        // Mark as sent
+        $this->announcement->update([
+            'status' => 'sent',
+            'sent_at' => now(),
+        ]);
+    }
+}

@@ -1,0 +1,183 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Add New Guest Post Site') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.guest-posts.store') }}">
+                        @csrf
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- URL -->
+                            <div>
+                                <x-input-label for="url" :value="__('Website URL')" />
+                                <x-text-input id="url" class="block mt-1 w-full" type="url" name="url" :value="old('url')" required autofocus placeholder="https://example.com" />
+                                <x-input-error :messages="$errors->get('url')" class="mt-2" />
+                            </div>
+
+                            <!-- Niche -->
+                            <div>
+                                <x-input-label for="niche" :value="__('Niche / Category')" />
+                                <x-text-input id="niche" class="block mt-1 w-full" type="text" name="niche" :value="old('niche')" required placeholder="e.g. Technology, Health" />
+                                <x-input-error :messages="$errors->get('niche')" class="mt-2" />
+                            </div>
+
+                            <!-- DA -->
+                            <div>
+                                <x-input-label for="da" :value="__('Domain Authority (DA)')" />
+                                <x-text-input id="da" class="block mt-1 w-full" type="number" name="da" min="0" max="100" :value="old('da')" />
+                                <x-input-error :messages="$errors->get('da')" class="mt-2" />
+                            </div>
+
+                            <!-- DR -->
+                            <div>
+                                <x-input-label for="dr" :value="__('Domain Rating (DR)')" />
+                                <x-text-input id="dr" class="block mt-1 w-full" type="number" name="dr" min="0" max="100" :value="old('dr')" />
+                                <x-input-error :messages="$errors->get('dr')" class="mt-2" />
+                            </div>
+
+                            <!-- Traffic -->
+                            <div>
+                                <x-input-label for="traffic" :value="__('Monthly Traffic')" />
+                                <x-text-input id="traffic" class="block mt-1 w-full" type="number" name="traffic" min="0" :value="old('traffic')" />
+                                <x-input-error :messages="$errors->get('traffic')" class="mt-2" />
+                            </div>
+
+                            <!-- Price (Placement) -->
+                            <div>
+                                <x-input-label for="price" :value="__('Placement Price ($)')" />
+                                <x-text-input id="price" class="block mt-1 w-full" type="number" step="0.01" name="price" min="0" :value="old('price')" required />
+                                <x-input-error :messages="$errors->get('price')" class="mt-2" />
+                            </div>
+
+                            <!-- Price (Creation & Placement) -->
+                            <div>
+                                <x-input-label for="price_creation_placement" :value="__('Creation & Placement Price ($)')" />
+                                <x-text-input id="price_creation_placement" class="block mt-1 w-full" type="number" step="0.01" name="price_creation_placement" min="0" :value="old('price_creation_placement')" />
+                                <x-input-error :messages="$errors->get('price_creation_placement')" class="mt-2" />
+                            </div>
+
+                            <!-- Price (Link Insertion) -->
+                            <div>
+                                <x-input-label for="price_link_insertion" :value="__('Link Insertion Price ($)')" />
+                                <x-text-input id="price_link_insertion" class="block mt-1 w-full" type="number" step="0.01" name="price_link_insertion" min="0" :value="old('price_link_insertion')" />
+                                <x-input-error :messages="$errors->get('price_link_insertion')" class="mt-2" />
+                            </div>
+
+                            <!-- Link Type -->
+                            <div>
+                                <x-input-label for="link_type" :value="__('Link Type')" />
+                                <select id="link_type" name="link_type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="DoFollow" {{ old('link_type') == 'DoFollow' ? 'selected' : '' }}>DoFollow</option>
+                                    <option value="NoFollow" {{ old('link_type') == 'NoFollow' ? 'selected' : '' }}>NoFollow</option>
+                                </select>
+                                <x-input-error :messages="$errors->get('link_type')" class="mt-2" />
+                            </div>
+
+                            <!-- Max Links Allowed -->
+                            <div>
+                                <x-input-label for="max_links_allowed" :value="__('Max Links Allowed')" />
+                                <x-text-input id="max_links_allowed" class="block mt-1 w-full" type="number" name="max_links_allowed" min="1" :value="old('max_links_allowed', 1)" required />
+                                <x-input-error :messages="$errors->get('max_links_allowed')" class="mt-2" />
+                            </div>
+
+                            <!-- Language -->
+                            <div>
+                                <x-input-label for="language" :value="__('Language')" />
+                                <x-text-input id="language" class="block mt-1 w-full" type="text" name="language" :value="old('language', 'English')" required />
+                                <x-input-error :messages="$errors->get('language')" class="mt-2" />
+                            </div>
+
+                            <!-- Service Type -->
+                            <div>
+                                <x-input-label for="service_type" :value="__('Service Type')" />
+                                <select id="service_type" name="service_type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="Guest Post" {{ old('service_type') == 'Guest Post' ? 'selected' : '' }}>Guest Post</option>
+                                    <option value="Link Insertion" {{ old('service_type') == 'Link Insertion' ? 'selected' : '' }}>Link Insertion</option>
+                                    <option value="Press Release" {{ old('service_type') == 'Press Release' ? 'selected' : '' }}>Press Release</option>
+                                </select>
+                                <x-input-error :messages="$errors->get('service_type')" class="mt-2" />
+                            </div>
+
+                            <!-- Spam Score -->
+                            <div>
+                                <x-input-label for="spam_score" :value="__('Spam Score (%)')" />
+                                <x-text-input id="spam_score" class="block mt-1 w-full" type="number" name="spam_score" min="0" max="100" :value="old('spam_score')" />
+                                <x-input-error :messages="$errors->get('spam_score')" class="mt-2" />
+                            </div>
+                            
+                            <!-- Delivery Time Days -->
+                            <div>
+                                <x-input-label for="delivery_time_days" :value="__('Turnaround Time (TAT) in Days')" />
+                                <x-text-input id="delivery_time_days" class="block mt-1 w-full" type="number" name="delivery_time_days" min="1" :value="old('delivery_time_days')" placeholder="e.g. 3" />
+                                <p class="text-xs text-gray-500 mt-1">Average days to deliver</p>
+                                <x-input-error :messages="$errors->get('delivery_time_days')" class="mt-2" />
+                            </div>
+
+                            <!-- Express Delivery Time Days -->
+                            <div>
+                                <x-input-label for="express_delivery_time_days" :value="__('Express Turnaround Time (Days)')" />
+                                <x-text-input id="express_delivery_time_days" class="block mt-1 w-full" type="number" name="express_delivery_time_days" min="1" :value="old('express_delivery_time_days')" placeholder="e.g. 1" />
+                                <p class="text-xs text-gray-500 mt-1">Faster delivery option (optional)</p>
+                                <x-input-error :messages="$errors->get('express_delivery_time_days')" class="mt-2" />
+                            </div>
+
+                            <!-- Word Count -->
+                            <div>
+                                <x-input-label for="word_count" :value="__('Article Word Count (For Creation Phase)')" />
+                                <x-text-input id="word_count" class="block mt-1 w-full" type="number" name="word_count" min="100" step="50" :value="old('word_count', 500)" placeholder="e.g. 500" />
+                                <p class="text-xs text-gray-500 mt-1">Default words for Creation & Placement</p>
+                                <x-input-error :messages="$errors->get('word_count')" class="mt-2" />
+                            </div>
+
+                            <!-- Sample Post URL -->
+                            <div class="md:col-span-2">
+                                <x-input-label for="sample_post_url" :value="__('Sample Post URL')" />
+                                <x-text-input id="sample_post_url" class="block mt-1 w-full" type="url" name="sample_post_url" :value="old('sample_post_url')" placeholder="https://example.com/sample-post" />
+                                <p class="text-sm text-gray-500 mt-1">A link to a live example guest post to show clients.</p>
+                                <x-input-error :messages="$errors->get('sample_post_url')" class="mt-2" />
+                            </div>
+
+                            <!-- Description -->
+                            <div class="md:col-span-2">
+                                <x-input-label for="description" :value="__('Description / Editor Notes')" />
+                                <textarea id="description" name="description" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="4" placeholder="Any specific rules or notes about this website...">{{ old('description') }}</textarea>
+                                <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <!-- Is Sponsored -->
+                        <div class="block mt-4">
+                            <label for="is_sponsored" class="inline-flex items-center">
+                                <input id="is_sponsored" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="is_sponsored" value="1" {{ old('is_sponsored') ? 'checked' : '' }}>
+                                <span class="ms-2 text-sm text-gray-600">{{ __('Marked As Sponsored') }}</span>
+                            </label>
+                            <x-input-error :messages="$errors->get('is_sponsored')" class="mt-2" />
+                        </div>
+
+                        <!-- Is Active -->
+                        <div class="block mt-4">
+                            <label for="is_active" class="inline-flex items-center">
+                                <input id="is_active" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
+                                <span class="ms-2 text-sm text-gray-600">{{ __('Listed publicly in Guest Post Inventory') }}</span>
+                            </label>
+                            <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
+                        </div>
+
+                        <div class="flex items-center justify-end mt-4">
+                            <a href="{{ route('admin.guest-posts.index') }}" class="text-gray-600 hover:underline mr-4">Cancel</a>
+                            <x-primary-button>
+                                {{ __('Save Site') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

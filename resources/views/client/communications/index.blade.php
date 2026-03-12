@@ -1,0 +1,403 @@
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex items-center justify-between">
+            <h2 class="font-black text-2xl text-gray-900 tracking-tight">
+                Messages <span class="text-purple-600 block text-[10px] uppercase tracking-[0.3em] font-black mt-0.5">Secure Communication Link</span>
+            </h2>
+            <div class="flex items-center space-x-3">
+                <button @click.prevent="$dispatch('open-support-chat')" class="bg-purple-600 text-white px-5 py-2 rounded-xl font-bold text-xs hover:bg-purple-700 transition-all shadow-lg shadow-purple-200 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    New Chat
+                </button>
+            </div>
+        </div>
+    </x-slot>
+
+    <div class="py-4 h-[calc(100vh-140px)] min-h-[600px]">
+        <div class="max-w-[1600px] mx-auto h-full px-4 sm:px-6 lg:px-8" x-data="communicationHub()" x-init="init()">
+            <div class="bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden flex h-full relative">
+                
+                <!-- Sidebar: Conversation List -->
+                <div 
+                    class="w-full md:w-80 lg:w-[380px] border-r border-gray-100 flex flex-col bg-white z-20 transition-all duration-300 shrink-0"
+                    :class="activeConv ? 'hidden md:flex' : 'flex'"
+                >
+                    <!-- Search & Header -->
+                    <div class="p-6 space-y-4 flex-shrink-0">
+                        <div class="relative group">
+                            <input 
+                                type="text" 
+                                x-model="search"
+                                placeholder="Search contacts..." 
+                                class="w-full bg-[#f3f4f6] border-none rounded-xl pl-10 pr-10 py-3 text-sm focus:ring-2 focus:ring-purple-600 transition-all placeholder:text-gray-400 font-medium"
+                            >
+                            <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <svg class="w-4 h-4 absolute right-3.5 top-3.5 text-gray-400 cursor-pointer hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4.5h18m-18 6h18m-18 6h18"></path></svg>
+                        </div>
+
+                        <!-- Filter Tabs -->
+                        <div class="flex space-x-2">
+                            <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-[#9333ea] text-white shadow-md' : 'bg-[#f3f4f6] text-gray-500 hover:text-gray-700'" class="px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">All</button>
+                            <button @click="filter = 'order'" :class="filter === 'order' ? 'bg-[#9333ea] text-white shadow-md' : 'bg-[#f3f4f6] text-gray-500 hover:text-gray-700'" class="px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">Orders</button>
+                            <button @click="filter = 'direct'" :class="filter === 'direct' ? 'bg-[#9333ea] text-white shadow-md' : 'bg-[#f3f4f6] text-gray-500 hover:text-gray-700'" class="px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">Direct</button>
+                        </div>
+                    </div>
+
+                    <!-- List Area -->
+                    <div class="flex-1 overflow-y-auto px-2 space-y-1 pb-8 min-h-0 custom-scrollbar scroll-smooth">
+                        <template x-for="conv in filteredConversations" :key="conv.type + '-' + (conv.id || Math.random())">
+                            <button 
+                                @click="selectConversation(conv)"
+                                :class="isActive(conv) ? 'bg-[#f8f6ff]' : 'bg-white hover:bg-gray-50'"
+                                class="w-full flex items-start p-4 transition-all duration-200 group text-left relative overflow-hidden rounded-xl"
+                            >
+                                <div class="relative shrink-0">
+                                    <div class="w-12 h-12 rounded-lg bg-purple-600 flex items-center justify-center shadow-md transform transition-transform group-hover:scale-105 overflow-hidden">
+                                        <template x-if="conv.client && conv.client.avatar_url">
+                                            <img :src="conv.client.avatar_url" class="w-full h-full object-cover">
+                                        </template>
+                                        <template x-if="!conv.client || !conv.client.avatar_url">
+                                            <span class="text-white text-lg font-black" x-text="(conv.title || 'U').substring(0,1).toUpperCase()"></span>
+                                        </template>
+                                    </div>
+                                    <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                                </div>
+                                
+                                <div class="ml-4 flex-1 min-w-0">
+                                    <div class="flex items-center justify-between mb-0.5">
+                                        <h4 class="text-sm font-black text-gray-900 truncate tracking-tight pr-2" x-text="conv.type === 'order' ? conv.title : (conv.client ? conv.client.name : conv.title)"></h4>
+                                        <span class="text-[10px] text-gray-400 font-medium flex-shrink-0" x-text="formatTime(conv.created_at)"></span>
+                                    </div>
+                                    <p class="text-[11px] text-[#9333ea] font-medium uppercase tracking-tighter mb-1" x-text="conv.type === 'order' ? 'Order ID: #' + conv.id : 'Direct Admin Link'"></p>
+                                    <p class="text-xs truncate text-gray-500 font-medium" x-text="conv.last_message ? conv.last_message.message : 'Awaiting uplink...'"></p>
+                                </div>
+                                
+                                <div x-show="conv.unread_count > 0" class="absolute right-4 bottom-4 w-5 h-5 bg-purple-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+                                    <span x-text="conv.unread_count"></span>
+                                </div>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Main: Message Window -->
+                <div 
+                    class="flex-1 flex flex-col bg-white overflow-hidden relative z-10 min-h-0"
+                    :class="activeConv ? 'flex' : 'hidden md:flex'"
+                >
+                    <div x-show="activeConv" class="flex flex-col flex-1 min-h-0" x-cloak>
+                        <!-- Chat Header -->
+                            <div class="px-8 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 z-20">
+                                <div class="flex items-center min-w-0">
+                                    <button @click="activeConv = null" class="md:hidden mr-4 p-1 text-gray-400 hover:text-purple-600 transition-colors">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white text-lg font-black shadow-md mr-4 overflow-hidden relative shrink-0">
+                                        <template x-if="activeConv.client && activeConv.client.avatar_url">
+                                            <img :src="activeConv.client.avatar_url" class="w-full h-full object-cover">
+                                        </template>
+                                        <template x-if="activeConv && (!activeConv.client || !activeConv.client.avatar_url)">
+                                            <span x-text="(activeDetails.title || (activeConv ? activeConv.title : 'U')).substring(0,1).toUpperCase()"></span>
+                                        </template>
+                                        <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h3 class="font-black text-base text-gray-900 truncate tracking-tight" x-text="activeDetails.title || (activeConv && activeConv.client ? activeConv.client.name : (activeConv ? activeConv.title : ''))"></h3>
+                                        <p class="text-[11px] font-medium text-purple-600 uppercase tracking-tighter" x-text="activeDetails.subtitle || (activeConv && activeConv.type === 'order' ? 'Order Segment: LE' + activeConv.id : 'Active Correspondence Hub')"></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3 shrink-0">
+                                    <template x-if="activeConv && activeConv.type === 'order' && activeDetails.link">
+                                        <a :href="activeDetails.link" class="px-3 py-1.5 bg-gray-900 text-white rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all">Go to Order</a>
+                                    </template>
+                                    <button class="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-all">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Messages Area -->
+                            <div 
+                                x-ref="messagesBox" 
+                                class="flex-1 overflow-y-auto p-10 space-y-6 bg-white custom-scrollbar scroll-smooth relative"
+                                :class="loadingMessages ? 'opacity-50' : ''"
+                            >
+                                <template x-for="msg in messages" :key="msg.id">
+                                    <div class="flex flex-col group" :class="msg.is_self ? 'items-end' : 'items-start'">
+                                        <div class="flex flex-col max-w-[75%]" :class="msg.is_self ? 'items-end' : 'items-start'">
+                                            <div 
+                                                class="px-5 py-4 shadow-none relative text-sm font-medium leading-relaxed"
+                                                :class="msg.is_self ? 'bg-[#9333ea] text-white rounded-[1.25rem] rounded-tr-none shadow-lg shadow-purple-100' : 'bg-[#f3f4f6] text-gray-700 rounded-[1.25rem] rounded-tl-none'"
+                                            >
+                                                <p class="whitespace-pre-wrap" x-text="msg.message"></p>
+                                                
+                                                <template x-if="msg.attachment_path">
+                                                    <div class="mt-3 pt-3 border-t" :class="msg.is_self ? 'border-white/20' : 'border-gray-200'">
+                                                        <template x-if="msg.attachment_path.match(/\.(jpeg|jpg|gif|png|webp|bmp|svg)(\?.*)?$/i)">
+                                                            <div class="mb-1 relative group overflow-hidden rounded-xl bg-black/5 inline-block">
+                                                                <img :src="msg.attachment_path" class="max-w-full sm:max-w-[250px] max-h-[250px] object-cover rounded-xl transition-transform duration-300 group-hover:scale-105" alt="Attachment" />
+                                                                <a :href="msg.attachment_path" download class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                                    <span class="p-2.5 bg-white text-gray-900 rounded-full shadow-lg transform scale-75 group-hover:scale-100 transition-transform">
+                                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="!msg.attachment_path.match(/\.(jpeg|jpg|gif|png|webp|bmp|svg)(\?.*)?$/i)">
+                                                            <a :href="msg.attachment_path" download class="flex justify-between items-center p-2.5 rounded-xl transition-all hover:bg-black/5 group/link" :class="msg.is_self ? 'text-white bg-white/10' : 'text-purple-600 bg-black/5'">
+                                                                <div class="flex items-center min-w-0 pr-3">
+                                                                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                                    <span class="text-[10px] font-black uppercase truncate" x-text="msg.attachment_name || 'Attachment'"></span>
+                                                                </div>
+                                                                <div class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors shadow-sm" :class="msg.is_self ? 'bg-white/20 group-hover/link:bg-white group-hover/link:text-purple-600' : 'bg-purple-100 group-hover/link:bg-purple-600 group-hover/link:text-white'">
+                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                                </div>
+                                                            </a>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div class="flex items-center mt-1.5 space-x-1 group-hover:opacity-100 transition-opacity" :class="msg.is_self ? 'justify-end' : 'justify-start'">
+                                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1" x-text="msg.full_date || msg.created_at"></span>
+                                                <template x-if="msg.is_self">
+                                                    <div>
+                                                        <!-- Read -->
+                                                        <svg x-show="msg.is_read" class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7m-6 8l3 3L22 7"></path></svg>
+                                                        <!-- Sent/Delivered but unread -->
+                                                        <svg x-show="!msg.is_read" class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Chat Input Area (Redesigned & Cleaned up) -->
+                            <div class="px-8 py-6 bg-white border-t border-gray-50 flex items-center shrink-0">
+                                <div class="flex-1 flex items-end space-x-3 bg-[#f3f4f6] border border-transparent focus-within:border-purple-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-purple-100 rounded-3xl p-2 transition-all duration-300 shadow-inner">
+                                    
+                                    <!-- Attachment Button -->
+                                    <label class="p-3 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full cursor-pointer transition-all shrink-0">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                        <input type="file" class="hidden" x-ref="attachmentInput" @change="handleFileUpload">
+                                    </label>
+                                    
+                                    <!-- Textarea Input -->
+                                    <div class="flex-1 max-w-full">
+                                        <div x-show="newMessage && newMessage.startsWith('[Asset:')" class="text-xs font-bold text-purple-600 mb-1 px-3 break-all flex items-center">
+                                            <svg class="w-3 h-3 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                            <span x-text="newMessage.substring(0, newMessage.indexOf(']')+1) + ' attached'"></span>
+                                        </div>
+                                        <textarea 
+                                            x-model="newMessage" 
+                                            @keydown.enter.prevent="if(!isSending && (newMessage.trim() || $refs.attachmentInput.files.length)) sendMessage()"
+                                            rows="1" 
+                                            placeholder="Type your message here..." 
+                                            class="w-full bg-transparent border-none focus:ring-0 text-[15px] font-medium p-3 pb-3.5 resize-none placeholder:text-gray-400 scrollbar-hide h-14 overflow-hidden"
+                                        ></textarea>
+                                    </div>
+                                    
+                                    <!-- Send Button -->
+                                    <button 
+                                        @click="sendMessage()"
+                                        :disabled="isSending || (!newMessage.trim() && !$refs.attachmentInput.files.length)"
+                                        class="p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:opacity-50 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-all shrink-0 shadow-md transform active:scale-95"
+                                        title="Send message"
+                                    >
+                                        <svg class="w-6 h-6 translate-x-0.5 -translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- Placeholder -->
+                    <div x-show="!activeConv" class="flex-1 flex flex-col items-center justify-center p-20 text-center bg-gray-50/10">
+                        <div class="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center text-purple-100 mb-8 shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-gray-50 animate-pulse">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                        </div>
+                        <h3 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Select a Transmission</h3>
+                        <p class="text-gray-400 max-w-xs mx-auto text-[10px] font-black uppercase tracking-[0.2em]">Operational Support Line Ready</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function communicationHub() {
+        return {
+            conversations: @js($conversations),
+            search: '',
+            messageSearch: '',
+            filter: 'all',
+            activeConv: null,
+            activeDetails: { title: '', subtitle: '', link: '#' },
+            messages: [],
+            newMessage: '',
+            isSending: false,
+            loadingMessages: false,
+            pollInterval: null,
+
+            init() {
+                console.log('Central Hub Online.');
+                this.pollInterval = setInterval(() => {
+                    if (this.activeConv && !this.isSending) {
+                        this.fetchMessages(this.activeConv, true);
+                    }
+                }, 3000);
+            },
+
+            isActive(conv) {
+                return this.activeConv && this.activeConv.id == conv.id && this.activeConv.type == conv.type;
+            },
+
+            get filteredConversations() {
+                return this.conversations.filter(c => {
+                    const title = (c.client ? c.client.name : c.title) || '';
+                    const matchesSearch = title.toLowerCase().includes(this.search.toLowerCase());
+                    const matchesFilter = this.filter === 'all' || c.type === this.filter;
+                    return matchesSearch && matchesFilter;
+                });
+            },
+
+            get filteredMessages() {
+                if (!this.messageSearch) return this.messages;
+                return this.messages.filter(m => {
+                    return m.message && m.message.toLowerCase().includes(this.messageSearch.toLowerCase());
+                });
+            },
+
+            async selectConversation(conv) {
+                this.activeConv = conv;
+                this.messages = [];
+                this.loadingMessages = true;
+                this.messageSearch = '';
+                await this.fetchMessages(conv);
+            },
+
+            async fetchMessages(conv, hidden = false) {
+                try {
+                    const response = await fetch(`{{ route('inbox.messages') }}?type=${conv.type}&id=${conv.id}`);
+                    const data = await response.json();
+                    
+                    const oldLength = this.messages.length;
+                    this.messages = data.messages;
+                    this.activeDetails = data.details || { title: '', subtitle: '', link: '#' };
+                    
+                    if (!hidden || data.messages.length > oldLength) {
+                        this.scrollToBottom();
+                    }
+
+                    if (conv.unread_count > 0) {
+                        window.dispatchEvent(new CustomEvent('message-read', { detail: { count: conv.unread_count } }));
+                        conv.unread_count = 0;
+                    }
+                } catch (e) {
+                    if(!hidden) console.error('Data Fetch Error:', e);
+                } finally {
+                    if(!hidden) this.loadingMessages = false;
+                }
+            },
+
+            async sendMessage() {
+                const fileInput = this.$refs.attachmentInput;
+                const file = fileInput ? fileInput.files[0] : null;
+
+                if ((!this.newMessage.trim() && !file) || this.isSending) return;
+                this.isSending = true;
+
+                const url = this.activeConv.type === 'order' 
+                    ? `/orders/${this.activeConv.id}/messages` 
+                    : '{{ route("support.messages.store") }}';
+
+                let formData = new FormData();
+                
+                let actualMessage = this.newMessage;
+                if (file && actualMessage.startsWith('[Asset: ')) {
+                    actualMessage = actualMessage.substring(actualMessage.indexOf(']') + 1).trim();
+                }
+                
+                if (!actualMessage && file) {
+                    actualMessage = 'Sent an attachment'; // Default message if only sending file
+                }
+
+                formData.append('message', actualMessage);
+                if (file) formData.append('attachment', file);
+                if (this.activeConv.type === 'direct') formData.append('client_id', this.activeConv.id);
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.message || 'Transmission Interrupted');
+                    }
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        this.messages.push(data.message);
+                        this.newMessage = '';
+                        if (fileInput) fileInput.value = '';
+                        // Do not clear the search on send because user might still be searching, or clear it?
+                        this.messageSearch = ''; 
+                        this.scrollToBottom();
+                        
+                        this.activeConv.last_message = {
+                            message: data.message.message,
+                            created_at: new Date().toISOString()
+                        };
+                    }
+                } catch (e) {
+                    console.error('Dispatch Fail:', e);
+                    alert('Error: ' + e.message);
+                } finally {
+                    this.isSending = false;
+                }
+            },
+
+            handleFileUpload(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                this.newMessage = "[Asset: " + file.name + "] " + this.newMessage;
+            },
+
+            scrollToBottom() {
+                this.$nextTick(() => {
+                    const box = this.$refs.messagesBox;
+                    if (box) box.scrollTop = box.scrollHeight;
+                });
+            },
+
+            formatTime(timestamp) {
+                if (!timestamp) return '';
+                const date = new Date(timestamp);
+                if (isNaN(date.getTime())) return timestamp;
+                const now = new Date();
+                const diff = now - date;
+                if (diff < 3600000) return Math.floor(Math.max(0, diff / 60000)) + 'm ago';
+                if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+                if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+                return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            }
+        }
+    }
+    </script>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        [x-cloak] { display: none !important; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</x-app-layout>

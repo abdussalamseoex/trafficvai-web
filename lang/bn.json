@@ -1,0 +1,13 @@
+{
+    "Enter Transaction ID": "ট্রানজেকশন আইডি দিন",
+    "Enter Phone Number": "ফোন নম্বর লিখুন",
+    "Recipient Number": "প্রাপক নম্বর",
+    "Number Copied!": "নম্বরটি কপি করা হয়েছে!",
+    "Copy": "কপি",
+    "Amount": "টাকার পরিমাণ",
+    "Confirm by entering your :method PIN.": "নিশ্চিত করতে এখন আপনার :method মোবাইল মেনু পিন লিখুন।",
+    "If everything is correct, you will receive a confirmation message from :method.": "সবকিছু ঠিক থাকলে, আপনি :method থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।",
+    "Now enter your": "এখন উপরের বক্সে আপনার",
+    "Transaction ID": "Transaction ID",
+    "above and click VERIFY.": "দিন এবং নিচের VERIFY বাটনে ক্লিক করুন।"
+}

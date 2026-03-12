@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $title }} - {{ config('app.name', 'Laravel') }}</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+    @php $favicon = \App\Models\Setting::get('site_favicon'); @endphp
+    @if($favicon)
+    <link rel="icon" type="image/x-icon" href="{{ asset($favicon) }}">
+    @endif
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="font-sans antialiased text-gray-900 bg-gray-50">
+    <div class="min-h-screen bg-gray-50">
+        <!-- Navigation -->
+        <x-frontend-header />
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl mb-4">
+                    {{ $title }} Services
+                </h1>
+                <p class="max-w-2xl mx-auto text-xl text-gray-500">
+                    Choose from our result-driven {{ strtolower($title) }} packages tailored for your specific needs.
+                </p>
+            </div>
+            
+            @foreach ($categories as $category)
+                @if($category->services->count() > 0)
+                <div class="mb-16">
+                    <h2 class="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">{{ $category->name }}</h2>
+                    @if($category->description)
+                        <p class="text-gray-500 mb-8 text-base">{{ $category->description }}</p>
+                    @endif
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach ($category->services as $service)
+                        <div class="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col" style="border-top: 3px solid transparent;" onmouseenter="this.style.borderTop='3px solid #ff6b00'" onmouseleave="this.style.borderTop='3px solid transparent'">
+                            <h3 class="text-lg font-extrabold text-blue-700 mb-2 leading-tight">{{ $service->name }}</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed flex-1 mb-5">{{ Str::limit($service->description, 100) }}</p>
+                            <div class="flex flex-wrap gap-2 mb-5">
+                                @if($service->packages->count() > 0)
+                                <span class="border border-brand text-brand text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">FROM <span class="price-convert" data-base-price="{{ $service->packages->min('price') }}">${{ number_format($service->packages->min('price'), 0) }}</span></span>
+                                <span class="border border-green-500 text-green-600 text-xs font-bold px-3 py-1 rounded-full">{{ $service->packages->count() }} PLANS</span>
+                                @endif
+                            </div>
+                            <a href="{{ route('campaigns.show', ['type' => $type, 'service' => $service->slug]) }}" class="w-full inline-flex items-center justify-center bg-brand hover:opacity-90 text-white font-bold text-sm py-3 px-4 rounded-xl transition-all duration-200 shadow-md">
+                                View Packages
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                            </a>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            @endforeach
+
+            @if ($uncategorizedServices->count() > 0)
+                <div class="mb-16">
+                    @if($categories->count() > 0)
+                    <h2 class="text-3xl font-extrabold text-gray-900 mb-8 tracking-tight">Other Services</h2>
+                    @endif
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach ($uncategorizedServices as $service)
+                        <div class="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col" style="border-top: 3px solid transparent;" onmouseenter="this.style.borderTop='3px solid #ff6b00'" onmouseleave="this.style.borderTop='3px solid transparent'">
+                            <h3 class="text-lg font-extrabold text-blue-700 mb-2 leading-tight">{{ $service->name }}</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed flex-1 mb-5">{{ Str::limit($service->description, 100) }}</p>
+                            <div class="flex flex-wrap gap-2 mb-5">
+                                @if($service->packages->count() > 0)
+                                <span class="border border-brand text-brand text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">FROM <span class="price-convert" data-base-price="{{ $service->packages->min('price') }}">${{ number_format($service->packages->min('price'), 0) }}</span></span>
+                                <span class="border border-green-500 text-green-600 text-xs font-bold px-3 py-1 rounded-full">{{ $service->packages->count() }} PLANS</span>
+                                @endif
+                            </div>
+                            <a href="{{ route('campaigns.show', ['type' => $type, 'service' => $service->slug]) }}" class="w-full inline-flex items-center justify-center bg-brand hover:opacity-90 text-white font-bold text-sm py-3 px-4 rounded-xl transition-all duration-200 shadow-md">
+                                View Packages
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                            </a>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if ($categories->isEmpty() && $uncategorizedServices->isEmpty())
+                <div class="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <h3 class="text-xl font-medium text-gray-900">No Services Yet</h3>
+                    <p class="mt-2 text-gray-500">Coming soon. Check back later!</p>
+                </div>
+            @endif
+        </main>
+    </div>
+    <x-frontend-footer />
+    <x-currency-script />
+</body>
+</html>
