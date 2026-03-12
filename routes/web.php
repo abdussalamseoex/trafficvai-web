@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'index'])->name('setup.index');
+Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'setup'])->name('setup.save');
+
 Route::get('/', function () {
     $preview = request()->has('preview') && auth()->check() && auth()->user()->is_admin;
     $sections = \App\Models\HomeSection::orderBy('order')
