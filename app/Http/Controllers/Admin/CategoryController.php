@@ -52,6 +52,12 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
     }
 
+    public function show(Category $category)
+    {
+        $category->load(['services', 'posts', 'parent', 'children']);
+        return view('admin.categories.show', compact('category'));
+    }
+
     public function edit(Category $category)
     {
         $categories = Category::whereNull('parent_id')->where('id', '!=', $category->id)->get();
