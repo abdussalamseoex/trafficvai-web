@@ -191,15 +191,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     Route::get('/posts', [\App\Http\Controllers\Admin\SeoManagerController::class , 'posts'])->name('posts');
                     Route::get('/categories', [\App\Http\Controllers\Admin\SeoManagerController::class , 'categories'])->name('categories');
 
-                    Route::get('/edit/{type}/{id}', [\App\Http\Controllers\Admin\SeoManagerController::class , 'edit'])->name('edit');
-                    Route::post('/update/{type}/{id}', [\App\Http\Controllers\Admin\SeoManagerController::class , 'update'])->name('update');
-                }
-                );
-            }
-            );
+                Route::get('/edit/{type}/{id}', [\App\Http\Controllers\Admin\SeoManagerController::class , 'edit'])->name('edit');
+                Route::post('/update/{type}/{id}', [\App\Http\Controllers\Admin\SeoManagerController::class , 'update'])->name('update');
+            });
+        });
 
-            // Client Routes
-            Route::group(['prefix' => 'client', 'as' => 'client.'], function () {
+    // Client Routes
+    Route::group(['prefix' => 'client', 'as' => 'client.'], function () {
             Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class , 'index'])->name('dashboard');
             Route::resource('/orders', \App\Http\Controllers\User\OrderController::class);
             Route::get('/orders/{order}/invoice', [\App\Http\Controllers\User\OrderController::class , 'invoice'])->name('orders.invoice');
@@ -249,11 +247,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     Route::get('/topup', [\App\Http\Controllers\User\PaymentController::class , 'topup'])->name('topup');
                     Route::post('/topup', [\App\Http\Controllers\User\PaymentController::class , 'processTopup'])->name('topup.process');
                     Route::post('/topup/manual', [\App\Http\Controllers\User\PaymentController::class , 'submitManualProof'])->name('topup.manual');
-                }
-                );
-            }
-            );
-        });
+                });
+            });
+    });
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
