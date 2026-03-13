@@ -47,7 +47,7 @@
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @if($post->featured_image)
-                                                    <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}" class="h-10 w-16 object-cover rounded shadow-sm">
+                                                    <img src="{{ Storage::disk('public')->url($post->featured_image) }}" alt="{{ $post->title }}" class="h-10 w-16 object-cover rounded shadow-sm">
                                                 @else
                                                     <div class="h-10 w-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs shadow-sm">No Img</div>
                                                 @endif

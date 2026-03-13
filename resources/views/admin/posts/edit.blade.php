@@ -53,7 +53,7 @@
                                     @if($post->featured_image)
                                         <div class="mb-3">
                                             <p class="text-xs text-gray-500 mb-1">Current Image:</p>
-                                            <img src="{{ Storage::url($post->featured_image) }}" alt="Preview" class="w-full h-auto rounded shadow-sm">
+                                            <img src="{{ Storage::disk('public')->url($post->featured_image) }}" alt="Preview" class="w-full h-auto rounded shadow-sm">
                                         </div>
                                     @endif
 

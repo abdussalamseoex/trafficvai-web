@@ -79,7 +79,7 @@
                         <x-input-label value="OG Image" class="text-[10px] uppercase" />
                         @if($seo->og_image)
                             <div class="relative group w-20 h-12 mb-2">
-                                <img src="{{ Storage::url($seo->og_image) }}" class="w-full h-full object-cover rounded border shadow-sm">
+                                <img src="{{ Storage::disk('public')->url($seo->og_image) }}" class="w-full h-full object-cover rounded border shadow-sm">
                             </div>
                         @endif
                         <input type="file" name="og_image" class="block w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-black file:bg-indigo-50 file:text-indigo-600">
