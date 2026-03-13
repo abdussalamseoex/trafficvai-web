@@ -78,16 +78,16 @@ class OrderController extends Controller
 
         $expectedDeliveryDate = null;
         if ($order->package && $order->package->turnaround_time_days) {
-            $days = $order->package->turnaround_time_days;
+            $days = (int) $order->package->turnaround_time_days;
             if ($order->is_emergency) {
-                $days = $order->package->express_turnaround_time_days ?? ceil($days / 2);
+                $days = (int) ($order->package->express_turnaround_time_days ?? ceil($days / 2));
             }
             $expectedDeliveryDate = now()->addDays($days);
         }
         elseif ($order->guestPostSite) {
-            $days = $order->guestPostSite->delivery_time_days ?: 7; // Fallback to 7 days
+            $days = (int) ($order->guestPostSite->delivery_time_days ?: 7); // Fallback to 7 days
             if ($order->is_emergency) {
-                $days = $order->guestPostSite->express_delivery_time_days ?: ceil($days / 2);
+                $days = (int) ($order->guestPostSite->express_delivery_time_days ?: ceil($days / 2));
             }
             $expectedDeliveryDate = now()->addDays($days);
         }
