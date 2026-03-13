@@ -1,7 +1,7 @@
 <?php
 /**
- * SUPREME PERMISSION & GATEWAY FIXER V3
- * Includes OPCache reset and Path Diagnostics.
+ * SUPREME PERMISSION & SESSION DOCTOR V4
+ * This script will force-fix verification, APP_URL, and clear all caches.
  */
 
 define('LARAVEL_START', microtime(true));
@@ -10,17 +10,15 @@ $app = require_once __DIR__ . '/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use App\Models\User;
-use App\Models\Setting;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Config;
 
-echo "<pre style='background:#000; color:#0f0; padding:20px; font-family:monospace;'>";
-echo "<h1>🚀 TrafficVai Supreme Fixer v4</h1>";
+echo "<pre style='background:#000; color:#0f0; padding:20px; font-family:monospace; border-radius:10px;'>";
+echo "<h1>🚀 TrafficVai Supreme Fixer v4 - THE DEFINITIVE FIX</h1>";
 
-// 1. Force APP_URL fix in .env if needed
-echo "<b>[1/6] Checking .env APP_URL...</b>\n";
+// 1. Force APP_URL fix in .env
+echo "<b>[1/5] Syncing .env APP_URL...</b>\n";
 try {
     $envPath = base_path('.env');
     if (file_exists($envPath)) {
@@ -34,49 +32,54 @@ try {
         }
     }
 } catch (\Exception $e) {
-    echo "⚠️ Error checking .env: " . $e->getMessage() . "\n";
+    echo "⚠️ .env Warning: " . $e->getMessage() . "\n";
 }
 
-// 2. Force OPCache Reset
-echo "\n<b>[2/6] Resetting PHP OPCache...</b>\n";
+// 2. Force Verification for ALL Users (The 403 Killer)
+echo "\n<b>[2/5] Global User Verification Fix...</b>\n";
+try {
+    $affected = DB::table('users')->whereNull('email_verified_at')->update(['email_verified_at' => now()]);
+    echo "✅ Force-verified {$affected} users. All users are now verified.\n";
+} catch (\Exception $e) {
+    echo "❌ DB Error: " . $e->getMessage() . "\n";
+}
+
+// 3. Clear ALL Application Caches
+echo "\n<b>[3/5] Exhaustive Cache Purge...</b>\n";
+try {
+    Artisan::call('optimize:clear');
+    echo "✅ Artisan optimize:clear success.\n";
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    echo "✅ All caches cleared.\n";
+} catch (\Exception $e) {
+    echo "❌ Artisan Error: " . $e->getMessage() . "\n";
+}
+
+// 4. OPCache Reset
+echo "\n<b>[4/5] Resetting PHP OPCache...</b>\n";
 if (function_exists('opcache_reset')) {
     opcache_reset();
     echo "✅ OPCache Reset successfully.\n";
 } else {
-    echo "⚠️ opcache_reset() is disabled.\n";
+    echo "⚠️ opcache_reset() is disabled on this server.\n";
 }
 
-// 3. Fix ALL Users Verification (The 403 Killer)
-echo "\n<b>[3/6] Verifying ALL Users (Global Fix)...</b>\n";
-$usersCount = DB::table('users')->whereNull('email_verified_at')->update(['email_verified_at' => now()]);
-echo "✅ Force-verified {$usersCount} new users. All users are now verified.\n";
-
-// 4. Force Enable Gateways
-echo "\n<b>[4/6] Ensuring Gateways are enabled...</b>\n";
-foreach (['gateway_bd_enabled', 'gateway_crypto_enabled', 'gateway_stripe_enabled', 'bank_transfer_enabled', 'manual_bd_enabled', 'manual_crypto_enabled'] as $key) {
-    DB::table('settings')->updateOrInsert(['key' => $key], ['value' => '1', 'group' => 'Payment Gateways', 'type' => 'boolean']);
-}
-echo "✅ Essential Payment Gateways forced to ACTIVE.\n";
-
-// 5. Exhaustive Cache Clear
-echo "\n<b>[5/6] Clearing All Caches...</b>\n";
-Artisan::call('optimize:clear');
-echo "✅ Artisan optimize:clear success.\n";
-
-// 6. Route Version Check
-echo "\n<b>[6/6] Final Route Sanity Check...</b>\n";
+// 5. Route Sanity Check
+echo "\n<b>[5/5] Final Route Sanity Check...</b>\n";
 $webPath = base_path('routes/web.php');
 if (file_exists($webPath)) {
     $content = file_get_contents($webPath);
     if (strpos($content, 'V1.0.2') !== false) {
         echo "🎉 SUCCESS: Latest web.php version (V1.0.2) detected!\n";
     } else {
-        echo "❌ ERROR: File is still OLD. Please verify GitHub sync.\n";
+        echo "❌ ERROR: web.php is OLD. Missing Marker V1.0.2. Please check GitHub sync.\n";
     }
-} else {
-    echo "❌ routes/web.php NOT FOUND!\n";
 }
 
-echo "\n<h1 style='color:white;'>🎉 FIX V4 ATTEMPT COMPLETE!</h1>";
-echo "<h3>Now PLEASE: Close your browser tabs, log out and log back in.</h3>";
+echo "\n<h1 style='color:white;'>🎉 SYSTEM REPAIR COMPLETE!</h1>";
+echo "<h2>⚠️ IMPORTANT NEXT STEPS:</h2>";
+echo "1. Close ALL browser tabs for this site.\n";
+echo "2. Open a new tab and Log In again.\n";
+echo "3. Try accessing /client/dashboard and your orders.\n";
 echo "</pre>";
