@@ -71,7 +71,7 @@
                                     <x-input-label for="hero_image" value="Hero Image" />
                                     @if($service->hero_image)
                                     <div class="mt-2 mb-3 flex items-center gap-4">
-                                        <img src="{{ Storage::url($service->hero_image) }}" alt="Current hero" class="h-24 w-40 object-cover rounded-lg border border-gray-200 shadow-sm">
+                                        <img src="{{ Storage::disk('public')->url($service->hero_image) }}" alt="Current hero" class="h-24 w-40 object-cover rounded-lg border border-gray-200 shadow-sm">
                                         <label class="flex items-center gap-2 text-sm text-red-600 cursor-pointer">
                                             <input type="checkbox" name="remove_hero_image" value="1" class="rounded border-gray-300 text-red-500">
                                             Remove current image

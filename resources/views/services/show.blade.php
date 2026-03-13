@@ -7,9 +7,12 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
-    @php $favicon = \App\Models\Setting::get('site_favicon'); @endphp
-    @if($favicon)
-    <link rel="icon" href="{{ asset($favicon) }}?v={{ file_exists(public_path($favicon)) ? filemtime(public_path($favicon)) : '1' }}">
+    @php 
+        $favicon = \App\Models\Setting::get('site_favicon');
+        $faviconUrl = $favicon ? Storage::disk('public')->url(str_replace('storage/', '', $favicon)) : null;
+    @endphp
+    @if($faviconUrl)
+    <link rel="icon" href="{{ $faviconUrl }}?v={{ file_exists(public_path(str_replace('storage/', '', $favicon))) ? filemtime(public_path(str_replace('storage/', '', $favicon))) : '1' }}">
     @endif
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -87,13 +90,13 @@
                                     </div>
                                 @elseif($isDirectVideo)
                                     <div class="aspect-video bg-gray-900">
-                                        <video class="w-full h-full object-cover" controls preload="metadata" @if($service->hero_image) poster="{{ Storage::url($service->hero_image) }}" @endif>
+                                        <video class="w-full h-full object-cover" controls preload="metadata" @if($service->hero_image) poster="{{ Storage::disk('public')->url($service->hero_image) }}" @endif>
                                             <source src="{{ $service->hero_video_url }}">
                                         </video>
                                     </div>
                                 @elseif($service->hero_image)
                                     <div class="aspect-video bg-gray-800">
-                                        <img src="{{ Storage::url($service->hero_image) }}" alt="{{ $service->name }}" class="w-full h-full object-cover">
+                                        <img src="{{ Storage::disk('public')->url($service->hero_image) }}" alt="{{ $service->name }}" class="w-full h-full object-cover">
                                     </div>
                                 @else
                                     <div class="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 flex flex-col items-center justify-center gap-4 relative">

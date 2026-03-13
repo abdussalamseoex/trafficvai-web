@@ -17,9 +17,12 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ url()->current() }}">
 
-    @php $favicon = \App\Models\Setting::get('site_favicon'); @endphp
-    @if($favicon)
-    <link rel="icon" href="{{ asset($favicon) }}?v={{ file_exists(public_path($favicon)) ? filemtime(public_path($favicon)) : '1' }}">
+    @php 
+        $favicon = \App\Models\Setting::get('site_favicon');
+        $faviconUrl = $favicon ? Storage::disk('public')->url(str_replace('storage/', '', $favicon)) : null;
+    @endphp
+    @if($faviconUrl)
+    <link rel="icon" href="{{ $faviconUrl }}?v={{ file_exists(public_path(str_replace('storage/', '', $favicon))) ? filemtime(public_path(str_replace('storage/', '', $favicon))) : '1' }}">
     @endif
 
     <!-- Fonts & Styles -->
