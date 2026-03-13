@@ -72,7 +72,7 @@ Route::get('/campaigns/{type}/category/{category:slug}', [\App\Http\Controllers\
 Route::get('/campaigns/{type}/{service:slug}', [\App\Http\Controllers\Frontend\CampaignController::class , 'show'])->name('campaigns.show');
 Route::post('/campaigns/{type}/{package}/checkout', [\App\Http\Controllers\Frontend\CampaignController::class , 'checkout'])->name('campaigns.checkout')->middleware(['auth', 'verified']);
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Universal Order Messages & Inbox
     Route::post('/orders/{order}/messages', [\App\Http\Controllers\OrderMessageController::class , 'store'])->name('orders.messages.store');
     Route::get('/inbox', [\App\Http\Controllers\CommunicationController::class , 'index'])->name('inbox');

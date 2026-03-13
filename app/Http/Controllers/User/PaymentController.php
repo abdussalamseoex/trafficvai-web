@@ -108,7 +108,7 @@ class PaymentController extends Controller
         $topup = TopupRequest::findOrFail($request->topup_id);
 
         // Ensure user owns this request
-        if ($topup->user_id !== auth()->id()) {
+        if ($topup->user_id !== auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
