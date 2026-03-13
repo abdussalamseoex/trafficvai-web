@@ -21,20 +21,35 @@
                             </div>
 
                             <!-- Niche -->
-                            <div>
-                                <x-input-label for="niche" :value="__('Niche / Category')" />
-                                <select id="niche" name="niche[]" multiple required class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" style="min-height: 120px;">
-                                    @php
-                                        $categories = [
-                                            'Adult', 'App', 'Art', 'Astrology', 'Automotive', 'Beauty', 'Betting & Gambling', 'Biography', 'Blog', 'Business', 'Casino', 'CBD', 'Crypto', 'Dental', 'Digital Marketing', 'Education', 'Electronics', 'Entertainment', 'Event', 'Family & Parenting', 'Fashion', 'Finance', 'Food', 'Furniture', 'Game', 'Garden', 'General', 'Green Environment & Agriculture', 'Hair loss', 'Health & Fitness', 'Home Improvement', 'Industry & Manufacturing', 'Jewellery', 'Job & Career', 'Law & Legal', 'Lifestyle', 'Logistics', 'Magazine', 'News & Media', 'Pet & Animal', 'Photography', 'Poetry', 'Real Estate', 'Saas', 'Service', 'Shopping', 'Social Media', 'Software', 'Spa & Massage', 'Sport', 'Technology', 'Trading', 'Transportation', 'Travel', 'Visa', 'Web & Technology', 'Wedding'
-                                        ];
-                                        $oldCategories = old('niche', []);
-                                    @endphp
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category }}" {{ in_array($category, $oldCategories) ? 'selected' : '' }}>{{ $category }}</option>
-                                    @endforeach
-                                </select>
-                                <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Cmd (Mac) to select multiple categories.</p>
+                            <div x-data="{
+                                search: '',
+                                categories: [
+                                    'Adult', 'App', 'Art', 'Astrology', 'Automotive', 'Beauty', 'Betting & Gambling', 'Biography', 'Blog', 'Business', 'Casino', 'CBD', 'Crypto', 'Dental', 'Digital Marketing', 'Education', 'Electronics', 'Entertainment', 'Event', 'Family & Parenting', 'Fashion', 'Finance', 'Food', 'Furniture', 'Game', 'Garden', 'General', 'Green Environment & Agriculture', 'Hair loss', 'Health & Fitness', 'Home Improvement', 'Industry & Manufacturing', 'Jewellery', 'Job & Career', 'Law & Legal', 'Lifestyle', 'Logistics', 'Magazine', 'News & Media', 'Pet & Animal', 'Photography', 'Poetry', 'Real Estate', 'Saas', 'Service', 'Shopping', 'Social Media', 'Software', 'Spa & Massage', 'Sport', 'Technology', 'Trading', 'Transportation', 'Travel', 'Visa', 'Web & Technology', 'Wedding'
+                                ],
+                                selected: {{ json_encode(old('niche', [])) }},
+                                get filteredCategories() {
+                                    if (this.search === '') return this.categories;
+                                    return this.categories.filter(c => c.toLowerCase().includes(this.search.toLowerCase()));
+                                }
+                            }">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <x-input-label for="niche" :value="__('Categories')" />
+                                    <input type="text" x-model="search" placeholder="Search categories..." class="border-gray-200 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-1.5 px-3 min-w-[200px]">
+                                </div>
+                                
+                                <div class="border border-gray-200 rounded-lg p-4 max-h-60 overflow-y-auto bg-gray-50/50 shadow-inner">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-4">
+                                        <template x-for="category in filteredCategories" :key="category">
+                                            <label class="inline-flex items-center cursor-pointer hover:bg-gray-100 rounded-md px-1 py-0.5 transition -ml-1">
+                                                <input type="checkbox" name="niche[]" :value="category" x-model="selected" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                                <span class="ml-2 text-sm text-gray-700" x-text="category"></span>
+                                            </label>
+                                        </template>
+                                        <div x-show="filteredCategories.length === 0" class="col-span-full py-4 text-center text-sm text-gray-500 font-medium select-none" x-cloak>
+                                            No categories matching "<span x-text="search"></span>"
+                                        </div>
+                                    </div>
+                                </div>
                                 <x-input-error :messages="$errors->get('niche')" class="mt-2" />
                             </div>
 
