@@ -130,7 +130,7 @@
                 </div>
 
                 <!-- Premium Inspect Sidebar (Slimmer) -->
-                <div class="w-full lg:w-80 flex-shrink-0">
+                <div class="w-full lg:w-80 flex-shrink-0 lg:max-w-xs">
                     <div class="bg-white overflow-hidden shadow-2xl sm:rounded-[32px] border border-gray-100 sticky top-6">
                         <div class="p-8">
                             <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-8 flex items-center">
@@ -141,9 +141,9 @@
                             <template x-if="selected">
                                 <div class="space-y-8">
                                     <!-- High-Quality Preview -->
-                                    <div class="group relative rounded-2xl border border-gray-100 overflow-hidden">
-                                        <div class="aspect-square flex items-center justify-center p-2 bg-gray-50 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-10">
-                                            <img :src="selectedUrl" class="max-w-full max-h-full object-contain transition duration-700 group-hover:scale-105 drop-shadow-2xl">
+                                    <div class="group relative rounded-2xl border border-gray-100 overflow-hidden bg-gray-50 shadow-inner">
+                                        <div class="aspect-square flex items-center justify-center p-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-10 overflow-hidden">
+                                            <img :src="selectedUrl" class="max-w-full max-h-full w-auto h-auto object-contain transition duration-700 group-hover:scale-110 drop-shadow-2xl">
                                         </div>
                                     </div>
 
