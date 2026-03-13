@@ -81,7 +81,15 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
                                 <div>
                                     <span class="block text-sm font-medium text-gray-500">Niche / Category</span>
-                                    <span class="mt-1 block text-base font-semibold text-gray-900">{{ $guestPost->niche }}</span>
+                                    @if(is_array($guestPost->niche))
+                                        <div class="mt-1.5 flex flex-wrap gap-1.5">
+                                            @foreach($guestPost->niche as $n)
+                                                <span class="inline-block bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-md border border-indigo-100 uppercase tracking-wider">{{ $n }}</span>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <span class="mt-1 block text-base font-semibold text-gray-900">{{ $guestPost->niche }}</span>
+                                    @endif
                                 </div>
                                 <div>
                                     <span class="block text-sm font-medium text-gray-500">Language</span>
