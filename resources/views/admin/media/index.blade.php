@@ -43,8 +43,8 @@
                 </div>
             @endif
 
-            <!-- Main Layout: Denser Grid on left, Slim Sidebar on right -->
-            <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Main Layout: Full Width Grid -->
+            <div>
                 <!-- Media Grid Container -->
                 <div class="flex-1">
                     <div class="bg-white overflow-hidden shadow-2xl sm:rounded-3xl border border-gray-100">
@@ -90,14 +90,15 @@
                                         <div 
                                             class="relative aspect-square cursor-pointer active:scale-95 group rounded-2xl overflow-hidden border-2 transition-all duration-300 transform-gpu"
                                             :class="isSelected({{ $item->id }}) ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-2xl scale-[1.01] z-10' : 'border-gray-50 hover:border-indigo-300 hover:shadow-xl'"
-                                            @click="toggleSelection({{ json_encode($item) }}, '{{ $item->url }}')"
+                                            @click="openModal({{ $loop->index }})"
                                         >
                                             <img src="{{ $item->url }}" alt="{{ $item->alt_text }}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" :class="isSelected({{ $item->id }}) ? 'opacity-90' : ''">
                                             
-                                            <!-- Modern Selection Badge -->
+                                            <!-- Modern Selection Badge (Click to select) -->
                                             <div 
-                                                class="absolute top-3 left-3 w-6 h-6 rounded-full border-2 bg-white/90 backdrop-blur flex items-center justify-center transition-all duration-300 shadow-lg"
-                                                :class="isSelected({{ $item->id }}) ? 'bg-indigo-600 border-indigo-600 scale-110' : 'border-gray-200 opacity-0 group-hover:opacity-100'"
+                                                class="absolute top-3 left-3 w-6 h-6 rounded-full border-2 bg-white/90 backdrop-blur flex items-center justify-center transition-all duration-300 shadow-lg cursor-pointer hover:scale-125 z-20"
+                                                :class="isSelected({{ $item->id }}) ? 'bg-indigo-600 border-indigo-600 scale-110 opacity-100' : 'border-gray-300 opacity-0 group-hover:opacity-100'"
+                                                @click.stop="toggleSelection({{ $item->id }})"
                                             >
                                                 <svg x-show="isSelected({{ $item->id }})" class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                                             </div>
@@ -129,90 +130,136 @@
                     </div>
                 </div>
 
-                <!-- Premium Inspect Sidebar (Slimmer) -->
-                <div class="w-full lg:w-80 flex-shrink-0 lg:max-w-xs min-w-0">
-                    <div class="bg-white overflow-hidden shadow-2xl sm:rounded-[32px] border border-gray-100 sticky top-6">
-                        <div class="p-8">
-                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-8 flex items-center">
-                                <span class="w-2 h-2 bg-indigo-500 rounded-full mr-3 animate-pulse"></span>
-                                Inspector
-                            </h3>
+                <!-- The Sidebar is removed for full-width layout -->
+                <!-- WordPress Style Attachment Details Modal -->
+                <div x-show="isModalOpen" 
+                     class="fixed inset-0 z-[100] flex bg-gray-100" 
+                     x-cloak 
+                     x-transition:enter="transition ease-out duration-300" 
+                     x-transition:enter-start="opacity-0" 
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200" 
+                     x-transition:leave-start="opacity-100" 
+                     x-transition:leave-end="opacity-0"
+                     @keydown.escape.window="closeModal"
+                     @keydown.right.window="nextMedia"
+                     @keydown.left.window="prevMedia">
+                    
+                    <div class="flex flex-col w-full h-full relative">
+                        <!-- Modal Header -->
+                        <div class="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0 relative z-20">
+                            <h2 class="text-sm font-semibold text-gray-800">Attachment details</h2>
                             
-                            <template x-if="selected">
-                                <div class="space-y-8">
-                                    <!-- High-Quality Preview -->
-                                    <div class="group relative rounded-2xl border border-gray-100 overflow-hidden bg-gray-50 shadow-inner">
-                                        <div class="aspect-square w-full flex items-center justify-center p-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-10 overflow-hidden">
-                                            <img :src="selectedUrl" class="max-w-[100%] max-h-[100%] w-auto h-auto object-contain transition duration-700 group-hover:scale-105 drop-shadow-2xl">
-                                        </div>
-                                    </div>
-
-                                    <!-- Asset DNA -->
-                                    <div class="grid grid-cols-1 gap-px bg-gray-100 rounded-2xl overflow-hidden border border-gray-100">
-                                        <div class="bg-white p-4">
-                                            <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1">Mime Type</p>
-                                            <p class="text-xs font-bold text-gray-700" x-text="selected.mime_type"></p>
-                                        </div>
-                                        <div class="bg-white p-4">
-                                            <p class="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1">Dimensions / Weight</p>
-                                            <p class="text-xs font-bold text-gray-700" x-text="formatSize(selected.size)"></p>
-                                        </div>
-                                    </div>
-
-                                    <!-- SEO Orchestration -->
-                                    <form :action="'{{ route('admin.media.index') }}/' + selected.id" method="POST" class="space-y-6">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Alt Property</label>
-                                                <input type="text" name="alt_text" x-model="selected.alt_text" class="w-full rounded-2xl border-gray-200 h-12 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all" placeholder="SEO Description...">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Anchor Title</label>
-                                                <input type="text" name="title" x-model="selected.title" class="w-full rounded-2xl border-gray-200 h-12 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Metadata Hook</label>
-                                                <textarea name="description" x-model="selected.description" rows="3" class="w-full rounded-2xl border-gray-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all"></textarea>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="flex items-center gap-2">
-                                            <button type="submit" class="flex-1 inline-flex justify-center items-center px-6 py-4 bg-indigo-600 rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-indigo-700 transition shadow-xl shadow-indigo-600/20 active:scale-95">
-                                                Update Asset
-                                            </button>
-                                        </form>
-                                        
-                                        <form :action="'{{ url('/admin/media') }}/' + selected.id" method="POST" onsubmit="return confirm('Attention: Irreversible deletion of asset. Continue?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition border border-red-100 active:scale-95">
-                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                    
-                                    <!-- Asset Link -->
-                                    <div class="pt-8 border-t border-gray-50">
-                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Asset Endpoint</p>
-                                        <div class="flex items-center gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100">
-                                            <input type="text" readonly :value="selectedUrl" class="flex-1 bg-transparent border-none text-[10px] font-bold text-gray-400 focus:ring-0 truncate py-1">
-                                            <button @click="copyToClipboard(selectedUrl)" class="p-2.5 bg-white text-indigo-600 rounded-xl shadow-sm hover:text-indigo-800 transition active:scale-90">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                                            </button>
-                                        </div>
-                                    </div>
+                            <div class="flex items-center gap-2">
+                                <!-- Navigation -->
+                                <div class="flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm">
+                                    <button @click="prevMedia" :disabled="currentIndex === 0" class="p-1.5 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent transition text-gray-600 border-r border-gray-200">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                    </button>
+                                    <button @click="nextMedia" :disabled="currentIndex === mediaItems.length - 1" class="p-1.5 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent transition text-gray-600">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </button>
                                 </div>
-                            </template>
-
-                            <template x-if="!selected">
-                                <div class="text-center py-20 bg-indigo-50/30 rounded-[32px] border-4 border-dashed border-indigo-100/50">
-                                    <svg class="h-16 w-16 text-indigo-100 mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.172-1.172a4 4 0 115.656 5.656L17 12.586"/></svg>
-                                    <p class="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em] px-6 leading-loose">Select asset instance to initiate analysis</p>
-                                </div>
-                            </template>
+                                
+                                <!-- Close Button -->
+                                <button @click="closeModal" class="p-1.5 ml-2 hover:bg-gray-100 rounded-md transition text-gray-500">
+                                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
                         </div>
+
+                        <!-- Modal Body (Split Layout) -->
+                        <template x-if="currentMedia">
+                            <div class="flex-1 overflow-hidden flex flex-col lg:flex-row relative z-10 w-full">
+                                
+                                <!-- Left side: Large Image Preview -->
+                                <div class="flex-1 bg-gray-100 flex items-center justify-center p-8 overflow-hidden relative">
+                                    <div class="absolute inset-x-0 inset-y-0 p-8 flex items-center justify-center">
+                                       <img :src="currentMedia.url" class="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-xl" :alt="currentMedia.alt_text">
+                                    </div>
+                                </div>
+
+                                <!-- Right side: Metadata and Actions -->
+                                <div class="w-full lg:w-[400px] xl:w-[450px] bg-gray-50 border-l border-gray-200 flex-shrink-0 overflow-y-auto">
+                                    <div class="p-6">
+                                        <!-- Asset Info summary -->
+                                        <div class="mb-6 flex gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                            <div class="w-16 h-16 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex justify-center items-center">
+                                                <img :src="currentMedia.url" class="max-w-full max-h-full object-contain">
+                                            </div>
+                                            <div class="flex-1 min-w-0 flex flex-col justify-center">
+                                                <p class="text-[11px] text-gray-500 font-semibold mb-1" x-text="formatDate(currentMedia.created_at)"></p>
+                                                <p class="text-sm font-bold text-gray-900 truncate mb-1" x-text="currentMedia.filename"></p>
+                                                <div class="flex items-center gap-3 text-[11px] text-gray-500 font-medium">
+                                                    <span x-text="currentMedia.human_size"></span>
+                                                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                    <span class="uppercase" x-text="currentMedia.mime_type.split('/')[1] || 'IMAGE'"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- SEO and Info Form -->
+                                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden pb-4">
+                                            <div class="bg-gray-50/50 px-5 py-3 border-b border-gray-100">
+                                                <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Asset Metadata</h3>
+                                            </div>
+                                            
+                                            <form :action="'{{ url('/admin/media') }}/' + currentMedia.id" method="POST" class="p-5 space-y-4">
+                                                @csrf
+                                                @method('PUT')
+                                                
+                                                <div class="grid grid-cols-[100px_1fr] items-baseline gap-4">
+                                                    <label class="text-xs font-semibold text-gray-600 text-right">Alternative Text</label>
+                                                    <div>
+                                                        <input type="text" name="alt_text" :value="currentMedia.alt_text" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                        <p class="text-[10px] text-gray-400 mt-1 leading-tight"><a href="#" class="text-indigo-600 hover:underline">Learn how to describe the purpose of the image.</a> Leave empty if the image is purely decorative.</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-[100px_1fr] items-center gap-4">
+                                                    <label class="text-xs font-semibold text-gray-600 text-right">Title</label>
+                                                    <input type="text" name="title" :value="currentMedia.title" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-[100px_1fr] items-start gap-4">
+                                                    <label class="text-xs font-semibold text-gray-600 text-right pt-2">Description</label>
+                                                    <textarea name="description" rows="3" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-text="currentMedia.description"></textarea>
+                                                </div>
+
+                                                <div class="grid grid-cols-[100px_1fr] items-center gap-4 pt-2">
+                                                    <label class="text-xs font-semibold text-gray-600 text-right">File URL</label>
+                                                    <div class="space-y-2">
+                                                        <input type="text" readonly :value="currentMedia.url" class="w-full text-xs font-mono bg-gray-50 text-gray-500 border-gray-200 rounded-md shadow-inner py-1.5 px-3 truncate focus:ring-0">
+                                                        <button type="button" @click="copyToClipboard(currentMedia.url)" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-semibold rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                            Copy URL to clipboard
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="pt-6 mt-4 border-t border-gray-100 flex justify-between items-center">
+                                                    <a :href="currentMedia.url" target="_blank" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">View original file</a>
+                                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                                        Update Asset
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <!-- Delete Action -->
+                                        <div class="mt-4 flex justify-end">
+                                            <form :action="'{{ url('/admin/media') }}/' + currentMedia.id" method="POST" onsubmit="return confirm('You are about to permanently delete this item from your site.\nThis action cannot be undone.\n\'Cancel\' to stop, \'OK\' to delete.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline">
+                                                    Delete permanently
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -245,11 +292,16 @@
     <script>
         function mediaLibrary() {
             return {
-                selected: null,
-                selectedUrl: '',
+                isModalOpen: false,
+                currentIndex: 0,
+                mediaItems: @json($media->items()),
                 selectedIds: [],
                 uploading: false,
                 allIds: @json($media->pluck('id')),
+
+                get currentMedia() {
+                    return this.mediaItems[this.currentIndex];
+                },
 
                 get selectedCount() {
                     return this.selectedIds.length;
@@ -269,23 +321,35 @@
                     }
                 },
 
-                toggleSelection(item, url) {
-                    const index = this.selectedIds.indexOf(item.id);
+                openModal(index) {
+                    this.currentIndex = index;
+                    this.isModalOpen = true;
+                    document.body.style.overflow = 'hidden';
+                },
+
+                closeModal() {
+                    this.isModalOpen = false;
+                    document.body.style.overflow = 'auto';
+                },
+
+                nextMedia() {
+                    if (this.currentIndex < this.mediaItems.length - 1) {
+                        this.currentIndex++;
+                    }
+                },
+
+                prevMedia() {
+                    if (this.currentIndex > 0) {
+                        this.currentIndex--;
+                    }
+                },
+
+                toggleSelection(id) {
+                    const index = this.selectedIds.indexOf(id);
                     if (index === -1) {
-                        this.selectedIds.push(item.id);
-                        this.selected = item;
-                        this.selectedUrl = url;
+                        this.selectedIds.push(id);
                     } else {
                         this.selectedIds.splice(index, 1);
-                        if (this.selected && this.selected.id === item.id) {
-                            if (this.selectedIds.length > 0) {
-                                this.selected = null;
-                                this.selectedUrl = '';
-                            } else {
-                                this.selected = null;
-                                this.selectedUrl = '';
-                            }
-                        }
                     }
                 },
 
