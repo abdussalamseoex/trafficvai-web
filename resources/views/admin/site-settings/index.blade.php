@@ -158,7 +158,8 @@
                                     <div class="flex-shrink-0 text-center">
                                         <p class="text-xs font-medium text-gray-500 mb-2">Current Favicon</p>
                                         <div class="w-16 h-16 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
-                                            <img src="{{ asset(\App\Models\Setting::get('site_favicon')) }}" alt="Favicon" class="max-w-full max-h-full object-contain">
+                                            @php $favicon = \App\Models\Setting::get('site_favicon'); @endphp
+                                            <img src="{{ asset($favicon) }}?v={{ file_exists(public_path($favicon)) ? filemtime(public_path($favicon)) : '1' }}" alt="Favicon" class="max-w-full max-h-full object-contain">
                                         </div>
                                     </div>
                                     @else
