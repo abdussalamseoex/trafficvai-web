@@ -88,17 +88,25 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
-            $seoService = app(\App\Services\SeoService::class);
-            $data = $view->getData();
+            try {
+                $seoService = app(\App\Services\SeoService::class);
+                $data = $view->getData();
 
-            $entity = $data['service'] ?? $data['post'] ?? $data['page'] ?? $data['category'] ?? null;
+                $entity = $data['service'] ?? $data['post'] ?? $data['page'] ?? $data['category'] ?? null;
 
-            // If it's a guest post site, use that too
-            if (!$entity && isset($data['guestPost'])) {
-                $entity = $data['guestPost'];
+                // If it's a guest post site, use that too
+                if (!$entity && isset($data['guestPost'])) {
+                    $entity = $data['guestPost'];
+                }
+
+                $view->with('seo', $seoService->getMetadata($entity));
+            } catch (\Exception $e) {
+                $view->with('seo', [
+                    'title' => config('app.name'),
+                    'description' => '',
+                    'keywords' => '',
+                ]);
             }
-
-            $view->with('seo', $seoService->getMetadata($entity));
         });
 
         // SEO Observers
