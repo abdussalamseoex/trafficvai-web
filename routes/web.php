@@ -75,8 +75,12 @@ Route::post('/campaigns/{type}/{package}/checkout', [\App\Http\Controllers\Front
 // Dedicated Link Building Routes (clean slug: /link-building/)
 Route::get('/link-building', [\App\Http\Controllers\Frontend\CampaignController::class , 'index'])->defaults('type', 'link-building')->name('link_building.index');
 Route::get('/link-building/category/{category:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'category'])->defaults('typePrefix', 'link-building')->name('link_building.category');
-Route::get('/link-building/{service:slug}', [\App\Http\Controllers\Frontend\CampaignController::class , 'show'])->defaults('type', 'link-building')->name('link_building.show');
-Route::post('/link-building/{package}/checkout', [\App\Http\Controllers\Frontend\CampaignController::class , 'checkout'])->defaults('type', 'link-building')->name('link_building.checkout')->middleware(['auth']);
+Route::get('/link-building/{service:slug}', function (\App\Models\Service $service) {
+    return app(\App\Http\Controllers\Frontend\CampaignController::class)->show('link-building', $service);
+})->name('link_building.show');
+Route::post('/link-building/{package}/checkout', function (\Illuminate\Http\Request $request, \App\Models\Package $package) {
+    return app(\App\Http\Controllers\Frontend\CampaignController::class)->checkout($request, 'link-building', $package);
+})->name('link_building.checkout')->middleware(['auth']);
 
 Route::middleware(['auth'])->group(function () {
     // Universal Order Messages & Inbox
