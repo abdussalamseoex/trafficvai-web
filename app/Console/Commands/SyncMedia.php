@@ -33,6 +33,11 @@ class SyncMedia extends Command
         
         $count = 0;
         foreach ($files as $file) {
+            // Exclude sensitive or system directories
+            if (Str::startsWith($file, ['order_attachments/', 'profiles/', 'gateways/'])) {
+                continue;
+            }
+
             // Only include common image formats
             if (!Str::is(['*.jpg', '*.jpeg', '*.png', '*.gif', '*.svg', '*.webp', '*.ico'], strtolower($file))) {
                 continue;

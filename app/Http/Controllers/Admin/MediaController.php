@@ -43,12 +43,17 @@ class MediaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|image|max:5120', // 5MB Max
+            'file' => 'required|image|max:10240', // 10MB Max
         ]);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            
+            // Create SEO-friendly filename: time_original-name-slug.jpg
+            $filename = time() . '_' . Str::slug($originalName) . '.' . $extension;
+            
             $path = $file->storeAs('uploads/media', $filename, 'public');
 
             $media = Media::create([
@@ -57,7 +62,7 @@ class MediaController extends Controller
                 'disk' => 'public',
                 'size' => $file->getSize(),
                 'mime_type' => $file->getMimeType(),
-                'title' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                'title' => $originalName,
             ]);
 
             return response()->json([
@@ -110,12 +115,34 @@ class MediaController extends Controller
      */
     public function destroy(Media $media)
     {
-        if (Storage::disk($media->disk)->exists($media->path)) {
+        if ($media->path && Storage::disk($media->disk)->exists($media->path)) {
             Storage::disk($media->disk)->delete($media->path);
         }
 
         $media->delete();
 
         return back()->with('success', 'Media deleted successfully.');
+    }
+
+    /**
+     * Remove multiple media from storage.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate(['ids' => 'required|array']);
+        
+        $media = Media::whereIn('id', $request->ids)->get();
+        
+        foreach ($media as $item) {
+            if ($item->path && Storage::disk($item->disk)->exists($item->path)) {
+                Storage::disk($item->disk)->delete($item->path);
+            }
+            $item->delete();
+        }
+
+        return back()->with('success', count($media) . ' items deleted successfully.');
     }
 }

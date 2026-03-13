@@ -113,6 +113,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::resource('/users', \App\Http\Controllers\Admin\UserController::class);
                 Route::resource('/staff', \App\Http\Controllers\Admin\StaffController::class)->except(['show']);
                 Route::post('/media/sync', [\App\Http\Controllers\Admin\MediaController::class, 'sync'])->name('media.sync');
+                Route::delete('/media/bulk-destroy', [\App\Http\Controllers\Admin\MediaController::class, 'bulkDestroy'])->name('media.bulk-destroy');
                 Route::resource('/media', \App\Http\Controllers\Admin\MediaController::class)->except(['show', 'create', 'edit']);
 
                 // Home Page Management

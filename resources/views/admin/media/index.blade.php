@@ -41,14 +41,23 @@
                 <div class="lg:col-span-3">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
-                            <!-- Search & Filter -->
-                            <div class="mb-6">
-                                <form action="{{ route('admin.media.index') }}" method="GET" class="flex gap-2">
+                            <!-- Search & Action Bar -->
+                            <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                <form action="{{ route('admin.media.index') }}" method="GET" class="flex w-full sm:max-w-md gap-2">
                                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search images..." class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
                                         Search
                                     </button>
                                 </form>
+                                
+                                <button 
+                                    x-show="selectedCount > 0" 
+                                    @click="deleteSelected()" 
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 transition"
+                                    style="display: none;"
+                                >
+                                    Delete Selected (<span x-text="selectedCount"></span>)
+                                </button>
                             </div>
 
                             @if($media->count() > 0)
@@ -56,10 +65,18 @@
                                     @foreach($media as $item)
                                         <div 
                                             class="relative aspect-square cursor-pointer group rounded-lg overflow-hidden border-2 transition-all"
-                                            :class="selected && selected.id == {{ $item->id }} ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-transparent hover:border-gray-300'"
-                                            @click="selectMedia({{ json_encode($item) }}, '{{ $item->url }}')"
+                                            :class="isSelected({{ $item->id }}) ? 'border-indigo-500 ring-2 ring-indigo-200 shadow-lg' : 'border-transparent hover:border-gray-200'"
                                         >
-                                            <img src="{{ $item->url }}" alt="{{ $item->alt_text }}" class="w-full h-full object-cover">
+                                            <img src="{{ $item->url }}" alt="{{ $item->alt_text }}" class="w-full h-full object-cover" @click="toggleSelection({{ json_encode($item) }}, '{{ $item->url }}')">
+                                            
+                                            <!-- Selection indicator -->
+                                            <div 
+                                                class="absolute top-2 right-2 w-5 h-5 rounded-full border-2 bg-white flex items-center justify-center transition"
+                                                :class="isSelected({{ $item->id }}) ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-300 opacity-0 group-hover:opacity-100'"
+                                            >
+                                                <svg x-show="isSelected({{ $item->id }})" class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                            </div>
+
                                             <div class="absolute inset-x-0 bottom-0 bg-black/50 p-1 translate-y-full group-hover:translate-y-0 transition-transform">
                                                 <p class="text-[10px] text-white truncate text-center">{{ $item->filename }}</p>
                                             </div>
@@ -170,11 +187,61 @@
             return {
                 selected: null,
                 selectedUrl: '',
+                selectedIds: [],
                 uploading: false,
 
-                selectMedia(item, url) {
-                    this.selected = item;
-                    this.selectedUrl = url;
+                get selectedCount() {
+                    return this.selectedIds.length;
+                },
+
+                isSelected(id) {
+                    return this.selectedIds.includes(id);
+                },
+
+                toggleSelection(item, url) {
+                    const index = this.selectedIds.indexOf(item.id);
+                    if (index === -1) {
+                        this.selectedIds.push(item.id);
+                        this.selected = item;
+                        this.selectedUrl = url;
+                    } else {
+                        this.selectedIds.splice(index, 1);
+                        if (this.selected && this.selected.id === item.id) {
+                            this.selected = null;
+                            this.selectedUrl = '';
+                        }
+                    }
+                },
+
+                deleteSelected() {
+                    if (!confirm(`Are you sure you want to delete ${this.selectedCount} selected images?`)) return;
+
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ route('admin.media.bulk-destroy') }}';
+                    
+                    const token = document.createElement('input');
+                    token.type = 'hidden';
+                    token.name = '_token';
+                    token.value = '{{ csrf_token() }}';
+                    form.appendChild(token);
+
+                    const method = document.createElement('input');
+                    method.type = 'hidden';
+                    method.name = '_method';
+                    method.value = 'DELETE';
+                    form.appendChild(method);
+
+                    this.selectedIds.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = id;
+                        form.appendChild(input);
+                    });
+
+                    document.body.appendChild(form);
+                    form.submit();
                 },
 
                 formatSize(bytes) {
