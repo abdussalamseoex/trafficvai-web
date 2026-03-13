@@ -23,7 +23,18 @@
                             <!-- Niche -->
                             <div>
                                 <x-input-label for="niche" :value="__('Niche / Category')" />
-                                <x-text-input id="niche" class="block mt-1 w-full" type="text" name="niche" :value="old('niche')" required placeholder="e.g. Technology, Health" />
+                                <select id="niche" name="niche[]" multiple required class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" style="min-height: 120px;">
+                                    @php
+                                        $categories = [
+                                            'Adult', 'App', 'Art', 'Astrology', 'Automotive', 'Beauty', 'Betting & Gambling', 'Biography', 'Blog', 'Business', 'Casino', 'CBD', 'Crypto', 'Dental', 'Digital Marketing', 'Education', 'Electronics', 'Entertainment', 'Event', 'Family & Parenting', 'Fashion', 'Finance', 'Food', 'Furniture', 'Game', 'Garden', 'General', 'Green Environment & Agriculture', 'Hair loss', 'Health & Fitness', 'Home Improvement', 'Industry & Manufacturing', 'Jewellery', 'Job & Career', 'Law & Legal', 'Lifestyle', 'Logistics', 'Magazine', 'News & Media', 'Pet & Animal', 'Photography', 'Poetry', 'Real Estate', 'Saas', 'Service', 'Shopping', 'Social Media', 'Software', 'Spa & Massage', 'Sport', 'Technology', 'Trading', 'Transportation', 'Travel', 'Visa', 'Web & Technology', 'Wedding'
+                                        ];
+                                        $oldCategories = old('niche', []);
+                                    @endphp
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category }}" {{ in_array($category, $oldCategories) ? 'selected' : '' }}>{{ $category }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Cmd (Mac) to select multiple categories.</p>
                                 <x-input-error :messages="$errors->get('niche')" class="mt-2" />
                             </div>
 

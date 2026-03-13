@@ -40,7 +40,7 @@ class GuestPostController extends Controller
         }
 
         if ($request->filled('category') && $request->category !== 'All') {
-            $query->where('niche', 'like', '%' . $request->category . '%');
+            $query->whereJsonContains('niche', $request->category);
         }
 
         if ($request->filled('link_type') && $request->link_type !== 'All') {

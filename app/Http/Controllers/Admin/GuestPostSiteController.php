@@ -25,7 +25,8 @@ class GuestPostSiteController extends Controller
     {
         $validated = $request->validate([
             'url' => 'required|url',
-            'niche' => 'required|string|max:255',
+            'niche' => 'required|array|min:1',
+            'niche.*' => 'string|max:255',
             'da' => 'nullable|integer|min:0|max:100',
             'dr' => 'nullable|integer|min:0|max:100',
             'traffic' => 'nullable|integer|min:0',
@@ -67,7 +68,8 @@ class GuestPostSiteController extends Controller
         $site = \App\Models\GuestPostSite::findOrFail($id);
         $validated = $request->validate([
             'url' => 'required|url',
-            'niche' => 'required|string|max:255',
+            'niche' => 'required|array|min:1',
+            'niche.*' => 'string|max:255',
             'da' => 'nullable|integer|min:0|max:100',
             'dr' => 'nullable|integer|min:0|max:100',
             'traffic' => 'nullable|integer|min:0',

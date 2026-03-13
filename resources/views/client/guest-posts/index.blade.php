@@ -59,12 +59,15 @@
                         <div>
                             <label for="category" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Categories</label>
                             <select name="category" id="category" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
-                                <option value="All" {{ request('category') == 'All' ? 'selected' : '' }}>All</option>
-                                <option value="Technology" {{ request('category') == 'Technology' ? 'selected' : '' }}>Technology</option>
-                                <option value="Health" {{ request('category') == 'Health' ? 'selected' : '' }}>Health</option>
-                                <option value="Business" {{ request('category') == 'Business' ? 'selected' : '' }}>Business</option>
-                                <option value="Finance" {{ request('category') == 'Finance' ? 'selected' : '' }}>Finance</option>
-                                <option value="Lifestyle" {{ request('category') == 'Lifestyle' ? 'selected' : '' }}>Lifestyle</option>
+                                <option value="All" {{ request('category') == 'All' ? 'selected' : '' }}>All Categories</option>
+                                @php
+                                    $categories = [
+                                        'Adult', 'App', 'Art', 'Astrology', 'Automotive', 'Beauty', 'Betting & Gambling', 'Biography', 'Blog', 'Business', 'Casino', 'CBD', 'Crypto', 'Dental', 'Digital Marketing', 'Education', 'Electronics', 'Entertainment', 'Event', 'Family & Parenting', 'Fashion', 'Finance', 'Food', 'Furniture', 'Game', 'Garden', 'General', 'Green Environment & Agriculture', 'Hair loss', 'Health & Fitness', 'Home Improvement', 'Industry & Manufacturing', 'Jewellery', 'Job & Career', 'Law & Legal', 'Lifestyle', 'Logistics', 'Magazine', 'News & Media', 'Pet & Animal', 'Photography', 'Poetry', 'Real Estate', 'Saas', 'Service', 'Shopping', 'Social Media', 'Software', 'Spa & Massage', 'Sport', 'Technology', 'Trading', 'Transportation', 'Travel', 'Visa', 'Web & Technology', 'Wedding'
+                                    ];
+                                @endphp
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -203,7 +206,18 @@
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-bold text-gray-900">{{ str_replace(['http://', 'https://'], '', $site->url) }}</div>
-                                            <div class="text-xs text-indigo-600 font-medium">{{ $site->niche }}</div>
+                                            <div class="text-[10px] text-indigo-700 font-bold mt-1.5 flex flex-wrap gap-1">
+                                                @if(is_array($site->niche))
+                                                    @foreach(array_slice($site->niche, 0, 3) as $n)
+                                                        <span class="inline-block bg-indigo-50 rounded px-1.5 py-0.5 border border-indigo-100 uppercase tracking-wider">{{ $n }}</span>
+                                                    @endforeach
+                                                    @if(count($site->niche) > 3)
+                                                        <span class="inline-flex items-center text-gray-400 font-normal px-1 shrink-0" title="{{ implode(', ', array_slice($site->niche, 3)) }}">+{{ count($site->niche) - 3 }} more</span>
+                                                    @endif
+                                                @else
+                                                    <span class="inline-block bg-indigo-50 rounded px-1.5 py-0.5 border border-indigo-100 uppercase tracking-wider">{{ $site->niche }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </td>

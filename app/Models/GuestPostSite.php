@@ -12,4 +12,10 @@ class GuestPostSite extends Model
         'price_creation_placement', 'price_link_insertion', 'description', 'sample_post_url',
         'delivery_time_days', 'express_delivery_time_days', 'express_delivery_price', 'word_count'
     ];
+
+    protected $casts = [
+        'niche' => 'array',
+        'is_active' => 'boolean',
+        'is_sponsored' => 'boolean',
+    ];
 }
