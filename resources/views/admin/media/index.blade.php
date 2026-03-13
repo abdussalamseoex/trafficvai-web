@@ -28,7 +28,7 @@
     </x-slot>
 
     <div class="py-12" x-data="mediaLibrary()">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             
             @if(session('success'))
                 <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4 rounded-xl shadow-sm">
@@ -44,9 +44,9 @@
             @endif
 
             <!-- Main Layout: Denser Grid on left, Slim Sidebar on right -->
-            <div class="flex flex-col lg:flex-row gap-6 items-start">
+            <div class="flex flex-col lg:flex-row gap-6">
                 <!-- Media Grid Container -->
-                <div class="flex-1 min-w-0 w-full">
+                <div class="flex-1">
                     <div class="bg-white overflow-hidden shadow-2xl sm:rounded-3xl border border-gray-100">
                         <div class="p-3 sm:p-5">
                             <!-- Premium Toolbar -->
@@ -130,7 +130,7 @@
                 </div>
 
                 <!-- Premium Inspect Sidebar (Slimmer) -->
-                <div class="w-full lg:w-[320px] flex-shrink-0">
+                <div class="w-full lg:w-80 flex-shrink-0">
                     <div class="bg-white overflow-hidden shadow-2xl sm:rounded-[32px] border border-gray-100 sticky top-6">
                         <div class="p-8">
                             <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-8 flex items-center">
@@ -240,8 +240,6 @@
         @media (min-width: 1280px) { .xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
         @media (min-width: 1536px) { .xxl\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
         
-        /* Ensure no horizontal scroll */
-        .overflow-x-hidden { overflow-x: hidden; }
     </style>
 
     <script>
