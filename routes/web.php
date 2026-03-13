@@ -32,7 +32,7 @@ Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     }
     return redirect()->route('client.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
 Route::get('/blog', [\App\Http\Controllers\Frontend\BlogController::class , 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\Frontend\BlogController::class , 'show'])->name('blog.show');
@@ -43,15 +43,15 @@ Route::get('/services', [\App\Http\Controllers\Frontend\ServiceController::class
 Route::get('/services/category/{category:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'category'])->name('services.category');
 Route::post('/services/coupon/check', [\App\Http\Controllers\Frontend\ServiceController::class , 'checkCoupon'])->name('services.coupon.check');
 Route::get('/services/{service:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'show'])->name('services.show');
-Route::post('/services/{package}/checkout', [\App\Http\Controllers\Frontend\ServiceController::class , 'checkout'])->name('services.checkout')->middleware(['auth', 'verified']);
+Route::post('/services/{package}/checkout', [\App\Http\Controllers\Frontend\ServiceController::class , 'checkout'])->name('services.checkout')->middleware(['auth']);
 
 Route::get('/guest-posts', [\App\Http\Controllers\Frontend\GuestPostController::class , 'index'])->name('guest_posts.index');
-Route::post('/guest-posts/{guestPost}/checkout', [\App\Http\Controllers\Frontend\GuestPostController::class , 'checkout'])->name('guest_posts.checkout')->middleware(['auth', 'verified']);
+Route::post('/guest-posts/{guestPost}/checkout', [\App\Http\Controllers\Frontend\GuestPostController::class , 'checkout'])->name('guest_posts.checkout')->middleware(['auth']);
 
 Route::get('/website-traffic', [\App\Http\Controllers\Frontend\WebsiteTrafficController::class , 'index'])->name('traffic.index');
 Route::get('/website-traffic/category/{category:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'category'])->name('traffic.category');
 Route::get('/website-traffic/{service:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'show'])->name('traffic.show');
-Route::post('/website-traffic/{package}/checkout', [\App\Http\Controllers\Frontend\ServiceController::class , 'checkout'])->name('traffic.checkout')->middleware(['auth', 'verified']);
+Route::post('/website-traffic/{package}/checkout', [\App\Http\Controllers\Frontend\ServiceController::class , 'checkout'])->name('traffic.checkout')->middleware(['auth']);
 
 // Referral Link Tracking
 Route::get('/ref/{code}', [\App\Http\Controllers\ReferralController::class , 'redirect'])->name('referral.redirect');
@@ -70,7 +70,7 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SeoController::class , 'sitema
 Route::get('/campaigns/{type}', [\App\Http\Controllers\Frontend\CampaignController::class , 'index'])->name('campaigns.index');
 Route::get('/campaigns/{type}/category/{category:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'category'])->name('campaigns.category');
 Route::get('/campaigns/{type}/{service:slug}', [\App\Http\Controllers\Frontend\CampaignController::class , 'show'])->name('campaigns.show');
-Route::post('/campaigns/{type}/{package}/checkout', [\App\Http\Controllers\Frontend\CampaignController::class , 'checkout'])->name('campaigns.checkout')->middleware(['auth', 'verified']);
+Route::post('/campaigns/{type}/{package}/checkout', [\App\Http\Controllers\Frontend\CampaignController::class , 'checkout'])->name('campaigns.checkout')->middleware(['auth']);
 
 Route::middleware(['auth'])->group(function () {
     // Universal Order Messages & Inbox
