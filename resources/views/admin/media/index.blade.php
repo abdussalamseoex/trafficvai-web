@@ -28,7 +28,7 @@
     </x-slot>
 
     <div class="py-12" x-data="mediaLibrary()">
-        <div class="max-w-[1600px] mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-[1700px] mx-auto sm:px-4 lg:px-6">
             
             @if(session('success'))
                 <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4 rounded-xl shadow-sm">
@@ -48,7 +48,7 @@
                 <!-- Media Grid Container -->
                 <div class="flex-1">
                     <div class="bg-white overflow-hidden shadow-2xl sm:rounded-3xl border border-gray-100">
-                        <div class="p-4 sm:p-8">
+                        <div class="p-3 sm:p-5">
                             <!-- Premium Toolbar -->
                             <div class="mb-10 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
                                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full xl:w-auto">
@@ -57,9 +57,9 @@
                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                             </div>
-                                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Find assets..." class="block w-full bg-transparent border-none py-2.5 pl-10 pr-3 text-sm placeholder-gray-400 focus:ring-0">
+                                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search assets..." class="block w-full bg-transparent border-none py-1.5 pl-10 pr-3 text-sm placeholder-gray-400 focus:ring-0 font-medium">
                                         </div>
-                                        <button type="submit" class="inline-flex items-center px-6 py-2 bg-indigo-600 rounded-xl text-white text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/20">
+                                        <button type="submit" class="inline-flex items-center px-5 py-2 bg-indigo-600 rounded-xl text-white text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/20">
                                             Search
                                         </button>
                                     </form>
@@ -85,29 +85,29 @@
                             </div>
 
                             @if($media->count() > 0)
-                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 xxl:grid-cols-5 gap-4">
                                     @foreach($media as $item)
                                         <div 
-                                            class="relative aspect-square cursor-pointer active:scale-95 group rounded-3xl overflow-hidden border-2 transition-all duration-300 transform-gpu"
-                                            :class="isSelected({{ $item->id }}) ? 'border-indigo-600 ring-8 ring-indigo-50 shadow-2xl scale-[1.02] z-10' : 'border-gray-50 hover:border-indigo-300 hover:shadow-xl hover:-translate-y-1'"
+                                            class="relative aspect-square cursor-pointer active:scale-95 group rounded-2xl overflow-hidden border-2 transition-all duration-300 transform-gpu"
+                                            :class="isSelected({{ $item->id }}) ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-2xl scale-[1.01] z-10' : 'border-gray-50 hover:border-indigo-300 hover:shadow-xl'"
                                             @click="toggleSelection({{ json_encode($item) }}, '{{ $item->url }}')"
                                         >
                                             <img src="{{ $item->url }}" alt="{{ $item->alt_text }}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" :class="isSelected({{ $item->id }}) ? 'opacity-90' : ''">
                                             
                                             <!-- Modern Selection Badge -->
                                             <div 
-                                                class="absolute top-4 left-4 w-7 h-7 rounded-full border-2 bg-white/90 backdrop-blur flex items-center justify-center transition-all duration-300 shadow-lg"
+                                                class="absolute top-3 left-3 w-6 h-6 rounded-full border-2 bg-white/90 backdrop-blur flex items-center justify-center transition-all duration-300 shadow-lg"
                                                 :class="isSelected({{ $item->id }}) ? 'bg-indigo-600 border-indigo-600 scale-110' : 'border-gray-200 opacity-0 group-hover:opacity-100'"
                                             >
-                                                <svg x-show="isSelected({{ $item->id }})" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                                <svg x-show="isSelected({{ $item->id }})" class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                                             </div>
 
                                             <!-- Asset Metadata Overlay -->
-                                            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out backdrop-blur-[2px]">
-                                                <p class="text-[10px] text-white font-black truncate leading-tight mb-1">{{ $item->filename }}</p>
+                                            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out backdrop-blur-[1px]">
+                                                <p class="text-[9px] text-white font-black truncate leading-tight mb-1">{{ $item->filename }}</p>
                                                 <div class="flex items-center justify-between">
-                                                    <span class="text-[8px] text-indigo-300 font-black uppercase tracking-widest">{{ $item->mime_type ? explode('/', $item->mime_type)[1] : 'IMG' }}</span>
-                                                    <span class="text-[8px] text-gray-300 font-bold tracking-tighter">{{ $item->human_size }}</span>
+                                                    <span class="text-[7px] text-indigo-300 font-black uppercase tracking-widest">{{ $item->mime_type ? strtoupper(explode('/', $item->mime_type)[1]) : 'IMG' }}</span>
+                                                    <span class="text-[7px] text-gray-300 font-bold tracking-tighter">{{ $item->human_size }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -130,7 +130,7 @@
                 </div>
 
                 <!-- Premium Inspect Sidebar (Slimmer) -->
-                <div class="w-full lg:w-80 flex-shrink-0">
+                <div class="w-full lg:w-72 flex-shrink-0">
                     <div class="bg-white overflow-hidden shadow-2xl sm:rounded-[32px] border border-gray-100 sticky top-6">
                         <div class="p-8">
                             <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-8 flex items-center">
@@ -141,9 +141,9 @@
                             <template x-if="selected">
                                 <div class="space-y-8">
                                     <!-- High-Quality Preview -->
-                                    <div class="group relative rounded-3xl overflow-hidden bg-gray-50 border border-gray-100 shadow-inner overflow-hidden">
-                                        <div class="aspect-square flex items-center justify-center p-4">
-                                            <img :src="selectedUrl" class="max-w-full max-h-full object-contain transition duration-700 group-hover:scale-110 drop-shadow-2xl">
+                                    <div class="group relative rounded-2xl border border-gray-100 overflow-hidden">
+                                        <div class="aspect-square flex items-center justify-center p-2 bg-gray-50 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-10">
+                                            <img :src="selectedUrl" class="max-w-full max-h-full object-contain transition duration-700 group-hover:scale-105 drop-shadow-2xl">
                                         </div>
                                     </div>
 
@@ -236,8 +236,9 @@
         .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         @media (min-width: 640px) { .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
         @media (min-width: 768px) { .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-        @media (min-width: 1024px) { .lg\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-        @media (min-width: 1280px) { .xl\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+        @media (min-width: 1024px) { .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        @media (min-width: 1280px) { .xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+        @media (min-width: 1536px) { .xxl\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
     </style>
 
     <script>
