@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// V1.0.1 - FIXED ROUTES (Moving client out of admin)
+// V1.0.2 - DEFINITIVE ROUTE FIX (Closing Admin group properly)
 
 Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'index'])->name('setup.index');
 Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'setup'])->name('setup.save');
@@ -196,11 +196,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/edit/{type}/{id}', [\App\Http\Controllers\Admin\SeoManagerController::class , 'edit'])->name('edit');
                 Route::post('/update/{type}/{id}', [\App\Http\Controllers\Admin\SeoManagerController::class , 'update'])->name('update');
             });
-        });
+    });
 
     // Client Routes
     Route::group(['prefix' => 'client', 'as' => 'client.'], function () {
-            Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class , 'index'])->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class , 'index'])->name('dashboard');
             Route::resource('/orders', \App\Http\Controllers\User\OrderController::class);
             Route::get('/orders/{order}/invoice', [\App\Http\Controllers\User\OrderController::class , 'invoice'])->name('orders.invoice');
             Route::post('/orders/{order}/submit-proof', [\App\Http\Controllers\User\OrderController::class , 'submitProof'])->name('orders.submit_proof');
@@ -250,8 +250,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     Route::post('/topup', [\App\Http\Controllers\User\PaymentController::class , 'processTopup'])->name('topup.process');
                     Route::post('/topup/manual', [\App\Http\Controllers\User\PaymentController::class , 'submitManualProof'])->name('topup.manual');
                 });
-            });
-    });
+        });
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
