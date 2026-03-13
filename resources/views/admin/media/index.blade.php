@@ -298,7 +298,11 @@
             return {
                 isModalOpen: false,
                 currentIndex: 0,
-                mediaItems: @json($media->items()),
+                mediaItems: @json($media->map(function($item) {
+                    $item->url = $item->url;
+                    $item->human_size = $item->human_size;
+                    return $item;
+                })->values()),
                 selectedIds: [],
                 uploading: false,
                 allIds: @json($media->pluck('id')),
