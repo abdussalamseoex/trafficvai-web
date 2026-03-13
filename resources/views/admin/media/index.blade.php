@@ -142,8 +142,8 @@
                                 <div class="space-y-8">
                                     <!-- High-Quality Preview -->
                                     <div class="group relative rounded-2xl border border-gray-100 overflow-hidden bg-gray-50 shadow-inner">
-                                        <div class="relative aspect-square w-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-10 overflow-hidden">
-                                            <img :src="selectedUrl" class="absolute inset-0 w-full h-full object-contain p-4 transition duration-700 group-hover:scale-105 drop-shadow-2xl">
+                                        <div class="aspect-square w-full flex items-center justify-center p-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-10 overflow-hidden">
+                                            <img :src="selectedUrl" class="max-w-[100%] max-h-[100%] w-auto h-auto object-contain transition duration-700 group-hover:scale-105 drop-shadow-2xl">
                                         </div>
                                     </div>
 
