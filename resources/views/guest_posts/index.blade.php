@@ -71,7 +71,7 @@
         if (!this.selectedSite) return 0;
         let total = parseFloat(this.selectedSite.price);
         if (this.deliveryOption === 'express') {
-            total += this.expressFee;
+            total += parseFloat(this.selectedSite.express_delivery_price || 50);
         }
         if(this.couponApplied) {
             if(this.currentCouponType === 'percentage') {
@@ -87,7 +87,7 @@
         if (!this.selectedSite || !this.couponApplied) return 0;
         let total = parseFloat(this.selectedSite.price);
         if (this.deliveryOption === 'express') {
-            total += this.expressFee;
+            total += parseFloat(this.selectedSite.express_delivery_price || 50);
         }
         if(this.currentCouponType === 'percentage') {
             return (total * this.currentCouponValue / 100);
@@ -194,7 +194,7 @@
                                 </td>
                                 <td class="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
                                     @auth
-                                    <button @click="selectedSite = { id: {{ $site->id }}, url: '{{ str_replace(['http://', 'https://'], '', $site->url) }}', price: {{ $site->price }} }; deliveryOption = 'standard'; showCheckoutModal = true;" type="button" class="bg-brand text-white hover:bg-orange-600 px-5 py-2 rounded-lg font-bold transition duration-150 whitespace-nowrap">
+                                    <button @click="selectedSite = { id: {{ $site->id }}, url: '{{ str_replace(['http://', 'https://'], '', $site->url) }}', price: {{ $site->price }}, express_delivery_price: {{ $site->express_delivery_price ?? 50 }} }; deliveryOption = 'standard'; showCheckoutModal = true;" type="button" class="bg-brand text-white hover:bg-orange-600 px-5 py-2 rounded-lg font-bold transition duration-150 whitespace-nowrap">
                                         Buy Post
                                     </button>
                                     @else
@@ -320,7 +320,7 @@
                                                         <span class="text-xs text-gray-500">Guaranteed 24-48 hours</span>
                                                     </div>
                                                 </div>
-                                                <span class="text-sm font-black text-[#E8470A]">+$<span x-text="expressFee"></span></span>
+                                                <span class="text-sm font-black text-[#E8470A]">+$<span x-text="selectedSite ? parseFloat(selectedSite.express_delivery_price || 50).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '50.00'"></span></span>
                                             </div>
                                         </label>
                                     </div>
@@ -335,9 +335,9 @@
                                                 :class="{ 
                                                     'border-brand ring-1 ring-brand bg-orange-50/30': paymentMethod === '{{ $slug }}', 
                                                     'border-gray-200 hover:border-gray-300 bg-white': paymentMethod !== '{{ $slug }}',
-                                                    'opacity-50 cursor-not-allowed': '{{ $slug }}' === 'wallet' && {{ auth()->check() ? auth()->user()->balance : 0 }} < (selectedSite ? (deliveryOption === 'express' ? selectedSite.price + expressFee : selectedSite.price) : 0)
+                                                    'opacity-50 cursor-not-allowed': '{{ $slug }}' === 'wallet' && {{ auth()->check() ? auth()->user()->balance : 0 }} < (selectedSite ? (deliveryOption === 'express' ? parseFloat(selectedSite.price) + parseFloat(selectedSite.express_delivery_price || 50) : parseFloat(selectedSite.price)) : 0)
                                                 }">
-                                                <input type="radio" name="payment_method" value="{{ $slug }}" class="sr-only" x-model="paymentMethod" :disabled="'{{ $slug }}' === 'wallet' && {{ auth()->check() ? auth()->user()->balance : 0 }} < (selectedSite ? (deliveryOption === 'express' ? selectedSite.price + expressFee : selectedSite.price) : 0)">
+                                                <input type="radio" name="payment_method" value="{{ $slug }}" class="sr-only" x-model="paymentMethod" :disabled="'{{ $slug }}' === 'wallet' && {{ auth()->check() ? auth()->user()->balance : 0 }} < (selectedSite ? (deliveryOption === 'express' ? parseFloat(selectedSite.price) + parseFloat(selectedSite.express_delivery_price || 50) : parseFloat(selectedSite.price)) : 0)">
                                                 <div class="flex items-center justify-between">
                                                     <div class="flex items-center">
                                                         <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0" :class="paymentMethod === '{{ $slug }}' ? 'border-brand' : 'border-gray-400'">
@@ -346,9 +346,9 @@
                                                         <span class="ml-3 flex flex-col text-sm font-bold text-gray-900">
                                                             {{ $slug === 'wallet' ? 'Account Balance' : $gateway['name'] }}
                                                             @if($slug === 'wallet')
-                                                                <span class="text-[10px] uppercase font-bold tracking-wider" :class="{{ auth()->check() ? auth()->user()->balance : 0 }} < (selectedSite ? (deliveryOption === 'express' ? selectedSite.price + expressFee : selectedSite.price) : 0) ? 'text-red-500' : 'text-brand'">
-                                                                    <span x-show="{{ auth()->check() ? auth()->user()->balance : 0 }} < (selectedSite ? (deliveryOption === 'express' ? selectedSite.price + expressFee : selectedSite.price) : 0)">Insufficient Funds (${{ auth()->check() ? number_format(auth()->user()->balance, 2) : '0.00' }} available)</span>
-                                                                    <span x-show="{{ auth()->check() ? auth()->user()->balance : 0 }} >= (selectedSite ? (deliveryOption === 'express' ? selectedSite.price + expressFee : selectedSite.price) : 0)">${{ auth()->check() ? number_format(auth()->user()->balance, 2) : '0.00' }} available</span>
+                                                                <span class="text-[10px] uppercase font-bold tracking-wider" :class="{{ auth()->check() ? auth()->user()->balance : 0 }} < (selectedSite ? (deliveryOption === 'express' ? parseFloat(selectedSite.price) + parseFloat(selectedSite.express_delivery_price || 50) : parseFloat(selectedSite.price)) : 0) ? 'text-red-500' : 'text-brand'">
+                                                                    <span x-show="{{ auth()->check() ? auth()->user()->balance : 0 }} < (selectedSite ? (deliveryOption === 'express' ? parseFloat(selectedSite.price) + parseFloat(selectedSite.express_delivery_price || 50) : parseFloat(selectedSite.price)) : 0)">Insufficient Funds (${{ auth()->check() ? number_format(auth()->user()->balance, 2) : '0.00' }} available)</span>
+                                                                    <span x-show="{{ auth()->check() ? auth()->user()->balance : 0 }} >= (selectedSite ? (deliveryOption === 'express' ? parseFloat(selectedSite.price) + parseFloat(selectedSite.express_delivery_price || 50) : parseFloat(selectedSite.price)) : 0)">${{ auth()->check() ? number_format(auth()->user()->balance, 2) : '0.00' }} available</span>
                                                                 </span>
                                                             @elseif(isset($gateway['logo']))
                                                                 <div class="h-6 max-h-6 flex items-center mt-1 flex-shrink-0">
