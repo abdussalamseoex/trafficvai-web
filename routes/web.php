@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// V1.0.1 - FIXED ROUTES (Moving client out of admin)
+
 Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'index'])->name('setup.index');
 Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'setup'])->name('setup.save');
 Route::post('/setup/migrate', [\App\Http\Controllers\SetupController::class, 'migrate'])->name('setup.migrate');

@@ -58,7 +58,8 @@ class UpdateService
         try {
             // 1. Git Pull
             $output .= "--- Pulling latest code ---\n";
-            $output .= $this->executeCommand('git pull');
+            $output .= $this->executeCommand('git fetch origin main');
+            $output .= $this->executeCommand('git reset --hard origin/main');
 
             // 2. Composer Install (if composer.json changed)
             // Note: In cPanel environment, shell_exec might not have composer in PATH.
