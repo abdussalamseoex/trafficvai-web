@@ -40,7 +40,18 @@
                                         <a href="{{ $site->url }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">{{ $site->url }}</a>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $site->niche }}
+                                        @if(is_array($site->niche))
+                                            <div class="flex flex-wrap gap-1">
+                                                @foreach(array_slice($site->niche, 0, 3) as $n)
+                                                    <span class="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-100 uppercase">{{ $n }}</span>
+                                                @endforeach
+                                                @if(count($site->niche) > 3)
+                                                    <span class="text-xs text-gray-500" title="{{ implode(', ', $site->niche) }}">+{{ count($site->niche) - 3 }}</span>
+                                                @endif
+                                            </div>
+                                        @else
+                                            {{ $site->niche }}
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         DA: {{ $site->da ?? 'N/A' }} | DR: {{ $site->dr ?? 'N/A' }} | Trf: {{ number_format($site->traffic) ?? 'N/A' }}
