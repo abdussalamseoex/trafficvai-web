@@ -46,7 +46,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        abort_if($project->user_id !== auth()->id(), 403);
+        abort_if($project->user_id != auth()->id(), 403);
 
         $project->load(['orders.package', 'orders.service', 'orders.guestPostSite']);
 
@@ -58,7 +58,7 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        abort_if($project->user_id !== auth()->id(), 403);
+        abort_if($project->user_id != auth()->id(), 403);
 
         return view('client.projects.edit', compact('project'));
     }
@@ -68,7 +68,7 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        abort_if($project->user_id !== auth()->id(), 403);
+        abort_if($project->user_id != auth()->id(), 403);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -86,7 +86,7 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        abort_if($project->user_id !== auth()->id(), 403);
+        abort_if($project->user_id != auth()->id(), 403);
 
         $project->delete();
 

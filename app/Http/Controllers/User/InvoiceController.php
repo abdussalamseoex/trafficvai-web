@@ -27,7 +27,7 @@ class InvoiceController extends Controller
     public function show(Order $invoice)
     {
         // Ensure the user owns this invoice
-        if ($invoice->user_id !== auth()->id()) {
+        if ($invoice->user_id != auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -42,7 +42,7 @@ class InvoiceController extends Controller
     public function download(Order $invoice)
     {
         // Ensure the user owns this invoice
-        if ($invoice->user_id !== auth()->id()) {
+        if ($invoice->user_id != auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 

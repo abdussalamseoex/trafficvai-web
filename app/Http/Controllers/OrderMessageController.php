@@ -13,7 +13,7 @@ class OrderMessageController extends Controller
     {
         Log::info('OrderMessage store attempt', ['order_id' => $order->id, 'user_id' => auth()->id(), 'has_file' => $request->hasFile('attachment')]);
         // Auth check: Is Admin OR is the client who owns the order
-        if (!auth()->user()->is_admin && auth()->id() !== $order->user_id) {
+        if (!auth()->user()->is_admin && auth()->id() != $order->user_id) {
             abort(403, 'Unauthorized action.');
         }
 

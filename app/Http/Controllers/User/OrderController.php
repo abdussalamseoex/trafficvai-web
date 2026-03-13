@@ -25,7 +25,7 @@ class OrderController extends Controller
 
     public function show(\App\Models\Order $order)
     {
-        if ($order->user_id !== auth()->id())
+        if ($order->user_id != auth()->id())
             abort(403);
 
         $order->load(['package.service.requirements', 'requirements.serviceRequirement', 'guestPostSite', 'messages.user']);
@@ -42,7 +42,7 @@ class OrderController extends Controller
 
     public function update(Request $request, \App\Models\Order $order)
     {
-        if ($order->user_id !== auth()->id())
+        if ($order->user_id != auth()->id())
             abort(403);
 
         if ($order->package) {
@@ -107,7 +107,7 @@ class OrderController extends Controller
 
     public function submitProof(Request $request, \App\Models\Order $order)
     {
-        if ($order->user_id !== auth()->id()) {
+        if ($order->user_id != auth()->id()) {
             abort(403);
         }
 
@@ -133,7 +133,7 @@ class OrderController extends Controller
     }
     public function invoice(\App\Models\Order $order)
     {
-        if ($order->user_id !== auth()->id()) {
+        if ($order->user_id != auth()->id()) {
             abort(403);
         }
 
