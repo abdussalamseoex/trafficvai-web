@@ -170,17 +170,17 @@
 
                         <!-- Modal Body (Split Layout) -->
                         <template x-if="currentMedia">
-                            <div class="flex-1 overflow-hidden flex flex-col lg:flex-row relative z-10 w-full">
+                            <div class="wp-modal-body bg-gray-100 z-10">
                                 
                                 <!-- Left side: Large Image Preview -->
-                                <div class="flex-1 bg-gray-100 flex items-center justify-center p-8 overflow-hidden relative">
+                                <div class="wp-modal-left bg-gray-100 p-8">
                                     <div class="absolute inset-x-0 inset-y-0 p-8 flex items-center justify-center">
                                        <img :src="currentMedia.url" class="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-xl" :alt="currentMedia.alt_text">
                                     </div>
                                 </div>
 
                                 <!-- Right side: Metadata and Actions -->
-                                <div class="w-full lg:w-96 xl:w-4/12 bg-gray-50 border-l border-gray-200 flex-shrink-0 overflow-y-auto">
+                                <div class="wp-modal-right bg-gray-50 border-gray-200">
                                     <div class="p-6">
                                         <!-- Asset Info summary -->
                                         <div class="mb-6 flex gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
@@ -208,40 +208,40 @@
                                                 @csrf
                                                 @method('PUT')
                                                 
-                                                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
-                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-500 sm:text-right pt-2 flex-shrink-0">Alternative Text</label>
-                                                    <div class="flex-1 min-w-0">
-                                                        <input type="text" name="alt_text" :value="currentMedia.alt_text" class="w-full text-sm border border-gray-300 rounded bg-white px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm leading-normal">
-                                                        <p class="text-[10px] text-gray-400 mt-1 leading-tight"><a href="#" class="text-indigo-600 hover:underline">Learn how to describe the purpose of the image.</a> Leave empty if the image is purely decorative.</p>
+                                                <div class="wp-field-row">
+                                                    <label class="wp-field-label">Alternative Text</label>
+                                                    <div class="wp-input-wrapper">
+                                                        <input type="text" name="alt_text" :value="currentMedia.alt_text" class="wp-input">
+                                                        <p class="mt-1" style="font-size: 10px; color: #9ca3af; line-height: 1.25;"><a href="#" style="color: #4f46e5; text-decoration: none;">Learn how to describe the purpose of the image.</a><br>Leave empty if the image is purely decorative.</p>
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
-                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-500 sm:text-right pt-2 flex-shrink-0">Title</label>
-                                                    <div class="flex-1 min-w-0">
-                                                        <input type="text" name="title" :value="currentMedia.title" class="w-full text-sm border border-gray-300 rounded bg-white px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm leading-normal">
+                                                <div class="wp-field-row">
+                                                    <label class="wp-field-label">Title</label>
+                                                    <div class="wp-input-wrapper">
+                                                        <input type="text" name="title" :value="currentMedia.title" class="wp-input">
                                                     </div>
                                                 </div>
 
-                                                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
-                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-500 sm:text-right pt-2 flex-shrink-0">Caption</label>
-                                                    <div class="flex-1 min-w-0">
-                                                        <textarea name="caption" rows="2" class="w-full text-sm border border-gray-300 rounded bg-white px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm leading-normal" x-text="currentMedia.caption"></textarea>
+                                                <div class="wp-field-row">
+                                                    <label class="wp-field-label">Caption</label>
+                                                    <div class="wp-input-wrapper">
+                                                        <textarea name="caption" rows="2" class="wp-input" x-text="currentMedia.caption"></textarea>
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
-                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-500 sm:text-right pt-2 flex-shrink-0">Description</label>
-                                                    <div class="flex-1 min-w-0">
-                                                        <textarea name="description" rows="3" class="w-full text-sm border border-gray-300 rounded bg-white px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm leading-normal" x-text="currentMedia.description"></textarea>
+                                                <div class="wp-field-row">
+                                                    <label class="wp-field-label">Description</label>
+                                                    <div class="wp-input-wrapper">
+                                                        <textarea name="description" rows="3" class="wp-input" x-text="currentMedia.description"></textarea>
                                                     </div>
                                                 </div>
 
-                                                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
-                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-500 sm:text-right pt-2 flex-shrink-0">File URL</label>
-                                                    <div class="flex-1 min-w-0 space-y-2">
-                                                        <input type="text" readonly :value="currentMedia.url" class="w-full text-xs font-mono bg-gray-50 text-gray-500 border border-gray-200 rounded px-2 py-1.5 shadow-inner truncate focus:ring-0">
-                                                        <button type="button" @click="copyToClipboard(currentMedia.url)" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-semibold rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                <div class="wp-field-row">
+                                                    <label class="wp-field-label">File URL</label>
+                                                    <div class="wp-input-wrapper space-y-2">
+                                                        <input type="text" readonly :value="currentMedia.url" class="wp-input" style="background-color: #f9fafb; color: #6b7280; font-family: monospace;">
+                                                        <button type="button" @click="copyToClipboard(currentMedia.url)" style="display: inline-flex; align-items: center; padding: 0.375rem 0.75rem; border: 1px solid #d1d5db; font-size: 0.75rem; font-weight: 600; border-radius: 0.375rem; color: #374151; background-color: #ffffff; cursor: pointer;">
                                                             Copy URL to clipboard
                                                         </button>
                                                     </div>
@@ -298,6 +298,30 @@
         @media (min-width: 1280px) { .xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
         @media (min-width: 1536px) { .xxl\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
         
+        /* Strict WordPress Modal Layout Styles */
+        .wp-modal-body { display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; flex: 1; overflow: hidden; }
+        @media(min-width: 1024px) {
+            .wp-modal-body { flex-direction: row; }
+        }
+        .wp-modal-left { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .wp-modal-right { width: 100%; border-left: 1px solid #e5e7eb; flex-shrink: 0; overflow-y: auto; }
+        @media(min-width: 1024px) {
+            .wp-modal-right { width: 350px; }
+        }
+        @media(min-width: 1280px) {
+            .wp-modal-right { width: 450px; }
+        }
+        .wp-field-row { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+        @media(min-width: 640px) {
+            .wp-field-row { flex-direction: row; gap: 1rem; }
+        }
+        .wp-field-label { width: 100%; font-size: 0.75rem; font-weight: 600; color: #6b7280; padding-top: 0.5rem; flex-shrink: 0; }
+        @media(min-width: 640px) {
+            .wp-field-label { width: 7rem; text-align: right; }
+        }
+        .wp-input-wrapper { flex: 1; min-width: 0; }
+        .wp-input { width: 100%; font-size: 0.875rem; border: 1px solid #d1d5db !important; border-radius: 0.25rem !important; background-color: #ffffff !important; padding: 0.5rem 0.75rem !important; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05) !important; color: #111827 !important; outline: none; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+        .wp-input:focus { border-color: #6366f1 !important; outline: none !important; box-shadow: 0 0 0 1px #6366f1 !important; }
     </style>
 
     <script>
