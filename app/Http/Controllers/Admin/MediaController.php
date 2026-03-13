@@ -99,10 +99,11 @@ class MediaController extends Controller
         $request->validate([
             'alt_text' => 'nullable|string|max:255',
             'title' => 'nullable|string|max:255',
+            'caption' => 'nullable|string',
             'description' => 'nullable|string',
         ]);
 
-        $media->update($request->only(['alt_text', 'title', 'description']));
+        $media->update($request->only(['alt_text', 'title', 'caption', 'description']));
 
         return back()->with('success', 'Media metadata updated successfully.');
     }

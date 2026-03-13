@@ -16,6 +16,7 @@ class Media extends Model
         'disk',
         'alt_text',
         'title',
+        'caption',
         'description',
         'size',
         'mime_type'
