@@ -133,7 +133,7 @@
                 <!-- The Sidebar is removed for full-width layout -->
                 <!-- WordPress Style Attachment Details Modal -->
                 <div x-show="isModalOpen" 
-                     class="fixed inset-0 z-[100] flex bg-gray-100" 
+                     class="fixed inset-0 z-50 flex bg-gray-100" 
                      x-cloak 
                      x-transition:enter="transition ease-out duration-300" 
                      x-transition:enter-start="opacity-0" 
@@ -180,7 +180,7 @@
                                 </div>
 
                                 <!-- Right side: Metadata and Actions -->
-                                <div class="w-full lg:w-[400px] xl:w-[450px] bg-gray-50 border-l border-gray-200 flex-shrink-0 overflow-y-auto">
+                                <div class="w-full lg:w-96 xl:w-4/12 bg-gray-50 border-l border-gray-200 flex-shrink-0 overflow-y-auto">
                                     <div class="p-6">
                                         <!-- Asset Info summary -->
                                         <div class="mb-6 flex gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
@@ -208,27 +208,31 @@
                                                 @csrf
                                                 @method('PUT')
                                                 
-                                                <div class="grid grid-cols-[100px_1fr] items-baseline gap-4">
-                                                    <label class="text-xs font-semibold text-gray-600 text-right">Alternative Text</label>
-                                                    <div>
+                                                <div class="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4">
+                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-600 sm:text-right flex-shrink-0">Alternative Text</label>
+                                                    <div class="flex-1 min-w-0">
                                                         <input type="text" name="alt_text" :value="currentMedia.alt_text" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                                         <p class="text-[10px] text-gray-400 mt-1 leading-tight"><a href="#" class="text-indigo-600 hover:underline">Learn how to describe the purpose of the image.</a> Leave empty if the image is purely decorative.</p>
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="grid grid-cols-[100px_1fr] items-center gap-4">
-                                                    <label class="text-xs font-semibold text-gray-600 text-right">Title</label>
-                                                    <input type="text" name="title" :value="currentMedia.title" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-600 sm:text-right flex-shrink-0">Title</label>
+                                                    <div class="flex-1 min-w-0">
+                                                        <input type="text" name="title" :value="currentMedia.title" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                    </div>
                                                 </div>
                                                 
-                                                <div class="grid grid-cols-[100px_1fr] items-start gap-4">
-                                                    <label class="text-xs font-semibold text-gray-600 text-right pt-2">Description</label>
-                                                    <textarea name="description" rows="3" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-text="currentMedia.description"></textarea>
+                                                <div class="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
+                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-600 sm:text-right pt-2 flex-shrink-0">Description</label>
+                                                    <div class="flex-1 min-w-0">
+                                                        <textarea name="description" rows="3" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-text="currentMedia.description"></textarea>
+                                                    </div>
                                                 </div>
 
-                                                <div class="grid grid-cols-[100px_1fr] items-center gap-4 pt-2">
-                                                    <label class="text-xs font-semibold text-gray-600 text-right">File URL</label>
-                                                    <div class="space-y-2">
+                                                <div class="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 pt-2">
+                                                    <label class="w-full sm:w-28 text-xs font-semibold text-gray-600 sm:text-right pt-1.5 flex-shrink-0">File URL</label>
+                                                    <div class="flex-1 min-w-0 space-y-2">
                                                         <input type="text" readonly :value="currentMedia.url" class="w-full text-xs font-mono bg-gray-50 text-gray-500 border-gray-200 rounded-md shadow-inner py-1.5 px-3 truncate focus:ring-0">
                                                         <button type="button" @click="copyToClipboard(currentMedia.url)" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-semibold rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                                             Copy URL to clipboard
