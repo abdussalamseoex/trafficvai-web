@@ -123,7 +123,7 @@ class GuestPostController extends Controller
 
         $isEmergency = $request->input('is_emergency', false);
         if ($isEmergency) {
-            $totalAmount += 50; // Flat emergency fee for guest posts
+            $totalAmount += ($guestPost->express_delivery_price ?? 50); // Dynamic emergency fee for guest posts
         }
 
         $subtotalAmount = $totalAmount;

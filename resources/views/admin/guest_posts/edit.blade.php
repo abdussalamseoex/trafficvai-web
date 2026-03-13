@@ -128,6 +128,14 @@
                                 <x-input-error :messages="$errors->get('express_delivery_time_days')" class="mt-2" />
                             </div>
 
+                            <!-- Express Delivery Price -->
+                            <div>
+                                <x-input-label for="express_delivery_price" :value="__('Express Delivery Price ($)')" />
+                                <x-text-input id="express_delivery_price" class="block mt-1 w-full" type="number" step="0.01" name="express_delivery_price" min="0" :value="old('express_delivery_price', $guestPost->express_delivery_price ?? 50)" placeholder="e.g. 50" />
+                                <p class="text-xs text-gray-500 mt-1">Price for express delivery (default: $50)</p>
+                                <x-input-error :messages="$errors->get('express_delivery_price')" class="mt-2" />
+                            </div>
+
                             <!-- Word Count -->
                             <div>
                                 <x-input-label for="word_count" :value="__('Article Word Count (For Creation Phase)')" />

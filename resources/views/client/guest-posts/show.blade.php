@@ -207,7 +207,7 @@
                                     let total = this.basePrice;
                                     if (this.selectedService === 'creation_placement') total = this.creationPrice;
                                     if (this.selectedService === 'link_insertion') total = this.insertionPrice;
-                                    if (this.selectedDelivery === '1') total += 50;
+                                    if (this.selectedDelivery === '1') total += {{ $guestPost->express_delivery_price ?? 50 }};
                                     return total;
                                 },
 
@@ -322,7 +322,7 @@
                                                 <span class="block text-base font-bold" :class="{ 'text-orange-900': selectedDelivery == '1', 'text-gray-900': selectedDelivery != '1' }">Express Delivery</span>
                                                 <span class="block text-sm text-gray-500 mt-1">Jump the queue. Target delivery in ~{{ $guestPost->express_delivery_time_days ?? ceil($guestPost->delivery_time_days / 2) }} Days.</span>
                                             </div>
-                                            <span class="ml-4 text-xl font-black text-brand mt-0.5">+$50</span>
+                                            <span class="ml-4 text-xl font-black text-brand mt-0.5">+${{ number_format($guestPost->express_delivery_price ?? 50) }}</span>
                                         </div>
                                     </label>
                                 </div>
