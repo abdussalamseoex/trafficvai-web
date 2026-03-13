@@ -58,6 +58,9 @@
                     <x-sidebar-link :href="route('admin.traffic.index')" :active="request()->routeIs('admin.traffic.*')">
                         {{ __('Website Traffic') }}
                     </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.campaigns.index', 'link-building')" :active="request()->routeIs('admin.campaigns.*') && request()->route('type') == 'link-building'">
+                        {{ __('Link Building') }}
+                    </x-sidebar-link>
                 </x-sidebar-dropdown>
 
                 <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">SEO & Content</p>
@@ -70,7 +73,6 @@
                             'keyword-research' => 'Keyword Research',
                             'on-page-seo' => 'On-Page SEO',
                             'technical-seo' => 'Technical SEO',
-                            'link-building' => 'Link Building',
                             'local-seo' => 'Local SEO',
                             'content-seo' => 'Content SEO',
                             'seo-audit' => 'SEO Audit',
@@ -325,6 +327,9 @@
                     <x-sidebar-link :href="route('client.traffic.index')" :active="request()->routeIs('client.traffic.*')">
                         {{ __('Website Traffic') }}
                     </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.campaigns.index', 'link-building')" :active="request()->routeIs('client.campaigns.*') && request()->route('type') == 'link-building'">
+                        {{ __('Link Building') }}
+                    </x-sidebar-link>
                 </x-sidebar-dropdown>
 
                 <x-sidebar-dropdown title="SEO Campaigns" :active="request()->routeIs('client.campaigns.*')">
@@ -336,7 +341,6 @@
                             'keyword-research' => 'Keyword Research',
                             'on-page-seo' => 'On-Page SEO',
                             'technical-seo' => 'Technical SEO',
-                            'link-building' => 'Link Building',
                             'local-seo' => 'Local SEO',
                             'content-seo' => 'Content SEO',
                             'seo-audit' => 'SEO Audit',
