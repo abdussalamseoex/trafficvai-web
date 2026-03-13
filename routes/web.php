@@ -97,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('/services', \App\Http\Controllers\Admin\ServiceController::class);
             Route::resource('/coupons', \App\Http\Controllers\Admin\CouponController::class);
             Route::resource('/traffic', \App\Http\Controllers\Admin\WebsiteTrafficController::class)->parameters(['traffic' => 'traffic']);
+            Route::resource('/link-building', \App\Http\Controllers\Admin\LinkBuildingController::class)->parameters(['link-building' => 'linkBuilding']);
 
             // Dynamic Campaign Routes
             Route::group(['prefix' => 'campaigns/{type}', 'as' => 'campaigns.'], function () {

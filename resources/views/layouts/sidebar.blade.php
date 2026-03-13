@@ -58,7 +58,7 @@
                     <x-sidebar-link :href="route('admin.traffic.index')" :active="request()->routeIs('admin.traffic.*')">
                         {{ __('Website Traffic') }}
                     </x-sidebar-link>
-                    <x-sidebar-link :href="route('link_building.index')" :active="request()->routeIs('link_building.*')">
+                    <x-sidebar-link :href="route('admin.link-building.index')" :active="request()->routeIs('admin.link-building.*')">
                         {{ __('Link Building') }}
                     </x-sidebar-link>
                 </x-sidebar-dropdown>
