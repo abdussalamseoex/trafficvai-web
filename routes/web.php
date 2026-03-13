@@ -112,6 +112,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::resource('/site-faqs', \App\Http\Controllers\Admin\SiteFaqController::class);
                 Route::resource('/users', \App\Http\Controllers\Admin\UserController::class);
                 Route::resource('/staff', \App\Http\Controllers\Admin\StaffController::class)->except(['show']);
+                Route::resource('/media', \App\Http\Controllers\Admin\MediaController::class)->except(['show', 'create', 'edit']);
 
                 // Home Page Management
                 Route::prefix('home-sections')->name('home-sections.')->group(function () {

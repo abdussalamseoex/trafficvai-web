@@ -128,6 +128,9 @@
                     <x-sidebar-link :href="route('admin.site-faqs.index')" :active="request()->routeIs('admin.site-faqs.*')">
                         {{ __('FAQs') }}
                     </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.media.index')" :active="request()->routeIs('admin.media.*')">
+                        {{ __('Media Library') }}
+                    </x-sidebar-link>
                 </x-sidebar-dropdown>
 
                 <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Business</p>
