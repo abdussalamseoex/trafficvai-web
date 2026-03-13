@@ -161,7 +161,18 @@
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-bold text-gray-900">{{ str_replace(['http://', 'https://'], '', $site->url) }}</div>
-                                            <div class="text-xs text-brand font-medium">{{ $site->niche }}</div>
+                                            <div class="text-[10px] text-brand font-bold mt-1.5 flex flex-wrap gap-1">
+                                                @if(is_array($site->niche))
+                                                    @foreach(array_slice($site->niche, 0, 3) as $n)
+                                                        <span class="inline-block bg-orange-50 rounded px-1.5 py-0.5 border border-orange-100 uppercase tracking-wider">{{ $n }}</span>
+                                                    @endforeach
+                                                    @if(count($site->niche) > 3)
+                                                        <span class="inline-flex items-center text-gray-400 font-normal px-1 shrink-0" title="{{ implode(', ', array_slice($site->niche, 3)) }}">+{{ count($site->niche) - 3 }} more</span>
+                                                    @endif
+                                                @else
+                                                    <span class="inline-block bg-orange-50 rounded px-1.5 py-0.5 border border-orange-100 uppercase tracking-wider">{{ $site->niche }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
