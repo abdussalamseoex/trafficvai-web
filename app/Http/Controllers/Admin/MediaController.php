@@ -71,6 +71,18 @@ class MediaController extends Controller
     }
 
     /**
+     * Sync existing storage files to media library.
+     * 
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function sync()
+    {
+        \Illuminate\Support\Facades\Artisan::call('media:sync');
+        
+        return back()->with('success', 'Media library synchronized with storage.');
+    }
+
+    /**
      * Update the specified media in storage.
      * 
      * @param  \Illuminate\Http\Request  $request
