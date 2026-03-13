@@ -58,7 +58,7 @@
                     <x-sidebar-link :href="route('admin.traffic.index')" :active="request()->routeIs('admin.traffic.*')">
                         {{ __('Website Traffic') }}
                     </x-sidebar-link>
-                    <x-sidebar-link :href="route('admin.campaigns.index', 'link-building')" :active="request()->routeIs('admin.campaigns.*') && request()->route('type') == 'link-building'">
+                    <x-sidebar-link :href="route('link_building.index')" :active="request()->routeIs('link_building.*')">
                         {{ __('Link Building') }}
                     </x-sidebar-link>
                 </x-sidebar-dropdown>
@@ -327,7 +327,7 @@
                     <x-sidebar-link :href="route('client.traffic.index')" :active="request()->routeIs('client.traffic.*')">
                         {{ __('Website Traffic') }}
                     </x-sidebar-link>
-                    <x-sidebar-link :href="route('client.campaigns.index', 'link-building')" :active="request()->routeIs('client.campaigns.*') && request()->route('type') == 'link-building'">
+                    <x-sidebar-link :href="route('link_building.index')" :active="request()->routeIs('link_building.*')">
                         {{ __('Link Building') }}
                     </x-sidebar-link>
                 </x-sidebar-dropdown>
