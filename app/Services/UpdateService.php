@@ -70,7 +70,25 @@ class UpdateService
             $output .= $this->executeCommand('composer install --no-interaction --prefer-dist --optimize-autoloader');
             */
 
+            // 2. Composer Install
+            $output .= "\n--- Running Composer Install ---\n";
+            $composerPaths = ['composer', '/usr/bin/composer', '/usr/local/bin/composer', '/opt/cpanel/composer/bin/composer'];
+            $composerCmd = null;
+            foreach ($composerPaths as $path) {
+                $test = shell_exec("which {$path} 2>/dev/null");
+                if (!empty(trim($test ?? ''))) {
+                    $composerCmd = $path;
+                    break;
+                }
+            }
+            if ($composerCmd) {
+                $output .= $this->executeCommand("{$composerCmd} install --no-interaction --no-dev --optimize-autoloader");
+            } else {
+                $output .= "(Composer not found in PATH — skipping. Run fix-composer.php manually if needed.)\n";
+            }
+
             // 3. Migrate
+
             $output .= "\n--- Running Migrations ---\n";
             Artisan::call('migrate', ['--force' => true]);
             $output .= Artisan::output();
