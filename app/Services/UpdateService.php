@@ -75,12 +75,15 @@ class UpdateService
             Artisan::call('migrate', ['--force' => true]);
             $output .= Artisan::output();
 
-            // 4. Optimize Clear & Cache
+            // 4. Clear all caches (do NOT re-cache routes as this causes issues when new routes are added)
             $output .= "\n--- Refreshing Cache ---\n";
             Artisan::call('optimize:clear');
             $output .= Artisan::output();
-            
-            Artisan::call('optimize');
+
+            Artisan::call('route:clear');
+            $output .= Artisan::output();
+
+            Artisan::call('view:clear');
             $output .= Artisan::output();
 
             $log->update([
