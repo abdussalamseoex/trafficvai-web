@@ -77,7 +77,16 @@ class StripeWebhookController extends Controller
                             ]));
                         }
                         catch (\Exception $e) {
-                            Log::error('Mail Error (Stripe Webhook): ' . $e->getMessage());
+                            \Illuminate\Support\Facades\Log::error('Mail Error (Stripe Webhook): ' . $e->getMessage());
+                        }
+
+                        // Check if this was an invoice settlement
+                        $invoiceId = $metadata->invoice_id ?? null;
+                        if ($invoiceId) {
+                            $invoice = \App\Models\Invoice::find($invoiceId);
+                            if ($invoice) {
+                                app(\App\Services\InvoiceService::class)->settle($invoice, 'stripe', $session->id, "Stripe Webhook Completion");
+                            }
                         }
                     }
                 }

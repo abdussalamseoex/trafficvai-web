@@ -88,6 +88,15 @@ class PaymentController extends Controller
             catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
             }
+
+            // Check if this was an invoice settlement
+            $invoiceId = $topupRequest->meta['invoice_id'] ?? null;
+            if ($invoiceId) {
+                $invoice = \App\Models\Invoice::find($invoiceId);
+                if ($invoice) {
+                    app(\App\Services\InvoiceService::class)->settle($invoice, $topupRequest->payment_method, $topupRequest->transaction_id ?? $topupRequest->id, "Admin Approval");
+                }
+            }
         });
 
         return back()->with('success', 'Top-up request approved successfully.');

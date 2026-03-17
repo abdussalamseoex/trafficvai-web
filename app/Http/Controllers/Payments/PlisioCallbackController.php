@@ -208,6 +208,14 @@ class PlisioCallbackController extends Controller
                 Log::error('Mail Error (Plisio Callback): ' . $e->getMessage());
             }
 
+            // Check if this was an invoice settlement
+            $invoiceId = $topup->meta['invoice_id'] ?? null;
+            if ($invoiceId) {
+                $invoice = \App\Models\Invoice::find($invoiceId);
+                if ($invoice) {
+                    app(\App\Services\InvoiceService::class)->settle($invoice, 'plisio', $txnId, "Plisio Callback Completion");
+                }
+            }
         }
         elseif (in_array($status, ['expired', 'cancelled', 'error'])) {
             if ($topup->status !== 'approved') {

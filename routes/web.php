@@ -261,6 +261,7 @@ Route::middleware(['auth'])->group(function () {
                 // Menu Additions
                 Route::get('/invoices', [\App\Http\Controllers\User\InvoiceController::class , 'index'])->name('invoices.index');
                 Route::get('/invoices/{invoice}', [\App\Http\Controllers\User\InvoiceController::class , 'show'])->name('invoices.show');
+                Route::post('/invoices/{invoice}/pay', [\App\Http\Controllers\User\InvoiceController::class, 'pay'])->name('invoices.pay');
                 Route::get('/invoices/{invoice}/download', [\App\Http\Controllers\User\InvoiceController::class , 'download'])->name('invoices.download');
 
                 Route::get('/support', [\App\Http\Controllers\User\SupportTicketController::class , 'index'])->name('support.index');
