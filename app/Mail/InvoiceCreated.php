@@ -7,9 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceCreated extends Mailable
 {
@@ -33,10 +31,8 @@ class InvoiceCreated extends Mailable
 
     public function attachments(): array
     {
-        $pdf = Pdf::loadView('invoices.pdf', ['invoice' => $this->invoice]);
-        return [
-            Attachment::fromData(fn() => $pdf->output(), 'invoice-' . $this->invoice->invoice_number . '.pdf')
-                ->withMime('application/pdf'),
-        ];
+        // PDF attachment removed (dompdf not required)
+        // Client can view the invoice at: /client/invoices/{id}
+        return [];
     }
 }

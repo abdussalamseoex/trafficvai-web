@@ -8,7 +8,7 @@ use App\Models\InvoiceItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Barryvdh\DomPDF\Facade\Pdf;
+
 use Illuminate\Support\Str;
 
 class InvoiceController extends Controller
@@ -177,23 +177,23 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Download the invoice as a PDF.
+     * Download the invoice as a printable HTML page (PDF via browser print).
      */
     public function downloadPdf(Invoice $invoice)
     {
         $invoice->load(['user', 'items']);
-        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
-        return $pdf->download('invoice-' . $invoice->invoice_number . '.pdf');
+        return response()->view('invoices.pdf', ['invoice' => $invoice, 'print' => 1])
+            ->header('Content-Type', 'text/html');
     }
 
     /**
-     * Send invoice to client via email.
+     * Send invoice to client via email (without PDF attachment).
      */
     public function sendEmail(Invoice $invoice)
     {
         $invoice->load(['user', 'items']);
-        \Mail::to($invoice->user->email)->send(new \App\Mail\InvoiceCreated($invoice));
-        return back()->with('success', 'Invoice sent to ' . $invoice->user->email);
+        Mail::to($invoice->user->email)->send(new \App\Mail\InvoiceCreated($invoice));
+        return back()->with('success', 'Invoice emailed to ' . $invoice->user->email . '.');
     }
 
     /**

@@ -52,17 +52,20 @@ class InvoiceController extends Controller
      */
     public function download($invoice)
     {
-        // Check custom invoice first
+        // Try to find as custom invoice first
         $customInvoice = Invoice::where('id', $invoice)
             ->where('user_id', auth()->id())
+            ->with(['items', 'user'])
             ->first();
 
         if ($customInvoice) {
-            return redirect()->route('client.invoices.show', $invoice)
-                ->with('info', 'Use your browser\'s print function to save as PDF.');
+            return response()->view('invoices.pdf', ['invoice' => $customInvoice, 'print' => 1])
+                ->header('Content-Type', 'text/html');
         }
 
+        // For Order receipts, we don't have a printable template yet, 
+        // fallback to redirecting back to the show page with instructions
         return redirect()->route('client.invoices.show', $invoice)
-            ->with('info', 'PDF downloads are currently generating. Please use the web receipt for now.');
+            ->with('info', 'Please use your browser\'s print function (Ctrl+P) on the receipt page to save as PDF.');
     }
 }

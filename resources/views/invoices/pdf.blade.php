@@ -54,9 +54,37 @@
 
         /* Footer */
         .footer { margin-top: 48px; border-top: 1px solid #f3f4f6; padding-top: 16px; text-align: center; font-size: 11px; color: #9ca3af; }
+
+        .no-print {
+            margin: 20px auto;
+            max-width: 800px;
+            display: flex;
+            justify-content: flex-end;
+            padding: 0 48px;
+        }
+        .print-btn {
+            background: #f97316;
+            color: #white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            font-family: inherit;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .page { padding: 0; margin: 0; max-width: none; }
+        }
     </style>
 </head>
-<body>
+<body onload="if(new URLSearchParams(window.location.search).get('print') === '1') window.print()">
+    <div class="no-print">
+        <button onclick="window.print()" class="print-btn">Print Invoice</button>
+    </div>
 <div class="page">
     {{-- Header --}}
     <div class="header">
