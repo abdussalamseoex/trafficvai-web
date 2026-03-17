@@ -82,7 +82,9 @@ class UpdateService
                 }
             }
             if ($composerCmd) {
-                $output .= $this->executeCommand("{$composerCmd} install --no-interaction --no-dev --optimize-autoloader");
+                // Set HOME for cPanel environments where it may not be defined
+                $homeDir = trim(shell_exec('echo $HOME 2>/dev/null') ?? '') ?: '/tmp';
+                $output .= $this->executeCommand("HOME={$homeDir} COMPOSER_HOME={$homeDir}/.composer {$composerCmd} install --no-interaction --no-dev --optimize-autoloader");
             } else {
                 $output .= "(Composer not found in PATH — skipping. Run fix-composer.php manually if needed.)\n";
             }
