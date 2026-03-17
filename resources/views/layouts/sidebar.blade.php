@@ -157,6 +157,9 @@
                     <x-sidebar-link :href="route('admin.gateway-settings.index')" :active="request()->routeIs('admin.gateway-settings.*')">
                         {{ __('Gateway Settings') }}
                     </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.invoices.index')" :active="request()->routeIs('admin.invoices.*')">
+                        {{ __('Invoices') }}
+                    </x-sidebar-link>
                     <x-sidebar-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
                         {{ __('Revenue Reports') }}
                     </x-sidebar-link>

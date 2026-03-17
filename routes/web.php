@@ -119,6 +119,11 @@ Route::middleware(['auth'])->group(function () {
                 Route::resource('/pages', \App\Http\Controllers\Admin\PageController::class);
                 Route::resource('/orders', \App\Http\Controllers\Admin\OrderController::class);
                 Route::resource('/guest-posts', \App\Http\Controllers\Admin\GuestPostSiteController::class)->parameters(['guest-posts' => 'guestPost']);
+                Route::resource('/invoices', \App\Http\Controllers\Admin\InvoiceController::class);
+                Route::get('/invoices/{invoice}/pdf', [\App\Http\Controllers\Admin\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
+                Route::post('/invoices/{invoice}/send-email', [\App\Http\Controllers\Admin\InvoiceController::class, 'sendEmail'])->name('invoices.send-email');
+                Route::post('/invoices/{invoice}/status', [\App\Http\Controllers\Admin\InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
+
                 Route::resource('/leads', \App\Http\Controllers\Admin\LeadController::class);
                 Route::resource('/site-faqs', \App\Http\Controllers\Admin\SiteFaqController::class);
                 Route::resource('/users', \App\Http\Controllers\Admin\UserController::class);
