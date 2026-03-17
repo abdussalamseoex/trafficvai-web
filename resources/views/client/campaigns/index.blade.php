@@ -40,7 +40,7 @@
                                 </div>
                                 
                                 <div class="shrink-0 mt-6 md:mt-0">
-                                    <a href="{{ route('client.campaigns.show', ['type' => $type, 'service' => $service->slug]) }}" class="inline-flex items-center justify-center w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md">
+                                    <a href="{{ $type === 'link-building' ? route('client.link_building.show', $service->slug) : route('client.campaigns.show', ['type' => $type, 'service' => $service->slug]) }}" class="inline-flex items-center justify-center w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md">
                                         View Details
                                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                                     </a>
@@ -78,7 +78,7 @@
                                 </div>
                                 
                                 <div class="shrink-0 mt-6 md:mt-0">
-                                    <a href="{{ route('client.campaigns.show', ['type' => $type, 'service' => $service->slug]) }}" class="inline-flex items-center justify-center w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md">
+                                    <a href="{{ $type === 'link-building' ? route('client.link_building.show', $service->slug) : route('client.campaigns.show', ['type' => $type, 'service' => $service->slug]) }}" class="inline-flex items-center justify-center w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md">
                                         View Details
                                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                                     </a>

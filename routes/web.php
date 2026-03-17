@@ -242,7 +242,16 @@ Route::middleware(['auth'])->group(function () {
                     Route::get('/{service:slug}', [\App\Http\Controllers\User\CampaignController::class , 'show'])->name('show');
                     Route::post('/{package}/checkout', [\App\Http\Controllers\User\CampaignController::class , 'checkout'])->name('checkout');
                 }
-                );
+            );
+
+            // Dedicated Link Building Routes (Client Dashboard)
+            Route::get('/link-building', [\App\Http\Controllers\User\CampaignController::class , 'index'])->defaults('type', 'link-building')->name('link_building.index');
+            Route::get('/link-building/{service:slug}', function (\App\Models\Service $service) {
+                return app(\App\Http\Controllers\User\CampaignController::class)->show('link-building', $service);
+            })->name('link_building.show');
+            Route::post('/link-building/{package}/checkout', function (\Illuminate\Http\Request $request, \App\Models\Package $package) {
+                return app(\App\Http\Controllers\User\CampaignController::class)->checkout($request, 'link-building', $package);
+            })->name('link_building.checkout');
 
                 // Menu Additions
                 Route::get('/invoices', [\App\Http\Controllers\User\InvoiceController::class , 'index'])->name('invoices.index');
