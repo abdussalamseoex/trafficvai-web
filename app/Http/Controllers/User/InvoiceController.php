@@ -49,7 +49,7 @@ class InvoiceController extends Controller
             ->first();
 
         if ($customInvoice) {
-            $gateways = config('payment_gateways');
+            $gateways = PaymentGatewayManager::getEnabledGateways();
             return view('client.invoices.invoice_show', [
                 'invoice' => $customInvoice,
                 'gateways' => $gateways
