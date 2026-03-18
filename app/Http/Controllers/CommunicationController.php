@@ -118,7 +118,7 @@ class CommunicationController extends Controller
 
         if ($type === 'order') {
             $order = \App\Models\Order::findOrFail($id);
-            if (!$user->is_admin && $order->user_id !== $user->id)
+            if (!$user->is_admin && $order->user_id != $user->id)
                 abort(403);
 
             $messages = $order->messages()

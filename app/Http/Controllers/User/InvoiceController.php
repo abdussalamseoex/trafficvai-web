@@ -91,7 +91,7 @@ class InvoiceController extends Controller
     public function pay(Request $request, Invoice $invoice, PaymentGatewayManager $gatewayManager)
     {
         // Ensure user owns the invoice
-        if ($invoice->user_id !== auth()->id()) {
+        if ($invoice->user_id != auth()->id()) {
             abort(403);
         }
 
