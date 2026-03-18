@@ -41,11 +41,14 @@
         <p>{{ $invoice->notes }}</p>
         @endif
         <p>If you have any questions, please don't hesitate to reach out to us.</p>
+        <div style="text-align: center; margin-top: 24px;">
+            <a href="{{ route('client.invoices.show', $invoice) }}" class="btn">View Invoice Online</a>
+        </div>
         <p>Thank you for your business!</p>
     </div>
     <div class="footer">
         {{ config('app.name') }} &bull; {{ config('app.url') }}<br>
-        This email was sent automatically. The invoice PDF is attached.
+        This email was sent automatically. You can view your invoice details in your dashboard.
     </div>
 </div>
 </body>

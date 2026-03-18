@@ -9,7 +9,34 @@
     </x-slot>
 
     <div class="py-12" x-data="{
-        items: {{ isset($invoice) ? $invoice->items->map(fn($i) => ['description' => $i->description, 'quantity' => $i->quantity, 'unit_price' => $i->unit_price])->toJson() : '[]' }},
+        items: @php
+            if (isset($invoice)) {
+                echo $invoice->items->map(fn($i) => [
+                    'description' => $i->description, 
+                    'quantity' => $i->quantity, 
+                    'unit_price' => $i->unit_price
+                ])->toJson();
+            } elseif (isset($order)) {
+                $description = '';
+                if ($order->package) {
+                    $description = 'Renewal for ' . ($order->package->service->title ?? 'Package') . ' - ' . $order->package->name;
+                } elseif ($order->guestPostSite) {
+                    $description = 'Renewal for Guest Post - ' . $order->guestPostSite->url;
+                } else {
+                    $description = 'Renewal for Custom Order #' . $order->id;
+                }
+                
+                $price = $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount;
+                
+                echo json_encode([[
+                    'description' => $description,
+                    'quantity' => 1,
+                    'unit_price' => (float)$price
+                ]]);
+            } else {
+                echo '[]';
+            }
+        @endphp,
         currency: '{{ isset($invoice) ? $invoice->currency : 'USD' }}',
         discountType: '{{ isset($invoice) ? $invoice->discount_type : '' }}',
         discountValue: {{ isset($invoice) ? ($invoice->discount_value ?? 0) : 0 }},
@@ -195,7 +222,7 @@
                                 <select name="user_id" required class="w-full rounded-xl border-gray-200 text-sm focus:ring-brand focus:border-brand">
                                     <option value="">Select a client...</option>
                                     @foreach($clients as $client)
-                                        <option value="{{ $client->id }}" @selected(isset($invoice) ? $invoice->user_id == $client->id : old('user_id') == $client->id)>
+                                        <option value="{{ $client->id }}" @selected(isset($invoice) ? $invoice->user_id == $client->id : (isset($order) ? $order->user_id == $client->id : old('user_id') == $client->id))>
                                             {{ $client->name }} ({{ $client->email }})
                                         </option>
                                     @endforeach
@@ -205,7 +232,7 @@
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Status</label>
                                 <select name="status" class="w-full rounded-xl border-gray-200 text-sm focus:ring-brand focus:border-brand">
                                     @foreach(['draft','unpaid','paid','cancelled','overdue'] as $s)
-                                        <option value="{{ $s }}" @selected(isset($invoice) ? $invoice->status === $s : $s === 'draft')>{{ ucfirst($s) }}</option>
+                                        <option value="{{ $s }}" @selected(isset($invoice) ? $invoice->status === $s : (isset($order) ? $s === 'unpaid' : $s === 'draft'))>{{ ucfirst($s) }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -219,7 +246,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Due Date</label>
-                                <input type="date" name="due_date" value="{{ isset($invoice) && $invoice->due_date ? $invoice->due_date->format('Y-m-d') : '' }}"
+                                <input type="date" name="due_date" value="{{ isset($invoice) && $invoice->due_date ? $invoice->due_date->format('Y-m-d') : (isset($order) && $order->expiry_date ? $order->expiry_date->format('Y-m-d') : '') }}"
                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-brand focus:border-brand">
                             </div>
                         </div>
