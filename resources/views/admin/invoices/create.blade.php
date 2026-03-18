@@ -8,41 +8,42 @@
         </div>
     </x-slot>
 
-    <div class="py-12" x-data="{
-        items: @php
-            if (isset($invoice)) {
-                echo $invoice->items->map(fn($i) => [
-                    'description' => $i->description, 
-                    'quantity' => $i->quantity, 
-                    'unit_price' => $i->unit_price
-                ])->toJson();
-            } elseif (isset($order)) {
-                $description = '';
-                if ($order->package) {
-                    $description = 'Renewal for ' . ($order->package->service->title ?? 'Package') . ' - ' . $order->package->name;
-                } elseif ($order->guestPostSite) {
-                    $description = 'Renewal for Guest Post - ' . $order->guestPostSite->url;
-                } else {
-                    $description = 'Renewal for Custom Order #' . $order->id;
-                }
-                
-                $price = $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount;
-                
-                echo json_encode([[
-                    'description' => $description,
-                    'quantity' => 1,
-                    'unit_price' => (float)$price
-                ]]);
+    @php
+        $initialItems = [];
+        if (isset($invoice)) {
+            $initialItems = $invoice->items->map(fn($i) => [
+                'description' => $i->description, 
+                'quantity' => $i->quantity, 
+                'unit_price' => $i->unit_price
+            ]);
+        } elseif (isset($order)) {
+            $description = '';
+            if ($order->package) {
+                $description = 'Renewal for ' . ($order->package->service->title ?? 'Package') . ' - ' . $order->package->name;
+            } elseif ($order->guestPostSite) {
+                $description = 'Renewal for Guest Post - ' . $order->guestPostSite->url;
             } else {
-                echo '[]';
+                $description = 'Renewal for Custom Order #' . $order->id;
             }
-        @endphp,
-        currency: '{{ isset($invoice) ? $invoice->currency : 'USD' }}',
-        discountType: '{{ isset($invoice) ? $invoice->discount_type : '' }}',
+            
+            $price = $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount;
+            
+            $initialItems = [[
+                'description' => $description,
+                'quantity' => 1,
+                'unit_price' => (float)$price
+            ]];
+        }
+    @endphp
+
+    <div class="py-12" x-data='{
+        items: @json($initialItems),
+        currency: "{{ isset($invoice) ? $invoice->currency : "USD" }}",
+        discountType: "{{ isset($invoice) ? $invoice->discount_type : "" }}",
         discountValue: {{ isset($invoice) ? ($invoice->discount_value ?? 0) : 0 }},
         taxRate: {{ isset($invoice) ? ($invoice->tax_rate ?? 0) : 0 }},
 
-        addItem() { this.items.push({ description: '', quantity: 1, unit_price: 0 }); },
+        addItem() { this.items.push({ description: "", quantity: 1, unit_price: 0 }); },
         removeItem(i) { this.items.splice(i, 1); },
 
         getSubtotal() {
@@ -50,8 +51,8 @@
         },
         getDiscount() {
             let sub = this.getSubtotal();
-            if (this.discountType === 'percentage') return sub * (parseFloat(this.discountValue || 0) / 100);
-            if (this.discountType === 'fixed') return Math.min(parseFloat(this.discountValue || 0), sub);
+            if (this.discountType === "percentage") return sub * (parseFloat(this.discountValue || 0) / 100);
+            if (this.discountType === "fixed") return Math.min(parseFloat(this.discountValue || 0), sub);
             return 0;
         },
         getTax() {
@@ -61,7 +62,7 @@
             return Math.max(0, this.getSubtotal() - this.getDiscount() + this.getTax());
         },
         fmt(n) { return parseFloat(n).toFixed(2); }
-    }">
+    }'>
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             <form method="POST" action="{{ isset($invoice) ? route('admin.invoices.update', $invoice) : route('admin.invoices.store') }}">
                 @csrf
