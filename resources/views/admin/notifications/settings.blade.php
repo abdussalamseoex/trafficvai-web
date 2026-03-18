@@ -72,13 +72,23 @@
                     </div>
 
                     <div class="flex items-center justify-between border-t border-gray-100 pt-8">
-                        <div class="flex items-center space-x-2">
-                            <span class="flex h-3 w-3 relative">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                            </span>
-                            <span class="text-sm font-medium text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full">System Online & Connected</span>
+                        <div class="flex items-center space-x-6">
+                            <div class="flex items-center space-x-2">
+                                <span class="flex h-3 w-3 relative">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                </span>
+                                <span class="text-sm font-medium text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full">SMTP System Prepared</span>
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                                <input type="email" id="test_email_address" placeholder="Enter test email" class="text-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm w-48">
+                                <button type="button" onclick="sendTestEmail()" id="test_email_btn" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition">
+                                    Send Test Email
+                                </button>
+                            </div>
                         </div>
+                        
                         <button type="submit" class="inline-flex items-center px-10 py-4 bg-indigo-600 border border-transparent rounded-2xl font-black text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition shadow-2xl shadow-indigo-900/40 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25">
                             Save Global Configuration
                         </button>
@@ -87,4 +97,46 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        function sendTestEmail() {
+            const email = document.getElementById('test_email_address').value;
+            if (!email) {
+                alert('Please enter an email address.');
+                return;
+            }
+
+            const btn = document.getElementById('test_email_btn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Sending...';
+
+            fetch('{{ route('admin.notifications.test-email') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerText = originalText;
+                if (data.success) {
+                    alert(data.message);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                btn.disabled = false;
+                btn.innerText = originalText;
+                alert('An unexpected error occurred.');
+                console.error(error);
+            });
+        }
+    </script>
+    @endpush
 </x-app-layout>

@@ -39,4 +39,29 @@ class NotificationController extends Controller
 
         return back()->with('success', 'Email settings updated successfully.');
     }
+
+    public function testEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $notificationService = app(\App\Services\NotificationService::class);
+        
+        $success = $notificationService->sendEmail('test_connection', $request->email, [
+            'user_name' => 'Admin Test',
+            'time' => now()->format('Y-m-d H:i:s'),
+            'host' => \App\Models\Setting::get('mail_host'),
+        ]);
+
+        if ($success) {
+            return response()->json(['success' => true, 'message' => 'Test email sent successfully! Please check your inbox.']);
+        } else {
+            $lastError = \App\Models\EmailLog::where('recipient', $request->email)->latest()->first();
+            return response()->json([
+                'success' => false, 
+                'message' => 'Failed to send test email. Error: ' . ($lastError->error_message ?? 'Unknown error')
+            ], 500);
+        }
+    }
 }

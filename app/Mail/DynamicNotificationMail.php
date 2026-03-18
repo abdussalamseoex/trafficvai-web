@@ -13,12 +13,16 @@ class DynamicNotificationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $subject;
+    public $body;
+
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($subject, $body)
     {
-        //
+        $this->subject = $subject;
+        $this->body = $body;
     }
 
     /**
@@ -27,7 +31,7 @@ class DynamicNotificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Dynamic Notification Mail',
+            subject: $this->subject,
         );
     }
 
@@ -37,7 +41,10 @@ class DynamicNotificationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.dynamic',
+            with: [
+                'body' => $this->body,
+            ],
         );
     }
 
