@@ -248,6 +248,8 @@ class InvoiceController extends Controller
     {
         $subtotal = collect($request->items)->sum(fn($item) => $item['quantity'] * $item['unit_price']);
 
+        \Illuminate\Support\Facades\Log::info("Calculating totals. Items count: " . count($request->items) . ", Subtotal: " . $subtotal);
+
         // Apply discount
         $discountAmount = 0;
         if ($request->discount_type === 'percentage' && $request->discount_value > 0) {
@@ -265,6 +267,8 @@ class InvoiceController extends Controller
         }
 
         $total = $afterDiscount + $taxAmount;
+
+        \Illuminate\Support\Facades\Log::info("Final totals: Subtotal=$subtotal, Tax=$taxAmount, Total=$total");
 
         return [$subtotal, $taxAmount, $total];
     }

@@ -98,7 +98,7 @@
                                     @elseif($order->guest_post_site_id) Guest Post: {{ $order->guestPostSite->url }}
                                     @else Custom Service @endif
                                 </td>
-                                <td class="px-6 py-4 text-right font-bold text-gray-900">${{ number_format($order->total_price, 2) }}</td>
+                                <td class="px-6 py-4 text-right font-bold text-gray-900">${{ number_format($order->total_amount, 2) }}</td>
                                 <td class="px-6 py-4 text-right">
                                     <a href="{{ route('client.invoices.show', $order->id) }}" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold">View Receipt</a>
                                 </td>

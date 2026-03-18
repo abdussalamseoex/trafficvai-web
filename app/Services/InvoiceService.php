@@ -33,6 +33,8 @@ class InvoiceService
         }
 
         return DB::transaction(function () use ($invoice, $paymentMethod, $transactionId, $notes) {
+            \Illuminate\Support\Facades\Log::info("Settling invoice #{$invoice->invoice_number}. Total before update: {$invoice->total}");
+
             // Update invoice status
             $invoice->update([
                 'status' => 'paid',
@@ -40,6 +42,8 @@ class InvoiceService
                 'transaction_id' => $transactionId,
                 'payment_notes' => $notes,
             ]);
+
+            \Illuminate\Support\Facades\Log::info("Invoice #{$invoice->invoice_number} updated to paid. Total after update: {$invoice->total}");
 
             // If it's not a wallet payment, we still want to record the transaction for accounting
             // Wallet payments are already recorded as 'debit' by WalletService::debit()

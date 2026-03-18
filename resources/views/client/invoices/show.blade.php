@@ -74,7 +74,7 @@
                                         </div>
                                     </td>
                                     <td class="py-4 text-right font-medium text-gray-900">
-                                        <span class="price-convert" data-base-price="{{ $invoice->total_price }}">${{ number_format($invoice->total_price, 2) }}</span>
+                                        <span class="price-convert" data-base-price="{{ $invoice->total_amount }}">${{ number_format($invoice->total_amount, 2) }}</span>
                                     </td>
                                 </tr>
                                 
@@ -94,7 +94,7 @@
                             <tfoot class="border-t border-gray-200">
                                 <tr>
                                     <td class="pt-6 font-bold text-gray-900 text-right pr-6">Total Paid</td>
-                                    <td class="pt-6 font-bold text-indigo-600 text-xl text-right"><span class="price-convert" data-base-price="{{ $invoice->total_price }}">${{ number_format($invoice->total_price, 2) }}</span></td>
+                                    <td class="pt-6 font-bold text-indigo-600 text-xl text-right"><span class="price-convert" data-base-price="{{ $invoice->total_amount }}">${{ number_format($invoice->total_amount, 2) }}</span></td>
                                 </tr>
                             </tfoot>
                         </table>
