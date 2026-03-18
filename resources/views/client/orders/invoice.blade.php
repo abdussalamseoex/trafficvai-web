@@ -27,9 +27,9 @@
                     $contactAddress = \App\Models\Setting::get('contact_address', '');
                 @endphp
                 @if($logo)
-                    <img src="{{ asset($logo) }}" alt="{{ $siteName }}" class="h-14 object-contain brightness-200 mb-1">
+                    <img src="{{ asset($logo) }}" alt="{{ $siteName }}" class="h-14 object-contain mb-1">
                 @else
-                    <img src="{{ asset('images/logo.png') }}" alt="{{ $siteName }}" class="h-14 object-contain brightness-200 mb-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ $siteName }}" class="h-14 object-contain mb-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                     <h1 class="text-3xl font-black tracking-tighter uppercase mb-1" style="display:none;">{{ $siteName }}</h1>
                 @endif
             </div>
