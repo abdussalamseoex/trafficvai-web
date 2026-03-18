@@ -225,10 +225,10 @@
                                 <td class="px-4 py-6 whitespace-nowrap text-center">
                                     <button type="button" 
                                             onclick="toggleFavorite(this, {{ $site->id }})" 
-                                            class="p-2 rounded-full hover:bg-red-50 transition duration-150 focus:outline-none"
+                                            class="p-2 rounded-full hover:bg-red-50 transition-all duration-200 focus:outline-none fav-btn-{{ $site->id }}"
                                             title="{{ $site->is_favorited ? 'Remove from Favorites' : 'Add to Favorites' }}">
-                                        <svg class="w-6 h-6 {{ $site->is_favorited ? 'text-red-500 fill-current' : 'text-gray-300 hover:text-red-400' }} transition-colors" 
-                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-6 h-6 {{ $site->is_favorited ? 'text-red-500 fill-current' : 'text-gray-300 hover:text-red-400' }} fav-icon" 
+                                             stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                                         </svg>
                                     </button>
@@ -302,10 +302,18 @@
     </div>
     <script>
         function toggleFavorite(btn, id) {
+            if (btn.classList.contains('pointer-events-none')) return;
+            
             const icon = btn.querySelector('svg');
             const isAdding = icon.classList.contains('text-gray-300');
             
-            // Optimistic UI update
+            // Disable button during request
+            btn.classList.add('pointer-events-none', 'opacity-70');
+            
+            // INSTANT UI UPDATE
+            btn.style.transform = 'scale(1.3)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 150);
+
             if (isAdding) {
                 icon.classList.remove('text-gray-300');
                 icon.classList.add('text-red-500', 'fill-current');
@@ -319,42 +327,58 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('favorites_only') === '1') {
                     const row = btn.closest('tr');
-                    row.style.opacity = '0.5';
+                    row.style.opacity = '0.3';
                     row.style.pointerEvents = 'none';
+                    row.style.filter = 'grayscale(100%)';
                 }
             }
             
+            // Perform AJAX
             fetch(`/client/guest-posts/${id}/favorite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
             .then(data => {
+                // Keep the changes if successful
+                btn.classList.remove('pointer-events-none', 'opacity-70');
+                
                 if (data.status !== 'success') {
-                    // Revert UI if failed
-                    if (isAdding) {
-                        icon.classList.add('text-gray-300');
-                        icon.classList.remove('text-red-500', 'fill-current');
-                    } else {
-                        icon.classList.add('text-red-500', 'fill-current');
-                        icon.classList.remove('text-gray-300');
-                    }
+                    revertToggle(btn, isAdding);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                // Revert UI on error
-                if (isAdding) {
-                    icon.classList.add('text-gray-300');
-                    icon.classList.remove('text-red-500', 'fill-current');
-                } else {
-                    icon.classList.add('text-red-500', 'fill-current');
-                    icon.classList.remove('text-gray-300');
-                }
+                revertToggle(btn, isAdding);
+                btn.classList.remove('pointer-events-none', 'opacity-70');
             });
+        }
+
+        function revertToggle(btn, wasAdding) {
+            const icon = btn.querySelector('svg');
+            if (wasAdding) {
+                icon.classList.add('text-gray-300');
+                icon.classList.remove('text-red-500', 'fill-current');
+                btn.title = 'Add to Favorites';
+            } else {
+                icon.classList.add('text-red-500', 'fill-current');
+                icon.classList.remove('text-gray-300');
+                btn.title = 'Remove from Favorites';
+                
+                const row = btn.closest('tr');
+                if (row) {
+                    row.style.opacity = '1';
+                    row.style.pointerEvents = 'auto';
+                    row.style.filter = 'none';
+                }
+            }
         }
     </script>
 </x-app-layout>
