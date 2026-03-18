@@ -56,10 +56,13 @@ class UpdateService
         $success = true;
 
         try {
+            // Get current branch name
+            $currentBranch = $this->executeCommand('git rev-parse --abbrev-ref HEAD') ?: 'main';
+
             // 1. Git Pull
-            $output .= "--- Pulling latest code ---\n";
-            $output .= $this->executeCommand('git fetch origin main');
-            $output .= $this->executeCommand('git reset --hard origin/main');
+            $output .= "--- Pulling latest code for branch: {$currentBranch} ---\n";
+            $output .= $this->executeCommand("git fetch origin {$currentBranch}");
+            $output .= $this->executeCommand("git reset --hard origin/{$currentBranch}");
 
             // 2. Composer Install (if composer.json changed)
             // Note: In cPanel environment, shell_exec might not have composer in PATH.
