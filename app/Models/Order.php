@@ -13,7 +13,7 @@ class Order extends Model
         'published_url', 'is_emergency', 'expected_delivery_date', 'expiry_date',
         'coupon_id', 'discount_amount', 'subtotal_amount',
         'payment_method', 'payment_status', 'transaction_id', 'payment_url',
-        'wallet_amount', 'payment_notes'
+        'wallet_amount', 'payment_notes', 'payment_proof', 'sender_number'
     ];
 
     protected function casts(): array

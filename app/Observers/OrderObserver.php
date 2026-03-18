@@ -71,7 +71,7 @@ class OrderObserver
         }
 
         // 3. Handle Payment Proof Submission (Client updates proof fields)
-        if ($order->wasChanged('payment_proof') || $order->wasChanged('transaction_id')) {
+        if (($order->wasChanged('payment_proof') && $order->payment_proof) || ($order->wasChanged('transaction_id') && $order->transaction_id)) {
             // Only if payment_status is still pending/initial
             if ($order->payment_status === 'pending') {
                 $this->notificationService->notifyAdmin(
