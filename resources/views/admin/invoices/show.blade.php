@@ -69,7 +69,9 @@
                             <div class="text-gray-400 text-xs uppercase tracking-widest mb-1">{{ ucfirst($invoice->type ?? 'Custom') }} Invoice</div>
                             <div class="text-3xl font-black text-brand">{{ $invoice->invoice_number }}</div>
                             @if($invoice->type === 'renewal' && $invoice->order_id)
-                                <div class="text-sm text-purple-400 mt-1 font-semibold border border-purple-800/50 bg-purple-900/20 px-3 py-1 rounded-full inline-block">Order #{{ $invoice->order_id }}</div>
+                                <a href="{{ route('admin.orders.show', $invoice->order_id) }}" class="text-sm text-purple-400 mt-1 font-semibold border border-purple-800/50 bg-purple-900/20 px-3 py-1 rounded-full inline-block hover:bg-purple-900/40 transition">
+                                    Linked Order #{{ $invoice->order_id }}
+                                </a>
                             @endif
                             @php
                                 $colors = ['draft'=>'gray','unpaid'=>'yellow','paid'=>'green','cancelled'=>'red','overdue'=>'red'];

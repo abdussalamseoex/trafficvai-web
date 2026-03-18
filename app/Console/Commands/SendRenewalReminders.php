@@ -41,7 +41,6 @@ class SendRenewalReminders extends Command
             $invoice = \App\Models\Invoice::create([
                 'user_id' => $order->user_id,
                 'invoice_number' => 'INV-REN-' . strtoupper(uniqid()),
-                'amount' => $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount,
                 'subtotal' => $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount,
                 'total' => $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount,
                 'status' => 'unpaid',
@@ -53,9 +52,9 @@ class SendRenewalReminders extends Command
 
             $description = '';
             if ($order->package) {
-                $description = 'Renewal for ' . ($order->package->service->title ?? 'Package') . ' - ' . $order->package->name;
+                $description = 'Renewal for ' . ($order->package->service->name ?? 'Service') . ' - ' . $order->package->name . ' (Order #' . $order->id . ')';
             } elseif ($order->guestPostSite) {
-                $description = 'Renewal for Guest Post - ' . $order->guestPostSite->url;
+                $description = 'Renewal for Guest Post - ' . $order->guestPostSite->url . ' (Order #' . $order->id . ')';
             } else {
                 $description = 'Renewal for Custom Order #' . $order->id;
             }

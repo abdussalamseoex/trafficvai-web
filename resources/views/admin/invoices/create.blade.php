@@ -19,9 +19,9 @@
         } elseif (isset($order)) {
             $description = '';
             if ($order->package) {
-                $description = 'Renewal for ' . ($order->package->service->title ?? 'Package') . ' - ' . $order->package->name;
+                $description = 'Renewal for ' . ($order->package->service->name ?? 'Service') . ' - ' . $order->package->name . ' (Order #' . $order->id . ')';
             } elseif ($order->guestPostSite) {
-                $description = 'Renewal for Guest Post - ' . $order->guestPostSite->url;
+                $description = 'Renewal for Guest Post - ' . $order->guestPostSite->url . ' (Order #' . $order->id . ')';
             } else {
                 $description = 'Renewal for Custom Order #' . $order->id;
             }
