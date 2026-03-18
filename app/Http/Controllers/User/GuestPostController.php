@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GuestPostSite;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 class GuestPostController extends Controller
 {
@@ -71,7 +72,7 @@ class GuestPostController extends Controller
         // Keyword Search (URL, Niche, or Description)
         if ($request->filled('q')) {
             $keyword = $request->q;
-            $query->where(function ($q) use ($keyword) {
+            $query->where(function (Builder $q) use ($keyword) {
                 $q->where('url', 'like', "%{$keyword}%")
                     ->orWhere('niche', 'like', "%{$keyword}%")
                     ->orWhere('description', 'like', "%{$keyword}%");

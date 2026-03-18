@@ -266,25 +266,55 @@
                             @php
                                 $allEnabled = \App\Services\Payments\PaymentGatewayManager::getEnabledGateways();
                             @endphp
+                        <div class="flex flex-col gap-8">
                             @foreach($gateways as $category => $methods)
-                                @foreach($methods as $slug => $gateway)
-                                <label class="cursor-pointer border border-gray-700 bg-gray-800/50 hover:bg-gray-800 rounded-xl px-5 py-4 flex items-center gap-3 transition flex-1 min-w-[200px]" :class="paymentMethod === '{{ $slug }}' ? 'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-500/10' : ''">
-                                    <input type="radio" name="payment_method" class="sr-only" value="{{ $slug }}" x-model="paymentMethod">
-                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0" :class="paymentMethod === '{{ $slug }}' ? 'border-indigo-500' : 'border-gray-500'">
-                                        <div class="w-2.5 h-2.5 bg-indigo-500 rounded-full" x-show="paymentMethod === '{{ $slug }}'"></div>
-                                    </div>
-                                    <div class="flex-1">
-                                        <span class="text-white font-medium block">{{ $slug === 'wallet' ? 'Account Balance' : $gateway['name'] }}</span>
-                                        @if($slug === 'wallet' && auth()->check())
-                                            <span class="text-xs text-indigo-400 font-bold tracking-tighter">${{ number_format(auth()->user()->balance, 2) }} available</span>
+                                @if(count($methods) > 0)
+                                <div>
+                                    <div class="flex items-center gap-2 mb-4">
+                                        @if($category === 'global')
+                                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5V14a2 2 0 01-2-2h-1a2 2 0 00-2-2 2 2 0 01-2-2V7a2 2 0 00-2-2H8.065M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        @elseif($category === 'crypto')
+                                            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                         @endif
-                                        @if($slug !== 'wallet' && isset($gateway['logo']))
-                                            <img src="{{ $gateway['logo'] }}" alt="{{ $gateway['name'] }}" class="h-3 object-contain mt-1 opacity-70">
-                                        @endif
+                                        <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest">{{ $category === 'global' ? 'Global Gateways' : ($category === 'crypto' ? 'Pay with Crypto' : ($category === 'bangladesh' ? 'Bangladesh Local (BDT)' : ucwords($category))) }}</h4>
                                     </div>
-                                </label>
-                                @endforeach
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        @foreach($methods as $slug => $gateway)
+                                        <label class="relative cursor-pointer border border-gray-700 bg-gray-800/50 hover:bg-gray-800 rounded-xl px-5 py-4 flex items-center gap-3 transition flex-1 min-w-[200px] overflow-hidden" :class="paymentMethod === '{{ $slug }}' ? 'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-500/10' : ''">
+                                            <input type="radio" name="payment_method" class="sr-only" value="{{ $slug }}" x-model="paymentMethod">
+                                            
+                                            <!-- Badge for Automatic/Manual -->
+                                            <div class="absolute top-0 right-0">
+                                                @if(isset($gateway['type']) && $gateway['type'] === 'automatic')
+                                                    <span class="bg-indigo-500/20 text-indigo-400 text-[8px] font-bold px-1.5 py-0.5 rounded-bl-lg uppercase tracking-tighter">Instant</span>
+                                                @else
+                                                    <span class="bg-gray-700 text-gray-400 text-[8px] font-bold px-1.5 py-0.5 rounded-bl-lg uppercase tracking-tighter">Manual</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0" :class="paymentMethod === '{{ $slug }}' ? 'border-indigo-500' : 'border-gray-500'">
+                                                <div class="w-2.5 h-2.5 bg-indigo-500 rounded-full" x-show="paymentMethod === '{{ $slug }}'"></div>
+                                            </div>
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    @if(isset($gateway['logo']))
+                                                        <img src="{{ $gateway['logo'] }}" alt="{{ $gateway['name'] }}" class="h-6 object-contain opacity-90 mx-auto sm:mx-0">
+                                                    @endif
+                                                    <span class="text-white font-medium block text-sm">{{ $slug === 'wallet' ? 'Account Balance' : $gateway['name'] }}</span>
+                                                </div>
+                                                @if($slug === 'wallet' && auth()->check())
+                                                    <span class="text-xs text-indigo-400 font-bold tracking-tighter block mt-1">${{ number_format(auth()->user()->balance, 2) }} available</span>
+                                                @endif
+                                            </div>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
                             @endforeach
+                        </div>
                         </div>
 
                         <!-- Partial Payment Option -->
@@ -360,40 +390,69 @@
                     <!-- Payment Options -->
                     <div class="border-b border-gray-100 pb-6 w-full" x-show="selectedPackageId">
                         <h3 class="text-gray-900 font-bold mb-3">Select Payment Method</h3>
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            @foreach($gateways as $category => $methods)
-                                @foreach($methods as $slug => $gateway)
-                                <label class="cursor-pointer border bg-gray-50 hover:bg-gray-100 rounded-xl px-4 py-3 flex items-center gap-3 transition flex-1 min-w-[150px]" 
-                                       :class="paymentMethod === '{{ $slug }}' ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-50' : (('{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth) ? 'opacity-50 cursor-not-allowed border-gray-200' : 'border-gray-200')"
-                                       @click="'{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth ? $dispatch('notify', {type: 'error', message: 'Please log in to use your account balance.'}) : paymentMethod = '{{ $slug }}'">
-                                    <input type="radio" name="payment_method" class="sr-only" value="{{ $slug }}" x-model="paymentMethod" :disabled="'{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth">
-                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0" :class="paymentMethod === '{{ $slug }}' ? 'border-orange-500' : 'border-gray-300'">
-                                        <div class="w-2.5 h-2.5 bg-orange-500 rounded-full" x-show="paymentMethod === '{{ $slug }}'"></div>
-                                    </div>
-                                    <span class="text-gray-900 font-bold text-sm flex flex-col">
-                                        {{ $slug === 'wallet' ? 'Account Balance' : $gateway['name'] }}
-                                        @if($slug === 'wallet')
-                                            <span class="text-[9px] font-bold uppercase tracking-wider" :class="@auth {{ auth()->user()->balance }} < getTotal() ? 'text-red-500' : 'text-gray-500' @else 'text-gray-500' @endauth">
-                                                @auth
-                                                    <span x-show="{{ auth()->user()->balance }} < getTotal()">Insufficient Funds</span>
-                                                    <span x-show="{{ auth()->user()->balance }} >= getTotal()">Pay via Account</span>
-                                                @else
-                                                    <span>Log in to Use</span>
-                                                @endauth
-                                            </span>
-                                        @elseif(isset($gateway['logo']))
-                                            <img src="{{ $gateway['logo'] }}" alt="{{ $gateway['name'] }}" class="h-3 object-contain mt-1 opacity-70">
+                        <div class="flex flex-col sm:flex-row gap-4">                            @foreach($gateways as $category => $methods)
+                                <div class="w-full">
+                                    <div class="flex items-center gap-2 mb-3 ml-1 mt-4">
+                                        @if($category === 'global')
+                                            <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5V14a2 2 0 01-2-2h-1a2 2 0 00-2-2 2 2 0 01-2-2V7a2 2 0 00-2-2H8.065M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        @elseif($category === 'crypto')
+                                            <svg class="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        @else
+                                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                         @endif
-                                    </span>
-                                </label>
-                                @endforeach
+                                        <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                            {{ $category === 'global' ? 'Global Gateways' : ($category === 'crypto' ? 'Pay with Crypto' : ($category === 'bangladesh' ? 'Bangladesh Local (BDT)' : ucwords($category))) }}
+                                        </h4>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        @foreach($methods as $slug => $gateway)
+                                        <label class="relative cursor-pointer border bg-gray-50 hover:bg-gray-100 rounded-xl px-4 py-3 flex items-center gap-3 transition flex-1 min-w-[150px] overflow-hidden" 
+                                               :class="paymentMethod === '{{ $slug }}' ? 'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-50 shadow-sm' : (('{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth) ? 'opacity-50 cursor-not-allowed border-gray-200' : 'border-gray-200')"
+                                               @click="'{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth ? $dispatch('notify', {type: 'error', message: 'Please log in to use your account balance.'}) : paymentMethod = '{{ $slug }}'">
+                                            <input type="radio" name="payment_method" class="sr-only" value="{{ $slug }}" x-model="paymentMethod" :disabled="'{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth">
+                                            
+                                            <!-- Badge for Automatic/Manual (Campaign Simple View) -->
+                                            <div class="absolute top-0 right-0">
+                                                @if(isset($gateway['type']) && $gateway['type'] === 'automatic')
+                                                    <span class="bg-indigo-100 text-indigo-600 text-[7px] font-bold px-1.5 py-0.5 rounded-bl-lg uppercase tracking-tighter">Instant</span>
+                                                @else
+                                                    <span class="bg-gray-200 text-gray-500 text-[7px] font-bold px-1.5 py-0.5 rounded-bl-lg uppercase tracking-tighter">Manual</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors" :class="paymentMethod === '{{ $slug }}' ? 'border-indigo-500' : 'border-gray-300'">
+                                                <div class="w-2.5 h-2.5 bg-indigo-500 rounded-full" x-show="paymentMethod === '{{ $slug }}'"></div>
+                                            </div>
+                                            <span class="text-gray-900 font-bold text-sm flex flex-col pt-1">
+                                                {{ $slug === 'wallet' ? 'Account Balance' : $gateway['name'] }}
+                                                @if($slug === 'wallet')
+                                                    <span class="text-[9px] font-bold uppercase tracking-wider" :class="@auth {{ auth()->user()->balance }} < getTotal() ? 'text-red-500' : 'text-gray-500' @else 'text-gray-500' @endauth">
+                                                        @auth
+                                                            <span x-show="{{ auth()->user()->balance }} < getTotal()">Insufficient Funds</span>
+                                                            <span x-show="{{ auth()->user()->balance }} >= getTotal()">Pay via Account</span>
+                                                        @else
+                                                            <span>Log in to Use</span>
+                                                        @endauth
+                                                    </span>
+                                                @elseif(isset($gateway['logo']))
+                                                    <div class="h-6 max-h-6 flex items-center mt-1">
+                                                        <img src="{{ $gateway['logo'] }}" alt="{{ $gateway['name'] }}" class="h-full object-contain mix-blend-multiply opacity-80"
+                                                              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($gateway['name']) }}&color=7F9CF5&background=EBF4FF&font-size=0.33';">
+                                                    </div>
+                                                @endif
+                                            </span>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
                             @endforeach
+
                         </div>
                     </div>
                     <div class="flex flex-col md:flex-row items-center justify-between gap-6 w-full">
                         <div class="w-full md:w-auto">
                             <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">Final Price</p>
-                            <div class="flex flex-col">
+                                <div class="flex flex-col">
                                 <span class="text-4xl font-black text-gray-900">$<span x-text="getTotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
                                 
                                 <div x-show="couponApplied" style="display: none;" class="mt-1 flex items-center gap-2">

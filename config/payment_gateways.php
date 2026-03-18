@@ -25,6 +25,7 @@ return [
                 'currency' => ['type' => 'text', 'label' => 'Default Currency (e.g., usd)'],
             ],
             'has_test_mode' => true,
+            'type' => 'automatic',
         ],
         'paypal' => [
             'name' => 'PayPal',
@@ -36,6 +37,7 @@ return [
                 'currency' => ['type' => 'text', 'label' => 'Default Currency (e.g., usd)'],
             ],
             'has_test_mode' => true,
+            'type' => 'automatic',
         ],
         'bank_transfer' => [
             'name' => 'Manual Bank Transfer',
@@ -46,6 +48,7 @@ return [
                 'instructions' => ['type' => 'textarea', 'label' => 'Client Instructions', 'hint' => 'Tell clients what reference to use.'],
             ],
             'has_test_mode' => false,
+            'type' => 'manual',
         ],
         'wallet' => [
             'name' => 'Account Balance',
@@ -53,6 +56,7 @@ return [
             'description' => 'Pay using your internal wallet balance.',
             'fields' => [], // No fields needed
             'has_test_mode' => false,
+            'type' => 'automatic',
         ],
     ],
 
@@ -64,6 +68,7 @@ return [
                 'merchant_id' => ['type' => 'text', 'label' => 'Merchant ID'],
                 'payment_key' => ['type' => 'password', 'label' => 'Payment Key'],
             ],
+            'type' => 'automatic',
         ],
         'plisio' => [
             'name' => 'Plisio',
@@ -76,6 +81,7 @@ return [
                     'hint' => 'Callback endpoint to set in Plisio dashboard: {APP_URL}/plisio/callback',
                 ],
             ],
+            'type' => 'automatic',
         ],
         'coinbase' => [
             'name' => 'Coinbase Commerce',
@@ -84,6 +90,7 @@ return [
                 'api_key' => ['type' => 'password', 'label' => 'API Key'],
                 'webhook_secret' => ['type' => 'password', 'label' => 'Webhook Shared Secret'],
             ],
+            'type' => 'automatic',
         ],
     ],
 
@@ -97,6 +104,7 @@ return [
                 'store_password' => ['type' => 'password', 'label' => 'Store Password'],
             ],
             'has_test_mode' => true,
+            'type' => 'automatic',
         ],
         'shurjopay' => [
             'name' => 'ShurjoPay',
@@ -109,6 +117,7 @@ return [
                 'return_url' => ['type' => 'text', 'label' => 'Return URL (Optional)'],
             ],
             'has_test_mode' => true,
+            'type' => 'automatic',
         ],
         'aamarpay' => [
             'name' => 'AamarPay',
@@ -119,6 +128,7 @@ return [
                 'signature_key' => ['type' => 'password', 'label' => 'Signature Key'],
             ],
             'has_test_mode' => true,
+            'type' => 'automatic',
         ],
         'bkash' => [
             'name' => 'bKash (Manual)',
@@ -132,6 +142,7 @@ return [
                 'instructions' => ['type' => 'textarea', 'label' => 'Extra Payment Instructions', 'hint' => 'Any additional instructions.'],
             ],
             'has_test_mode' => false,
+            'type' => 'manual',
         ],
         'nagad' => [
             'name' => 'Nagad (Manual)',
@@ -145,6 +156,7 @@ return [
                 'instructions' => ['type' => 'textarea', 'label' => 'Extra Payment Instructions'],
             ],
             'has_test_mode' => false,
+            'type' => 'manual',
         ],
         'rocket' => [
             'name' => 'Rocket (Manual)',
@@ -158,6 +170,7 @@ return [
                 'instructions' => ['type' => 'textarea', 'label' => 'Extra Payment Instructions'],
             ],
             'has_test_mode' => false,
+            'type' => 'manual',
         ],
     ],
 
