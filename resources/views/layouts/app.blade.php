@@ -36,5 +36,6 @@
         <!-- Footer Scripts -->
         {!! $seo['scripts']['footer'] !!}
         <x-currency-script />
+        @stack('scripts')
     </body>
 </html>

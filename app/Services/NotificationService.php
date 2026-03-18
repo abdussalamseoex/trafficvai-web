@@ -139,8 +139,7 @@ class NotificationService
             ]);
 
             // Force refresh the transport
-            app()->forgetInstances();
-            \Illuminate\Support\Facades\Mail::forgetMailers();
+            \Illuminate\Support\Facades\Mail::purge('smtp');
         }
     }
 }
