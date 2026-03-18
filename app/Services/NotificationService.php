@@ -18,6 +18,17 @@ class NotificationService
             'type' => 'general',
             'link' => $link
         ]);
+
+        // Also send email to all admins
+        $admins = \App\Models\User::where('is_admin', true)->get();
+        foreach ($admins as $admin) {
+            $this->sendEmail('admin_notification', $admin->email, [
+                'user_name' => $admin->name,
+                'title' => $title,
+                'message' => $message,
+                'link' => $link ?? url('/')
+            ]);
+        }
     }
 
     /**
@@ -71,6 +82,17 @@ class NotificationService
                     'name' => 'SMTP Test Connection',
                     'subject' => 'Test Email from {host}',
                     'body' => '<p>Hello {user_name},</p><p>This is a test email sent from <strong>{host}</strong> at {time}.</p><p>If you are reading this, your SMTP settings are working correctly!</p>',
+                    'type' => 'general'
+                ]);
+            }
+
+            // Fallback for admin_notification if seeder wasn't run
+            if (!$template && $templateSlug === 'admin_notification') {
+                $template = \App\Models\EmailTemplate::create([
+                    'slug' => 'admin_notification',
+                    'name' => 'Admin System Notification',
+                    'subject' => '[TrafficVai] {title}',
+                    'body' => '<p>Hello {user_name},</p><p>You have a new system notification:</p><p><strong>{title}</strong></p><p>{message}</p><p><a href="{link}">View Details in Admin Panel</a></p>',
                     'type' => 'general'
                 ]);
             }
