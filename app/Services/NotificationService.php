@@ -129,9 +129,11 @@ class NotificationService
 
         if ($settings->get('mail_host')) {
             config([
+                'mail.default' => 'smtp',
+                'mail.mailers.smtp.transport' => 'smtp',
                 'mail.mailers.smtp.host' => $settings->get('mail_host'),
                 'mail.mailers.smtp.port' => $settings->get('mail_port'),
-                'mail.mailers.smtp.encryption' => $settings->get('mail_encryption') === 'none' ? null : $settings->get('mail_encryption'),
+                'mail.mailers.smtp.encryption' => ($settings->get('mail_encryption') === 'none' || !$settings->get('mail_encryption')) ? null : $settings->get('mail_encryption'),
                 'mail.mailers.smtp.username' => $settings->get('mail_username'),
                 'mail.mailers.smtp.password' => $settings->get('mail_password'),
                 'mail.from.address' => $settings->get('mail_from_address'),
