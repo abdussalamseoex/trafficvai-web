@@ -24,7 +24,7 @@
     <div class="hero">
         @php $logo = \App\Models\Setting::get('site_logo'); @endphp
         @if($logo)
-            <img src="{{ Storage::disk('public')->url(str_replace('storage/', '', $logo)) }}" alt="{{ config('app.name') }}" style="height: 40px; max-width: 160px; object-fit: contain; margin-bottom: 16px; filter: brightness(2);">
+            <img src="{{ asset($logo) }}" alt="{{ config('app.name') }}" style="height: 40px; max-width: 160px; object-fit: contain; margin-bottom: 16px; filter: brightness(2);">
         @endif
         <h1>New Invoice from {{ config('app.name') }}</h1>
         <p>Invoice {{ $invoice->invoice_number }} has been issued to you.</p>

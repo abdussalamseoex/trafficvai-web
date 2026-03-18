@@ -57,7 +57,7 @@
                         <div>
                             @php $logo = \App\Models\Setting::get('site_logo'); @endphp
                             @if($logo)
-                                <img src="{{ Storage::disk('public')->url(str_replace('storage/', '', $logo)) }}" alt="Logo" class="h-12 mb-4 brightness-200">
+                                <img src="{{ asset($logo) }}" alt="Logo" class="h-12 mb-4 brightness-200">
                             @else
                                 <div class="text-2xl font-black mb-4">{{ config('app.name') }}</div>
                             @endif

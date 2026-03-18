@@ -91,7 +91,7 @@
         <div>
             @php $logo = \App\Models\Setting::get('site_logo'); @endphp
             @if($logo)
-                <img src="{{ Storage::disk('public')->url(str_replace('storage/', '', $logo)) }}" alt="{{ config('app.name') }}" style="height: 48px; max-width: 200px; object-fit: contain; margin-bottom: 4px;">
+                <img src="{{ asset($logo) }}" alt="{{ config('app.name') }}" style="height: 48px; max-width: 200px; object-fit: contain; margin-bottom: 4px;">
             @else
                 <div class="company-name">{{ config('app.name') }}</div>
             @endif
