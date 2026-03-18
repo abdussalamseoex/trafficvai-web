@@ -27,7 +27,12 @@
                 <div class="bg-gray-900 px-8 py-10 text-white">
                     <div class="flex items-start justify-between">
                         <div>
-                            <div class="text-2xl font-black mb-2">{{ config('app.name') }}</div>
+                            @php $logo = \App\Models\Setting::get('site_logo'); @endphp
+                            @if($logo)
+                                <img src="{{ Storage::disk('public')->url(str_replace('storage/', '', $logo)) }}" alt="{{ config('app.name') }}" class="h-12 mb-4 brightness-200">
+                            @else
+                                <div class="text-2xl font-black mb-2">{{ config('app.name') }}</div>
+                            @endif
                             <div class="text-gray-400 text-sm mt-4">Issued to:</div>
                             <div class="font-bold text-lg">{{ auth()->user()->name }}</div>
                             <div class="text-gray-400 text-sm">{{ auth()->user()->email }}</div>

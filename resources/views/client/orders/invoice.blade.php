@@ -20,8 +20,13 @@
         <!-- Header -->
         <div class="bg-indigo-600 p-8 md:p-12 text-white flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-                <h1 class="text-3xl font-black tracking-tighter uppercase mb-1">TrafficVai</h1>
-                <p class="text-indigo-100 text-sm font-medium">Premium SEO & Growth Services</p>
+                @php $logo = \App\Models\Setting::get('site_logo'); @endphp
+                @if($logo)
+                    <img src="{{ Storage::disk('public')->url(str_replace('storage/', '', $logo)) }}" alt="{{ config('app.name') }}" class="h-14 object-contain brightness-200 mb-1">
+                @else
+                    <h1 class="text-3xl font-black tracking-tighter uppercase mb-1">{{ config('app.name') }}</h1>
+                    <p class="text-indigo-100 text-sm font-medium">Premium SEO &amp; Growth Services</p>
+                @endif
             </div>
             <div class="mt-6 md:mt-0 text-right">
                 <h2 class="text-4xl font-black">INVOICE</h2>
