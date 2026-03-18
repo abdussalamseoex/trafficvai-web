@@ -109,7 +109,7 @@ class SiteFaqSeeder extends Seeder
         ];
 
         foreach ($faqs as $faq) {
-            SiteFaq::firstOrCreate(['question' => $faq['question']], $faq);
+            SiteFaq::updateOrCreate(['question' => $faq['question']], $faq);
         }
     }
 }
