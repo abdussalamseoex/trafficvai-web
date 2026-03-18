@@ -217,7 +217,7 @@ class GuestPostController extends Controller
             $status = 'added';
         }
 
-        if (request()->ajax()) {
+        if (request()->expectsJson()) {
             return response()->json(['status' => 'success', 'favorite' => $status]);
         }
 
