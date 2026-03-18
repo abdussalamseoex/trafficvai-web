@@ -58,7 +58,7 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <span class="price-convert" data-base-price="{{ $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount }}">${{ number_format($order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount, 2) }}</span>
+                                        <span class="price-convert" data-base-price="{{ $order->subtotal_display }}">${{ number_format($order->subtotal_display, 2) }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($order->status == 'completed')

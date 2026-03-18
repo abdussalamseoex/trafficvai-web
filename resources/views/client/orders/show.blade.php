@@ -42,7 +42,7 @@
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500">Subtotal</p>
-                            <p class="text-lg text-gray-900"><span class="price-convert" data-base-price="{{ $order->subtotal_amount ?? ($order->total_amount + $order->discount_amount) }}">${{ number_format($order->subtotal_amount ?? ($order->total_amount + $order->discount_amount), 2) }}</span></p>
+                            <p class="text-lg text-gray-900"><span class="price-convert" data-base-price="{{ $order->subtotal_display }}">${{ number_format($order->subtotal_display, 2) }}</span></p>
                         </div>
                         @if($order->discount_amount > 0)
                         <div>
@@ -57,7 +57,10 @@
                         @endif
                         <div>
                             <p class="text-sm font-medium text-gray-500">Total Paid</p>
-                            <p class="text-lg text-gray-900 font-bold"><span class="price-convert" data-base-price="{{ $order->total_amount }}">${{ number_format($order->total_amount, 2) }}</span></p>
+                            <p class="text-lg text-gray-900 font-bold"><span class="price-convert" data-base-price="{{ $order->total_paid_display }}">${{ number_format($order->total_paid_display, 2) }}</span></p>
+                            @if($order->wallet_amount > 0)
+                            <p class="text-[10px] text-amber-600 font-bold italic mt-1 uppercase tracking-wider">Includes ${{ number_format($order->wallet_amount, 2) }} Wallet</p>
+                            @endif
                         </div>
                         
                         @if($order->addons->count() > 0)

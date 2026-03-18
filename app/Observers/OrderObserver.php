@@ -82,4 +82,14 @@ class OrderObserver
             }
         }
     }
+
+    /**
+     * Handle the Order "saving" event.
+     */
+    public function saving(\App\Models\Order $order): void
+    {
+        if (!$order->subtotal_amount || $order->subtotal_amount <= 0) {
+            $order->subtotal_amount = (float)$order->total_amount + (float)$order->wallet_amount + (float)$order->discount_amount;
+        }
+    }
 }

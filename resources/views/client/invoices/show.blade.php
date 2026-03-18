@@ -74,7 +74,7 @@
                                         </div>
                                     </td>
                                     <td class="py-4 text-right font-medium text-gray-900">
-                                        <span class="price-convert" data-base-price="{{ $invoice->total_amount }}">${{ number_format($invoice->total_amount, 2) }}</span>
+                                        <span class="price-convert" data-base-price="{{ $invoice->subtotal_display }}">${{ number_format($invoice->subtotal_display, 2) }}</span>
                                     </td>
                                 </tr>
                                 
@@ -92,9 +92,27 @@
                                 @endif
                             </tbody>
                             <tfoot class="border-t border-gray-200">
+                                @if($invoice->wallet_amount > 0)
+                                <tr>
+                                    <td class="pt-4 text-gray-500 text-right pr-6">Wallet Payment</td>
+                                    <td class="pt-4 text-amber-600 font-bold text-right">
+                                        -<span class="price-convert" data-base-price="{{ $invoice->wallet_amount }}">${{ number_format($invoice->wallet_amount, 2) }}</span>
+                                    </td>
+                                </tr>
+                                @endif
+                                @if($invoice->discount_amount > 0)
+                                <tr>
+                                    <td class="pt-2 text-gray-500 text-right pr-6">Discount Applied</td>
+                                    <td class="pt-2 text-green-600 font-bold text-right">
+                                        -<span class="price-convert" data-base-price="{{ $invoice->discount_amount }}">${{ number_format($invoice->discount_amount, 2) }}</span>
+                                    </td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td class="pt-6 font-bold text-gray-900 text-right pr-6">Total Paid</td>
-                                    <td class="pt-6 font-bold text-indigo-600 text-xl text-right"><span class="price-convert" data-base-price="{{ $invoice->total_amount }}">${{ number_format($invoice->total_amount, 2) }}</span></td>
+                                    <td class="pt-6 font-bold text-indigo-600 text-xl text-right">
+                                        <span class="price-convert" data-base-price="{{ $invoice->total_paid_display }}">${{ number_format($invoice->total_paid_display, 2) }}</span>
+                                    </td>
                                 </tr>
                             </tfoot>
                         </table>

@@ -27,7 +27,7 @@
                         <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Order Information</h3>
                         <p class="mb-2"><span class="font-semibold">Client:</span> {{ $order->user->name }} ({{ $order->user->email }})</p>
                         <p class="mb-2"><span class="font-semibold">Service:</span> {{ $order->package ? $order->package->service->name . ' - ' . $order->package->name : 'Guest Post Placement - ' . $order->guestPostSite->url }}</p>
-                        <p class="mb-2"><span class="font-semibold">Subtotal:</span> ${{ number_format($order->subtotal_amount ?? ($order->total_amount + $order->discount_amount), 2) }}</p>
+                        <p class="mb-2"><span class="font-semibold">Subtotal:</span> ${{ number_format($order->subtotal_display, 2) }}</p>
                         @if($order->discount_amount > 0)
                         <p class="mb-2 flex items-center"><span class="font-semibold mr-1">Discount:</span> <span class="text-green-600 font-bold">-${{ number_format($order->discount_amount, 2) }}</span>
                             @if($order->coupon)
@@ -35,7 +35,10 @@
                             @endif
                         </p>
                         @endif
-                        <p class="mb-2"><span class="font-semibold">Total Paid:</span> ${{ number_format($order->total_amount, 2) }}</p>
+                        <p class="mb-2"><span class="font-semibold">Total Paid:</span> ${{ number_format($order->total_paid_display, 2) }}</p>
+                        @if($order->wallet_amount > 0)
+                        <p class="mb-2 text-xs text-amber-600 font-medium italic">(Included Wallet: ${{ number_format($order->wallet_amount, 2) }})</p>
+                        @endif
                         
                         @if($order->addons->count() > 0)
                         <div class="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">

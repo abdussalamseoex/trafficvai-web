@@ -160,7 +160,7 @@
                                         @endif
                                     </div>
                                     <div class="text-xs font-semibold text-gray-400 mt-1.5 flex items-center">
-                                        Order #{{ $order->id }} • <span class="price-convert" data-base-price="{{ $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount }}">${{ number_format($order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount, 2) }}</span>
+                                        Order #{{ $order->id }} • <span class="price-convert" data-base-price="{{ $order->subtotal_display }}">${{ number_format($order->subtotal_display, 2) }}</span>
                                         @if($order->unread_messages_count > 0)
                                             <span class="ml-2 bg-brand text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">
                                                 {{ $order->unread_messages_count }}

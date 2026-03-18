@@ -75,4 +75,23 @@ class Order extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+
+    /**
+     * Accessor for full price (before wallet deduction)
+     */
+    public function getSubtotalDisplayAttribute()
+    {
+        if ($this->subtotal_amount > 0) {
+            return (float)$this->subtotal_amount;
+        }
+        return (float)$this->total_amount + (float)$this->wallet_amount + (float)$this->discount_amount;
+    }
+
+    /**
+     * Accessor for amount actually paid (Wallet + Gateway)
+     */
+    public function getTotalPaidDisplayAttribute()
+    {
+        return (float)$this->total_amount + (float)$this->wallet_amount;
+    }
 }

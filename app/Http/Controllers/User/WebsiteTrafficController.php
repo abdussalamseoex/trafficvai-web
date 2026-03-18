@@ -56,6 +56,7 @@ class WebsiteTrafficController extends Controller
             'project_id' => $request->input('project_id'),
             'package_id' => $package->id,
             'status' => 'pending_payment',
+            'subtotal_amount' => $totalAmount,
             'total_amount' => $totalAmount,
             'is_emergency' => $isEmergency,
             'payment_method' => $paymentMethod,
