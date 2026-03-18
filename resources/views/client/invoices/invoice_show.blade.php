@@ -137,27 +137,44 @@
 
                 <form action="{{ route('client.invoices.pay', $invoice) }}" method="POST" id="payment-form" x-data="{ selectedMethod: '' }">
                     @csrf
-                    
-                    <div class="space-y-6 mb-8">
+                                       <div class="divide-y divide-gray-100">
                         {{-- 1. Internal Wallet --}}
-                        <div class="w-full">
-                            <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1">Internal Balance</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <label class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition group"
-                                       :class="selectedMethod === 'wallet' ? 'border-brand bg-brand/5' : 'border-gray-50 hover:border-gray-200'">
-                                    <input type="radio" name="payment_method" value="wallet" class="hidden" x-model="selectedMethod">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                        <div class="py-8 first:pt-0 last:pb-0">
+                            <div class="flex items-center gap-3 mb-6 ml-1">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50">
+                                    <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                </div>
+                                <h4 class="text-xs font-black text-gray-900 uppercase tracking-widest">Internal Balance</h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                                <label class="group relative cursor-pointer border-2 bg-white hover:bg-gray-50 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-200 outline-none"
+                                       :class="selectedMethod === 'wallet' ? 'border-indigo-600 bg-indigo-50/30 shadow-md transform scale-[1.02]' : ({{ auth()->user()->balance }} < {{ $invoice->total }} ? 'opacity-50 cursor-not-allowed border-gray-100' : 'border-gray-100 hover:border-gray-200')"
+                                       @click="{{ auth()->user()->balance }} < {{ $invoice->total }} ? null : selectedMethod = 'wallet'">
+                                    <input type="radio" name="payment_method" value="wallet" class="sr-only" x-model="selectedMethod" :disabled="{{ auth()->user()->balance }} < {{ $invoice->total }}">
+                                    
+                                    <!-- Radio Indicator -->
+                                    <div class="absolute top-4 left-4">
+                                        <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors" 
+                                             :class="selectedMethod === 'wallet' ? 'border-indigo-600' : 'border-gray-300 group-hover:border-gray-400'">
+                                            <div class="w-2 h-2 bg-indigo-600 rounded-full" x-show="selectedMethod === 'wallet'"></div>
                                         </div>
-                                        <span class="font-bold text-gray-900">Wallet Balance</span>
                                     </div>
-                                    <div class="text-sm font-medium" :class="selectedMethod === 'wallet' ? 'text-brand' : 'text-gray-500'">
-                                        Balance: {{ $invoice->currency }} {{ number_format(auth()->user()->balance, 2) }}
+
+                                    <!-- Logo/Visual -->
+                                    <div class="h-12 flex items-center justify-center mb-4 mt-2">
+                                        <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                        </div>
                                     </div>
-                                    @if(auth()->user()->balance < $invoice->total)
-                                        <div class="mt-2 text-[10px] font-black uppercase tracking-widest text-red-500 bg-red-50 px-2 py-0.5 rounded inline-block w-fit">Insufficient Balance</div>
-                                    @endif
+
+                                    <div class="flex flex-col">
+                                        <span class="text-gray-900 font-black text-sm">Account Balance</span>
+                                        <span class="text-[10px] font-bold mt-1" :class="{{ auth()->user()->balance }} < {{ $invoice->total }} ? 'text-red-500' : 'text-gray-500'">
+                                            <span x-show="{{ auth()->user()->balance }} < {{ $invoice->total }}">Insufficient Funds</span>
+                                            <span x-show="{{ auth()->user()->balance }} >= {{ $invoice->total }}">Balance: {{ $invoice->currency }} {{ number_format(auth()->user()->balance, 2) }}</span>
+                                        </span>
+                                    </div>
                                 </label>
                             </div>
                         </div>
@@ -173,23 +190,25 @@
                                 @endphp
 
                                 @if(count($filteredMethods) > 0)
-                                <div class="w-full">
-                                    <div class="flex items-center gap-2 mb-3 ml-1 mt-6">
-                                        @if($category === 'global')
-                                            <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5V14a2 2 0 01-2-2h-1a2 2 0 00-2-2 2 2 0 01-2-2V7a2 2 0 00-2-2H8.065M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        @elseif($category === 'crypto')
-                                            <svg class="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        @else
-                                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                        @endif
-                                        <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                            {{ $category === 'global' ? 'Global Gateways' : ($category === 'crypto' ? 'Crypto' : ($category === 'bangladesh' ? 'Local' : ucwords($category))) }}
+                                <div class="py-8 first:pt-0 last:pb-0">
+                                    <div class="flex items-center gap-3 mb-6 ml-1">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50">
+                                            @if($category === 'global')
+                                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5V14a2 2 0 01-2-2h-1a2 2 0 00-2-2 2 2 0 01-2-2V7a2 2 0 00-2-2H8.065M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            @elseif($category === 'crypto')
+                                                <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            @else
+                                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            @endif
+                                        </div>
+                                        <h4 class="text-xs font-black text-gray-900 uppercase tracking-widest">
+                                            {{ $category === 'global' ? 'Global Gateways' : ($category === 'crypto' ? 'Pay with Crypto' : ($category === 'bangladesh' ? 'Bangladesh Local (BDT)' : ucwords($category))) }}
                                         </h4>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                                         @foreach($filteredMethods as $id => $gateway)
                                         <label class="group relative cursor-pointer border-2 bg-white hover:bg-gray-50 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-200 outline-none" 
-                                               :class="selectedMethod === '{{ $id }}' ? 'border-indigo-600 bg-indigo-50/30 shadow-md transform scale-[1.02]' : 'border-gray-50 hover:border-gray-100'"
+                                               :class="selectedMethod === '{{ $id }}' ? 'border-indigo-600 bg-indigo-50/30 shadow-md transform scale-[1.02]' : 'border-gray-100 hover:border-gray-200'"
                                                @click="selectedMethod = '{{ $id }}'">
                                             <input type="radio" name="payment_method" value="{{ $id }}" class="sr-only" x-model="selectedMethod">
                                             
@@ -223,24 +242,17 @@
 
                                             <div class="flex flex-col">
                                                 <span class="text-gray-900 font-black text-sm">{{ $id === 'wallet' ? 'Account Balance' : $gateway['name'] }}</span>
-                                                @if($id === 'wallet')
-                                                    <span class="text-[10px] font-bold mt-1" :class="{{ auth()->user()->balance }} < {{ $invoice->total }} ? 'text-red-500' : 'text-indigo-600'">
-                                                        <span x-show="{{ auth()->user()->balance }} < {{ $invoice->total }}">Insufficient Funds</span>
-                                                        <span x-show="{{ auth()->user()->balance }} >= {{ $invoice->total }}">Pay via Account</span>
-                                                    </span>
-                                                @else
-                                                    <span class="text-[9px] text-gray-400 mt-1 line-clamp-1">{{ $gateway['description'] ?? 'Pay securely via ' . $gateway['name'] }}</span>
-                                                @endif
+                                                <span class="text-[9px] text-gray-400 mt-1 line-clamp-1">{{ $gateway['description'] ?? 'Pay securely via ' . $gateway['name'] }}</span>
                                             </div>
                                         </label>
                                         @endforeach
-
                                     </div>
                                 </div>
                                 @endif
                             @endif
                         @endforeach
                     </div>
+>
 
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-gray-100 pt-8">
                         <div>
