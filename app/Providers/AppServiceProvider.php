@@ -88,24 +88,63 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            // Priority 1: Use already shared SEO data if available
+            $shared = \Illuminate\Support\Facades\View::getShared();
+            if (isset($shared['seo']) && $shared['seo']) {
+                // Already calculated and shared by a previous view in this request
+                return;
+            }
+
             try {
                 $seoService = app(\App\Services\SeoService::class);
                 $data = $view->getData();
 
+                // Look for entity in current view data
                 $entity = $data['service'] ?? $data['post'] ?? $data['page'] ?? $data['category'] ?? null;
 
-                // If it's a guest post site, use that too
+                // Handle guest post sites specifically
                 if (!$entity && isset($data['guestPost'])) {
                     $entity = $data['guestPost'];
                 }
 
-                $view->with('seo', $seoService->getMetadata($entity));
+                // If we found an entity, calculate SEO and share it for the rest of the request
+                if ($entity) {
+                    $seo = $seoService->getMetadata($entity);
+                    \Illuminate\Support\Facades\View::share('seo', $seo);
+                } else {
+                    // If no entity found, check if we're on the homepage or if we should use defaults
+                    if (\request()->routeIs('home') || !isset($shared['seo'])) {
+                        $seo = $seoService->getMetadata(null);
+                        \Illuminate\Support\Facades\View::share('seo', $seo);
+                    }
+                }
             } catch (\Exception $e) {
-                $view->with('seo', [
+                // Fallback for unexpected errors
+                $fallback = [
                     'title' => config('app.name'),
                     'description' => '',
                     'keywords' => '',
-                ]);
+                    'canonical' => request()->url(),
+                    'robots' => 'index,follow',
+                    'og' => [
+                        'title' => config('app.name'),
+                        'description' => '',
+                        'image' => null,
+                        'site_name' => config('app.name'),
+                    ],
+                    'twitter' => [
+                        'card' => 'summary_large_image',
+                        'site' => null,
+                    ],
+                    'schema' => null,
+                    'scripts' => [
+                        'header' => '',
+                        'footer' => '',
+                        'ga' => null,
+                        'gsc' => null,
+                    ]
+                ];
+                \Illuminate\Support\Facades\View::share('seo', $fallback);
             }
         });
 
