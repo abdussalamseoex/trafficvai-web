@@ -26,7 +26,7 @@ class OrderMessageObserver
             $this->notificationService->send('new_message_client', $order->user, [
                 'order_id' => $order->id,
                 'sender_name' => 'Admin',
-                'message_preview' => substr($orderMessage->message, 0, 50) . '...',
+                'message_preview' => substr($orderMessage->message, 0, 100) . '...',
                 'link' => route('client.orders.show', $order)
             ]);
         }
@@ -34,8 +34,10 @@ class OrderMessageObserver
             // Notify Admin
             $this->notificationService->notifyAdmin(
                 "New Message on Order #{$order->id}",
-                "Client {$sender->name} sent a message: " . substr($orderMessage->message, 0, 50),
-                route('admin.orders.show', $order)
+                "Client {$sender->name} sent a message: " . substr($orderMessage->message, 0, 100),
+                route('admin.orders.show', $order),
+                'admin_notification',
+                $order->id
             );
         }
     }

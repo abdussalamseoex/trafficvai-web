@@ -9,9 +9,12 @@ class NotificationService
     /**
      * Notify Admin
      */
-    public function notifyAdmin($title, $message, $link = null)
+    /**
+     * Notify Admin
+     */
+    public function notifyAdmin($title, $message, $link = null, $slug = 'admin_notification', $orderId = null)
     {
-        NotificationHub::create([
+        \App\Models\NotificationHub::create([
             'user_id' => null, // null means it's for admins
             'title' => $title,
             'message' => $message,
@@ -22,11 +25,12 @@ class NotificationService
         // Also send email to all admins
         $admins = \App\Models\User::where('is_admin', true)->get();
         foreach ($admins as $admin) {
-            $this->sendEmail('admin_notification', $admin->email, [
+            $this->sendEmail($slug, $admin->email, [
                 'user_name' => $admin->name,
                 'title' => $title,
                 'message' => $message,
-                'link' => $link ?? url('/')
+                'link' => $link ?? url('/'),
+                'order_id' => $orderId
             ]);
         }
     }
@@ -46,15 +50,13 @@ class NotificationService
         $type = 'general';
         if (str_contains($templateSlug, 'order')) {
             $type = 'order';
-        }
-        elseif (str_contains($templateSlug, 'payment')) {
+        } elseif (str_contains($templateSlug, 'payment')) {
             $type = 'payment';
-        }
-        elseif (str_contains($templateSlug, 'message')) {
+        } elseif (str_contains($templateSlug, 'message')) {
             $type = 'message';
         }
 
-        NotificationHub::create([
+        \App\Models\NotificationHub::create([
             'user_id' => $user->id,
             'title' => $title,
             'message' => $message,
@@ -72,58 +74,98 @@ class NotificationService
     public function sendEmail($templateSlug, $recipient, $data = [])
     {
         try {
-            // 1. Load Template
-            $template = \App\Models\EmailTemplate::where('slug', $templateSlug)->first();
-            
-            // Fallback for test_connection if seeder wasn't run
-            if (!$template && $templateSlug === 'test_connection') {
-                $template = \App\Models\EmailTemplate::create([
-                    'slug' => 'test_connection',
-                    'name' => 'SMTP Test Connection',
-                    'subject' => 'Test Email from {host}',
-                    'body' => '<p>Hello {user_name},</p><p>This is a test email sent from <strong>{host}</strong> at {time}.</p><p>If you are reading this, your SMTP settings are working correctly!</p>',
-                    'type' => 'general'
-                ]);
-            }
+            // 1. Prepare Data for Blade Templates
+            $vars = [
+                'logo_url' => config('app.url') . '/images/logo.png',
+                'client_name' => $data['user_name'] ?? 'Client',
+                'order_id' => $data['order_id'] ?? 'N/A',
+                'order_amount' => $data['amount'] ?? ($data['order_amount'] ?? 'N/A'),
+                'order_date' => $data['order_date'] ?? ($data['date'] ?? now()->format('M d, Y h:i A')),
+                'payment_date' => $data['payment_date'] ?? ($data['date'] ?? now()->format('M d, Y h:i A')),
+                'submission_date' => $data['submission_date'] ?? now()->format('M d, Y h:i A'),
+                'update_date' => $data['update_date'] ?? now()->format('M d, Y h:i A'),
+                'message_date' => $data['message_date'] ?? now()->format('M d, Y h:i A'),
+                'message_preview' => $data['message_preview'] ?? '',
+                'order_status' => $data['status'] ?? ($data['order_status'] ?? 'pending'),
+                'previous_status' => $data['previous_status'] ?? 'N/A',
+                'admin_panel_url' => isset($data['order_id']) ? route('admin.orders.show', $data['order_id']) : url('/admin'),
+                'order_details_url' => isset($data['order_id']) ? route('client.orders.show', $data['order_id']) : url('/orders'),
+                'order_url' => url('/orders'),
+                'reply_url' => isset($data['order_id']) ? route('client.orders.show', $data['order_id']) : url('/orders'),
+                'is_admin' => str_contains($templateSlug, 'admin'),
+                'subject' => ucwords(str_replace('_', ' ', $templateSlug)),
+            ];
 
-            // Fallback for admin_notification if seeder wasn't run
-            if (!$template && $templateSlug === 'admin_notification') {
-                $template = \App\Models\EmailTemplate::create([
-                    'slug' => 'admin_notification',
-                    'name' => 'Admin System Notification',
-                    'subject' => '[TrafficVai] {title}',
-                    'body' => '<p>Hello {user_name},</p><p>You have a new system notification:</p><p><strong>{title}</strong></p><p>{message}</p><p><a href="{link}">View Details in Admin Panel</a></p>',
-                    'type' => 'general'
-                ]);
-            }
+            // 2. Custom Blade Templates check (V2)
+            $v2Mapping = [
+                'admin_new_order' => 'emails.v2.admin_new_order',
+                'admin_payment_proof' => 'emails.v2.admin_payment_proof',
+                'payment_approved' => 'emails.v2.client_payment_received',
+                'order_status_updated' => 'emails.v2.client_order_update',
+                'new_message_client' => 'emails.v2.client_new_message',
+            ];
 
-            if (!$template) {
-                // If no template found, we can't send email
-                return false;
-            }
+            $renderedHtml = null;
+            $subject = $vars['subject'];
 
-            // 2. Prepare Data (Variable Replacement)
-            $subject = $template->subject;
-            $body = $template->body;
+            if (isset($v2Mapping[$templateSlug])) {
+                $renderedHtml = view($v2Mapping[$templateSlug], $vars)->render();
+                // Set specific subjects for V2
+                $subject = match($templateSlug) {
+                    'admin_new_order' => "[TrafficVai] New Order #{$vars['order_id']} Received",
+                    'admin_payment_proof' => "[TrafficVai] Payment Proof Submitted for Order #{$vars['order_id']}",
+                    'payment_approved' => "Payment Received for Order #{$vars['order_id']}",
+                    'order_status_updated' => "Update on your Order #{$vars['order_id']}",
+                    'new_message_client' => "New Message for Order #{$vars['order_id']}",
+                    default => $subject
+                };
+            } else {
+                // 3. Load from Database (Fallback)
+                $template = \App\Models\EmailTemplate::where('slug', $templateSlug)->first();
+                
+                if (!$template && $templateSlug === 'test_connection') {
+                    $template = \App\Models\EmailTemplate::create([
+                        'slug' => 'test_connection',
+                        'name' => 'SMTP Test Connection',
+                        'subject' => 'Test Email from {host}',
+                        'body' => '<p>Hello {user_name},</p><p>This is a test email sent from <strong>{host}</strong> at {time}.</p><p>If you are reading this, your SMTP settings are working correctly!</p>',
+                        'type' => 'general'
+                    ]);
+                }
 
-            foreach ($data as $key => $value) {
-                if (is_string($value) || is_numeric($value)) {
-                    $subject = str_replace('{' . $key . '}', $value, $subject);
-                    $body = str_replace('{' . $key . '}', $value, $body);
+                if ($template) {
+                    $subject = $template->subject;
+                    $body = $template->body;
+
+                    foreach ($data as $key => $value) {
+                        if (is_string($value) || is_numeric($value)) {
+                            $subject = str_replace('{' . $key . '}', $value, $subject);
+                            $body = str_replace('{' . $key . '}', $value, $body);
+                        }
+                    }
+                    
+                    // Wrap in Generic Template
+                    $vars['body'] = $body;
+                    $vars['subject'] = $subject;
+                    $renderedHtml = view('emails.v2.generic', $vars)->render();
                 }
             }
 
-            // 3. Configure SMTP Dynamically
+            if (!$renderedHtml) {
+                return false;
+            }
+
+            // 4. Configure SMTP Dynamically
             $this->applyMailConfig();
 
-            // 4. Send Mail
-            \Illuminate\Support\Facades\Mail::to($recipient)->send(new \App\Mail\DynamicNotificationMail($subject, $body));
+            // 5. Send Mail
+            \Illuminate\Support\Facades\Mail::to($recipient)->send(new \App\Mail\DynamicNotificationMail($subject, $renderedHtml));
 
-            // 5. Log Success
+            // 6. Log Success
             \App\Models\EmailLog::create([
                 'recipient' => $recipient,
                 'subject' => $subject,
-                'template_id' => $template->id,
+                'template_id' => $template->id ?? null,
                 'status' => 'sent',
                 'payload' => $data
             ]);

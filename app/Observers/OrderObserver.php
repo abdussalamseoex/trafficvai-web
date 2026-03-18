@@ -22,7 +22,9 @@ class OrderObserver
         $this->notificationService->notifyAdmin(
             "New Order #{$order->id} Received",
             "A new order has been placed by {$order->user->name} Amount: {$order->total_amount}",
-            route('admin.orders.show', $order)
+            route('admin.orders.show', $order),
+            'admin_new_order',
+            $order->id
         );
     }
 
@@ -77,7 +79,9 @@ class OrderObserver
                 $this->notificationService->notifyAdmin(
                     "Payment Proof Submitted for Order #{$order->id}",
                     "User {$order->user->name} has submitted payment proof for verification.",
-                    route('admin.orders.show', $order)
+                    route('admin.orders.show', $order),
+                    'admin_payment_proof',
+                    $order->id
                 );
             }
         }
