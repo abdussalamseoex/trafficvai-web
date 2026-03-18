@@ -22,6 +22,22 @@
                     </div>
                     <div class="space-y-4 pt-6 border-t border-gray-50">
                         <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Website</span>
+                            <span class="font-bold text-gray-900 truncate max-w-[150px]">
+                                @if($user->website)
+                                    <a href="{{ $user->website }}" target="_blank" class="text-indigo-600 hover:underline">{{ parse_url($user->website, PHP_URL_HOST) ?: $user->website }}</a>
+                                @else
+                                    <span class="text-gray-300 italic">Not set</span>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Phone</span>
+                            <span class="font-bold text-gray-900">
+                                {{ $user->phone ?: 'Not set' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Total Spent</span>
                             <span class="font-bold text-gray-900">${{ number_format($user->orders->where('status', 'completed')->sum('total_amount'), 2) }}</span>
                         </div>

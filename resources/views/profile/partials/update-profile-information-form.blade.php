@@ -47,6 +47,18 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="website" :value="__('Website URL')" />
+            <x-text-input id="website" name="website" type="url" class="mt-1 block w-full" :value="old('website', $user->website)" placeholder="https://example.com" />
+            <x-input-error class="mt-2" :messages="$errors->get('website')" />
+        </div>
+
+        <div>
+            <x-input-label for="phone" :value="__('Phone Number')" />
+            <x-text-input id="phone" name="phone" type="text" class="mt-1 block w-full" :value="old('phone', $user->phone)" placeholder="+1234567890" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
