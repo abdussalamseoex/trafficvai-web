@@ -37,11 +37,17 @@ trait HandlesSeoMetadata
             $data['featured_image'] = $request->file('featured_image')->store('seo', 'public');
         }
 
-        // Default robots_index to 1 if not provided
-        if (!$request->has('robots_index')) {
-            $data['robots_index'] = 1;
-        }
+        // Add entity identification to ensure it matches the polymorphic relation
+        $search = [
+            'entity_id' => $entity->id,
+            'entity_type' => get_class($entity),
+        ];
 
-        $entity->seoMeta()->updateOrCreate([], $data);
+        \Illuminate\Support\Facades\Log::info("Syncing SEO for " . get_class($entity) . " ID: " . $entity->id, [
+            'has_title' => !empty($data['meta_title']),
+            'data' => array_keys($data)
+        ]);
+
+        $entity->seoMeta()->updateOrCreate($search, $data);
     }
 }
