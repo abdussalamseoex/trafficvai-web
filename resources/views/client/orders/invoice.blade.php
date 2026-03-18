@@ -20,12 +20,17 @@
         <!-- Header -->
         <div class="bg-indigo-600 p-8 md:p-12 text-white flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-                @php $logo = \App\Models\Setting::get('site_logo'); @endphp
+                @php
+                    $logo = \App\Models\Setting::get('site_logo');
+                    $siteName = \App\Models\Setting::get('site_name', config('app.name'));
+                    $contactEmail = \App\Models\Setting::get('contact_email', '');
+                    $contactAddress = \App\Models\Setting::get('contact_address', '');
+                @endphp
                 @if($logo)
-                    <img src="{{ asset($logo) }}" alt="{{ config('app.name') }}" class="h-14 object-contain brightness-200 mb-1">
+                    <img src="{{ asset($logo) }}" alt="{{ $siteName }}" class="h-14 object-contain brightness-200 mb-1">
                 @else
-                    <h1 class="text-3xl font-black tracking-tighter uppercase mb-1">{{ config('app.name') }}</h1>
-                    <p class="text-indigo-100 text-sm font-medium">Premium SEO &amp; Growth Services</p>
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ $siteName }}" class="h-14 object-contain brightness-200 mb-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <h1 class="text-3xl font-black tracking-tighter uppercase mb-1" style="display:none;">{{ $siteName }}</h1>
                 @endif
             </div>
             <div class="mt-6 md:mt-0 text-right">
@@ -39,13 +44,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
                 <div>
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Billed From</h3>
-                    <p class="font-black text-gray-900 text-lg">TrafficVai Agency</p>
-                    <p class="text-gray-500 text-sm leading-relaxed">
-                        House 12, Road 5, Block B<br>
-                        Banani, Dhaka 1213<br>
-                        Bangladesh<br>
-                        contact@trafficvai.com
-                    </p>
+                    <p class="font-black text-gray-900 text-lg">{{ $siteName }}</p>
+                    @if($contactAddress)
+                    <p class="text-gray-500 text-sm leading-relaxed mt-1">{!! nl2br(e(strip_tags($contactAddress))) !!}</p>
+                    @endif
+                    @if($contactEmail)
+                    <p class="text-gray-500 text-sm mt-1">{{ $contactEmail }}</p>
+                    @endif
                 </div>
                 <div class="md:text-right">
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Billed To</h3>
