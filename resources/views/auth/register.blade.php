@@ -61,14 +61,16 @@
             <x-input-error :messages="$errors->get('captcha')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
+        <div class="flex items-center justify-center mt-8">
+            <x-primary-button class="w-full justify-center px-8 !bg-indigo-600 hover:!bg-indigo-700">
+                {{ __('Register Account') }}
             </x-primary-button>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a class="underline text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200" href="{{ route('login') }}">
+                {{ __('Already registered? Log in here') }}
+            </a>
         </div>
     </form>
 </x-guest-layout>
