@@ -16,6 +16,20 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <!-- Website -->
+        <div class="mt-4">
+            <x-input-label for="website" :value="__('Website URL')" />
+            <x-text-input id="website" class="block mt-1 w-full" type="url" name="website" :value="old('website')" placeholder="https://example.com" />
+            <x-input-error :messages="$errors->get('website')" class="mt-2" />
+        </div>
+
+        <!-- Phone -->
+        <div class="mt-4">
+            <x-input-label for="phone" :value="__('Phone Number')" />
+            <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" placeholder="+1234567890" />
+            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
@@ -37,6 +51,14 @@
                             name="password_confirmation" required autocomplete="new-password" />
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        </div>
+
+        <!-- Captcha -->
+        <div class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <x-input-label for="captcha" :value="__('Security Check: ' . $captcha_question)" class="font-bold text-indigo-600" />
+            <x-text-input id="captcha" class="block mt-1 w-full font-bold" type="number" name="captcha" required placeholder="Enter the answer" />
+            <p class="text-[10px] text-gray-500 mt-1">Please solve this simple math to prove you are human.</p>
+            <x-input-error :messages="$errors->get('captcha')" class="mt-2" />
         </div>
 
         <div class="flex items-center justify-end mt-4">
