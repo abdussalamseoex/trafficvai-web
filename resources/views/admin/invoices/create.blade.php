@@ -26,7 +26,15 @@
                 $description = 'Renewal for Custom Order #' . $order->id;
             }
             
-            $price = $order->subtotal_amount > 0 ? $order->subtotal_amount : $order->total_amount;
+            // Robust price selection: Subtotal > Total > Package Price > 0
+            $price = 0;
+            if ($order->subtotal_amount > 0) {
+                $price = $order->subtotal_amount;
+            } elseif ($order->total_amount > 0) {
+                $price = $order->total_amount;
+            } elseif ($order->package && $order->package->price > 0) {
+                $price = $order->package->price;
+            }
             
             $initialItems = [[
                 'description' => $description,
@@ -97,11 +105,13 @@
                                                 }
                                             ">
                                         <option value="">Select a service to auto-fill...</option>
-                                        @foreach($invoiceServices as $service)
+                                        @forelse($invoiceServices as $service)
                                             <option value="{{ $service->id }}" data-price="{{ $service->price }}" data-desc="{{ $service->name }} - {{ $service->description }}">
                                                 {{ $service->name }} (${{ number_format($service->price, 2) }})
                                             </option>
-                                        @endforeach
+                                        @empty
+                                            <option value="" disabled>No services found. Add them in "Service Management" → "Predefined Services"</option>
+                                        @endforelse
                                     </select>
                                 </div>
                             </div>
