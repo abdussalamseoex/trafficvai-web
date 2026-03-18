@@ -68,6 +68,23 @@ class GuestPostController extends Controller
             $query->where('spam_score', '<=', $request->max_spam_score);
         }
 
+        // Keyword Search (URL, Niche, or Description)
+        if ($request->filled('q')) {
+            $keyword = $request->q;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('url', 'like', "%{$keyword}%")
+                    ->orWhere('niche', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%");
+            });
+        }
+
+        // Favorites Filter
+        if ($request->filled('favorites_only') && $request->favorites_only == '1') {
+            $query->whereHas('favoritedBy', function ($q) {
+                $q->where('user_id', auth()->id());
+            });
+        }
+
         $sites = $query->latest()->paginate(24)->withQueryString();
 
         $activeCoupons = \App\Models\Coupon::where('status', true)
@@ -183,5 +200,27 @@ class GuestPostController extends Controller
             return $partialResponse;
 
         return \App\Services\Payments\PaymentGatewayManager::resolve($paymentMethod)->processPayment($order);
+    }
+
+    /**
+     * Toggle favorite status for a guest post site.
+     */
+    public function toggleFavorite(GuestPostSite $guestPost)
+    {
+        $user = auth()->user();
+        
+        if ($user->favoriteGuestPostSites()->where('guest_post_site_id', $guestPost->id)->exists()) {
+            $user->favoriteGuestPostSites()->detach($guestPost->id);
+            $status = 'removed';
+        } else {
+            $user->favoriteGuestPostSites()->attach($guestPost->id);
+            $status = 'added';
+        }
+
+        if (request()->ajax()) {
+            return response()->json(['status' => 'success', 'favorite' => $status]);
+        }
+
+        return back()->with('success', $status === 'added' ? 'Site added to favorites!' : 'Site removed from favorites!');
     }
 }

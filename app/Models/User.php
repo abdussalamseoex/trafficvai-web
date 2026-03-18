@@ -116,6 +116,14 @@ class User extends Authenticatable
         return $this->hasMany(TopupRequest::class);
     }
 
+    /**
+     * Guest post sites favorited by this user.
+     */
+    public function favoriteGuestPostSites()
+    {
+        return $this->belongsToMany(GuestPostSite::class, 'guest_post_favorites', 'user_id', 'guest_post_site_id')->withTimestamps();
+    }
+
     public function getBalanceAttribute()
     {
         return $this->wallet ? $this->wallet->balance : 0.00;

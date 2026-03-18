@@ -18,4 +18,23 @@ class GuestPostSite extends Model
         'is_active' => 'boolean',
         'is_sponsored' => 'boolean',
     ];
+
+    /**
+     * Users who favorited this site.
+     */
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'guest_post_favorites', 'guest_post_site_id', 'user_id')->withTimestamps();
+    }
+
+    /**
+     * Check if the site is favorited by the current user.
+     */
+    public function getIsFavoritedAttribute()
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+        return $this->favoritedBy()->where('user_id', auth()->id())->exists();
+    }
 }

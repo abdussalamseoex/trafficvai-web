@@ -242,6 +242,7 @@ Route::middleware(['auth'])->group(function () {
             // In-Dashboard Guest Posts
             Route::get('/guest-posts', [\App\Http\Controllers\User\GuestPostController::class , 'index'])->name('guest_posts.index');
             Route::get('/guest-posts/{guestPost}', [\App\Http\Controllers\User\GuestPostController::class , 'show'])->name('guest_posts.show');
+            Route::post('/guest-posts/{guestPost}/favorite', [\App\Http\Controllers\User\GuestPostController::class , 'toggleFavorite'])->name('guest_posts.favorite');
             Route::post('/guest-posts/{guestPost}/checkout', [\App\Http\Controllers\User\GuestPostController::class , 'checkout'])->name('guest_posts.checkout');
 
             // Dynamic Campaign Routes (Client Dashboard)
