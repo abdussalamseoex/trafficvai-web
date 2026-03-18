@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('admin.campaigns.update', ['type' => $type, 'campaign' => $service->id]) }}" x-data="serviceEditForm()">
+                    <form method="POST" action="{{ route('admin.campaigns.update', ['type' => $type, 'campaign' => $service->id]) }}" enctype="multipart/form-data" x-data="serviceEditForm()">
                         @csrf
                         @method('PUT')
                         
@@ -56,6 +56,44 @@
                                     <span class="ms-2 text-sm text-gray-600">{{ __('Service is active and visible on frontend') }}</span>
                                 </label>
                                 <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
+                            </div>
+                        </div>
+                        
+                        <!-- Hero Section -->
+                        <div class="mb-8 border-b pb-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-1 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Hero Section (Frontend)
+                            </h3>
+                            <p class="text-sm text-gray-500 mb-5">These fields control the large hero banner at the top of the service page. If both image and video are set, the video takes priority.</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <x-input-label for="hero_image" value="Hero Image" />
+                                    @if($service->hero_image)
+                                    <div class="mt-2 mb-3 flex items-center gap-4">
+                                        <img src="{{ Storage::disk('public')->url($service->hero_image) }}" alt="Current hero" class="h-24 w-40 object-cover rounded-lg border border-gray-200 shadow-sm">
+                                        <label class="flex items-center gap-2 text-sm text-red-600 cursor-pointer">
+                                            <input type="checkbox" name="remove_hero_image" value="1" class="rounded border-gray-300 text-red-500">
+                                            Remove current image
+                                        </label>
+                                    </div>
+                                    @endif
+                                    <input id="hero_image" type="file" name="hero_image" accept="image/*" class="block mt-1 w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                    <p class="text-xs text-gray-400 mt-1">Recommended: 1200×700px, jpg/png/webp, max 4MB.</p>
+                                    <x-input-error :messages="$errors->get('hero_image')" class="mt-2" />
+                                </div>
+                                <div>
+                                    <x-input-label for="hero_video_url" value="Hero Video URL (optional)" />
+                                    <x-text-input id="hero_video_url" class="block mt-1 w-full" type="url" name="hero_video_url" :value="old('hero_video_url', $service->hero_video_url)" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..." />
+                                    <p class="text-xs text-gray-400 mt-1">Supports YouTube, Vimeo, or a direct video URL. Takes priority over image.</p>
+                                    <x-input-error :messages="$errors->get('hero_video_url')" class="mt-2" />
+                                </div>
+                                <div class="md:col-span-2">
+                                    <x-input-label for="sample_link" value='"Sample / Download" Button Link (optional)' />
+                                    <x-text-input id="sample_link" class="block mt-1 w-full" type="url" name="sample_link" :value="old('sample_link', $service->sample_link)" placeholder="https://drive.google.com/... or https://example.com/sample.pdf" />
+                                    <p class="text-xs text-gray-400 mt-1">If set, a "Sample / Download" button will appear next to the Order Now button in the hero.</p>
+                                    <x-input-error :messages="$errors->get('sample_link')" class="mt-2" />
+                                </div>
                             </div>
                         </div>
 
@@ -239,6 +277,9 @@
                                 </button>
                             </div>
                         </div>
+
+                        <!-- SEO Section -->
+                        <x-seo-form-tabs :model="$service" />
 
                         <div class="flex items-center justify-between mt-8 pt-6 border-t">
                             <p class="text-sm text-gray-500 italic">* All 3 packages must be filled for a professional storefront.</p>

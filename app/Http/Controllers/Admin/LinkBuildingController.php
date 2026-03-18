@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Traits\HandlesSeoMetadata;
 
 class LinkBuildingController extends Controller
 {
+    use HandlesSeoMetadata;
     public function index()
     {
         $services = Service::where('service_type', 'link-building')
@@ -105,6 +107,8 @@ class LinkBuildingController extends Controller
                 ]);
             }
         }
+
+        $this->syncSeoMetadata($service, $request);
 
         return redirect()->route('admin.link-building.index')->with('success', 'Link Building service created successfully.');
     }
@@ -259,6 +263,8 @@ class LinkBuildingController extends Controller
             }
         }
         $service->addons()->whereNotIn('id', $existingAddonIds)->delete();
+
+        $this->syncSeoMetadata($service, $request);
 
         return redirect()->route('admin.link-building.index')->with('success', 'Link Building service updated successfully.');
     }

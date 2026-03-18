@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Traits\HandlesSeoMetadata;
 
 class CampaignController extends Controller
 {
+    use HandlesSeoMetadata;
     /**
      * Get a human-readable title for the given type slug
      */
@@ -57,7 +59,15 @@ class CampaignController extends Controller
             'faqs' => 'nullable|array',
             'faqs.*.question' => 'required|string|max:500',
             'faqs.*.answer' => 'required|string',
+            'hero_image' => 'nullable|image|max:4096',
+            'hero_video_url' => 'nullable|url|max:500',
+            'sample_link' => 'nullable|url|max:500',
         ]);
+
+        $heroImagePath = null;
+        if ($request->hasFile('hero_image')) {
+            $heroImagePath = $request->file('hero_image')->store('services', 'public');
+        }
 
         $service = \App\Models\Service::create([
             'service_type' => $type,
@@ -67,6 +77,9 @@ class CampaignController extends Controller
             'description' => $validated['description'] ?? null,
             'is_active' => true,
             'faqs' => $validated['faqs'] ?? null,
+            'hero_image' => $heroImagePath,
+            'hero_video_url' => $validated['hero_video_url'] ?? null,
+            'sample_link' => $validated['sample_link'] ?? null,
         ]);
 
         if (!empty($validated['requirements'])) {
@@ -100,6 +113,8 @@ class CampaignController extends Controller
                 ]);
             }
         }
+
+        $this->syncSeoMetadata($service, $request);
 
         $title = $this->getTitle($type);
         return redirect()->route('admin.campaigns.index', $type)->with('success', $title . ' package created successfully.');
@@ -146,7 +161,23 @@ class CampaignController extends Controller
             'faqs' => 'nullable|array',
             'faqs.*.question' => 'required|string|max:500',
             'faqs.*.answer' => 'required|string',
+            'hero_image' => 'nullable|image|max:4096',
+            'hero_video_url' => 'nullable|url|max:500',
+            'sample_link' => 'nullable|url|max:500',
         ]);
+
+        $heroImagePath = $service->hero_image;
+        if ($request->hasFile('hero_image')) {
+            if ($service->hero_image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($service->hero_image);
+            }
+            $heroImagePath = $request->file('hero_image')->store('services', 'public');
+        } elseif ($request->boolean('remove_hero_image')) {
+            if ($service->hero_image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($service->hero_image);
+            }
+            $heroImagePath = null;
+        }
 
         $service->update([
             'name' => $validated['name'],
@@ -155,6 +186,9 @@ class CampaignController extends Controller
             'description' => $validated['description'] ?? null,
             'is_active' => $request->has('is_active'),
             'faqs' => $validated['faqs'] ?? null,
+            'hero_image' => $heroImagePath,
+            'hero_video_url' => $validated['hero_video_url'] ?? null,
+            'sample_link' => $validated['sample_link'] ?? null,
         ]);
 
         // Code exactly the same as WebsiteTrafficController for requirements/packages/addons
@@ -244,6 +278,8 @@ class CampaignController extends Controller
             }
         }
         $service->addons()->whereNotIn('id', $existingAddonIds)->delete();
+
+        $this->syncSeoMetadata($service, $request);
 
         $title = $this->getTitle($type);
         return redirect()->route('admin.campaigns.index', $type)->with('success', $title . ' package updated successfully.');

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Traits\HandlesSeoMetadata;
 
 class WebsiteTrafficController extends Controller
 {
+    use HandlesSeoMetadata;
     public function index()
     {
         $services = \App\Models\Service::where('service_type', 'traffic')->withCount('packages', 'requirements')->latest()->get();
@@ -100,6 +102,8 @@ class WebsiteTrafficController extends Controller
                 ]);
             }
         }
+
+        $this->syncSeoMetadata($service, $request);
 
         return redirect()->route('admin.traffic.index')->with('success', 'Traffic package created successfully.');
     }
@@ -258,6 +262,8 @@ class WebsiteTrafficController extends Controller
             }
         }
         $service->addons()->whereNotIn('id', $existingAddonIds)->delete();
+
+        $this->syncSeoMetadata($service, $request);
 
         return redirect()->route('admin.traffic.index')->with('success', 'Traffic package updated successfully.');
     }
