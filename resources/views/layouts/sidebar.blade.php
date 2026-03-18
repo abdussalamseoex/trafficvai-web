@@ -160,6 +160,9 @@
                     <x-sidebar-link :href="route('admin.invoices.index')" :active="request()->routeIs('admin.invoices.*')">
                         {{ __('Invoices') }}
                     </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.invoice-services.index')" :active="request()->routeIs('admin.invoice-services.*')">
+                        {{ __('Predefined Services') }}
+                    </x-sidebar-link>
                     <x-sidebar-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
                         {{ __('Revenue Reports') }}
                     </x-sidebar-link>
@@ -169,13 +172,16 @@
                     <x-slot name="icon">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     </x-slot>
-                    <x-sidebar-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
-                        <span class="flex-1">{{ __('Orders') }}</span>
+                    <x-sidebar-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.index')">
+                        <span class="flex-1">{{ __('All Orders') }}</span>
                         @if(($unreadOrdersCount ?? 0) > 0)
                             <span class="ml-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" title="New Orders">
                                 {{ $unreadOrdersCount }}
                             </span>
                         @endif
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.orders.running')" :active="request()->routeIs('admin.orders.running')">
+                        {{ __('Running Orders') }}
                     </x-sidebar-link>
                     <x-sidebar-link :href="route('admin.coupons.index')" :active="request()->routeIs('admin.coupons.*')">
                         {{ __('Coupons & Discounts') }}
@@ -311,8 +317,11 @@
                     <x-sidebar-link :href="route('client.projects.index')" :active="request()->routeIs('client.projects.*')">
                         {{ __('My Projects') }}
                     </x-sidebar-link>
-                    <x-sidebar-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.*')">
+                    <x-sidebar-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.index')">
                         <span class="flex-1">{{ __('My Orders') }}</span>
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.orders.running')" :active="request()->routeIs('client.orders.running')">
+                        <span class="flex-1">{{ __('Running Orders') }}</span>
                     </x-sidebar-link>
                 </x-sidebar-dropdown>
 

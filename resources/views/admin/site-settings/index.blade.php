@@ -141,6 +141,11 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">BDT Exchange Rate (1 USD = ? BDT)</label>
                                     <input type="number" step="0.01" name="bdt_exchange_rate" value="{{ $settings['general']->where('key', 'bdt_exchange_rate')->first()->value ?? '120.00' }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                                 </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Renewal Reminder Days (Before Expiry)</label>
+                                    <input type="number" name="renewal_reminder_days" value="{{ $settings['general']->where('key', 'renewal_reminder_days')->first()->value ?? '7' }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                    <p class="text-[10px] text-gray-400 mt-1">Number of days before expiry to generate a renewal invoice and notify the client.</p>
+                                </div>
                             </div>
 
                             <!-- Favicon Upload -->

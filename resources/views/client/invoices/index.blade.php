@@ -41,7 +41,14 @@
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-indigo-600">{{ $inv->invoice_number }}</div>
-                                    <div class="text-xs text-gray-400">{{ $inv->created_at->format('M d, Y') }}</div>
+                                    <div class="text-xs text-gray-400 mt-0.5">{{ $inv->created_at->format('M d, Y') }}</div>
+                                    @if($inv->type === 'renewal')
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800">
+                                                Renewal @if($inv->order_id) (Order #{{ $inv->order_id }}) @endif
+                                            </span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     @php

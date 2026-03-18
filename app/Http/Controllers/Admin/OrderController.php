@@ -22,6 +22,27 @@ class OrderController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
 
+    public function running(\Illuminate\Http\Request $request)
+    {
+        $query = \App\Models\Order::with('user', 'package.service')
+            ->whereNotNull('expiry_date')
+            ->where('status', 'processing');
+
+        $reminderDays = \App\Models\Setting::get('renewal_reminder_days', 7);
+        $targetDate = now()->addDays($reminderDays)->endOfDay();
+
+        if ($request->filter === 'expiring_soon') {
+            $query->where('expiry_date', '>', now())
+                  ->where('expiry_date', '<=', $targetDate);
+        } elseif ($request->filter === 'expired') {
+            $query->where('expiry_date', '<', now());
+        }
+
+        $orders = $query->orderBy('expiry_date', 'asc')->get();
+            
+        return view('admin.orders.running', compact('orders'));
+    }
+
     public function show(\App\Models\Order $order)
     {
         $order->load(['user', 'package.service.requirements', 'requirements.serviceRequirement', 'guestPostSite', 'messages.user']);
@@ -47,7 +68,8 @@ class OrderController extends Controller
             'status' => 'required|in:pending_payment,pending_requirements,processing,completed',
             'payment_status' => 'required|in:pending,paid,failed,refunded',
             'report_file_path' => 'nullable|string',
-            'published_url' => 'nullable|url'
+            'published_url' => 'nullable|url',
+            'expiry_date' => 'nullable|date'
         ]);
 
         $oldStatus = $order->status;

@@ -50,6 +50,35 @@
                     {{-- Main Content --}}
                     <div class="lg:col-span-2 space-y-6">
 
+                        {{-- Predefined Services (Quick Add) --}}
+                        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 relative">
+                            <span class="absolute -top-3 left-4 bg-brand text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm">Quick Add</span>
+                            <div class="flex flex-col sm:flex-row gap-4 items-end">
+                                <div class="flex-1 w-full">
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Predefined Service</label>
+                                    <select id="predefined_service" class="w-full rounded-xl border-gray-300 text-sm focus:ring-brand focus:border-brand bg-white" 
+                                            @change="
+                                                let sel = $event.target.options[$event.target.selectedIndex];
+                                                if(sel.value) {
+                                                    items.push({
+                                                        description: sel.dataset.desc,
+                                                        quantity: 1,
+                                                        unit_price: parseFloat(sel.dataset.price)
+                                                    });
+                                                    $event.target.value = '';
+                                                }
+                                            ">
+                                        <option value="">Select a service to auto-fill...</option>
+                                        @foreach($invoiceServices as $service)
+                                            <option value="{{ $service->id }}" data-price="{{ $service->price }}" data-desc="{{ $service->name }} - {{ $service->description }}">
+                                                {{ $service->name }} (${{ number_format($service->price, 2) }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Line Items --}}
                         <div class="bg-white rounded-2xl shadow-sm p-6">
                             <div class="flex items-center justify-between mb-4">
@@ -138,6 +167,29 @@
                         {{-- Client & Invoice Details --}}
                         <div class="bg-white rounded-2xl shadow-sm p-6 space-y-4">
                             <h3 class="font-bold text-gray-900">Invoice Details</h3>
+                            
+                            @if(isset($order))
+                                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-sm">
+                                    <span class="font-bold text-indigo-800">Renewal Invoice</span><br>
+                                    <span class="text-indigo-600">Linked to Order #{{ $order->id }}</span>
+                                </div>
+                                <input type="hidden" name="type" value="renewal">
+                                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                            @else
+                                <div x-data="{ type: '{{ isset($invoice) ? $invoice->type : 'custom' }}' }">
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Invoice Type</label>
+                                    <select name="type" x-model="type" class="w-full rounded-xl border-gray-200 text-sm focus:ring-brand focus:border-brand mb-4">
+                                        <option value="custom">Custom Invoice</option>
+                                        <option value="renewal">Renewal Invoice</option>
+                                    </select>
+                                    
+                                    <div x-show="type === 'renewal'" class="mb-4">
+                                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Order ID (optional)</label>
+                                        <input type="number" name="order_id" value="{{ isset($invoice) ? $invoice->order_id : old('order_id') }}" class="w-full rounded-xl border-gray-200 text-sm focus:ring-brand focus:border-brand" placeholder="e.g. 1042">
+                                    </div>
+                                </div>
+                            @endif
+
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Client *</label>
                                 <select name="user_id" required class="w-full rounded-xl border-gray-200 text-sm focus:ring-brand focus:border-brand">

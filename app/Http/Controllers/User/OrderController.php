@@ -23,6 +23,28 @@ class OrderController extends Controller
         return view('client.orders.index', compact('orders'));
     }
 
+    public function running(\Illuminate\Http\Request $request)
+    {
+        $query = auth()->user()->orders()
+            ->with(['package.service', 'guestPostSite'])
+            ->whereNotNull('expiry_date')
+            ->where('status', 'processing');
+
+        $reminderDays = \App\Models\Setting::get('renewal_reminder_days', 7);
+        $targetDate = now()->addDays($reminderDays)->endOfDay();
+
+        if ($request->filter === 'expiring_soon') {
+            $query->where('expiry_date', '>', now())
+                  ->where('expiry_date', '<=', $targetDate);
+        } elseif ($request->filter === 'expired') {
+            $query->where('expiry_date', '<', now());
+        }
+
+        $orders = $query->orderBy('expiry_date', 'asc')->get();
+            
+        return view('client.orders.running', compact('orders'));
+    }
+
     public function show(\App\Models\Order $order)
     {
         if ($order->user_id != auth()->id())

@@ -49,7 +49,12 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4">
                                 <a href="{{ route('admin.invoices.show', $invoice) }}" class="font-bold text-indigo-600 hover:underline">{{ $invoice->invoice_number }}</a>
-                                <div class="text-xs text-gray-400">{{ $invoice->created_at->format('M d, Y') }}</div>
+                                <div class="text-xs text-gray-400 mt-0.5">{{ $invoice->created_at->format('M d, Y') }}</div>
+                                @if($invoice->type === 'renewal')
+                                    <span class="inline-flex mt-1 items-center px-2 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800">
+                                        Renewal @if($invoice->order_id) (Order #{{ $invoice->order_id }}) @endif
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-6 py-4">
                                 <div class="font-medium text-gray-900 text-sm">{{ $invoice->user->name }}</div>

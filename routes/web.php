@@ -117,12 +117,14 @@ Route::middleware(['auth'])->group(function () {
                 Route::resource('/categories', \App\Http\Controllers\Admin\CategoryController::class);
                 Route::resource('/posts', \App\Http\Controllers\Admin\PostController::class);
                 Route::resource('/pages', \App\Http\Controllers\Admin\PageController::class);
+                Route::get('/orders/running', [\App\Http\Controllers\Admin\OrderController::class, 'running'])->name('orders.running');
                 Route::resource('/orders', \App\Http\Controllers\Admin\OrderController::class);
                 Route::resource('/guest-posts', \App\Http\Controllers\Admin\GuestPostSiteController::class)->parameters(['guest-posts' => 'guestPost']);
                 Route::resource('/invoices', \App\Http\Controllers\Admin\InvoiceController::class);
                 Route::get('/invoices/{invoice}/pdf', [\App\Http\Controllers\Admin\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
                 Route::post('/invoices/{invoice}/send-email', [\App\Http\Controllers\Admin\InvoiceController::class, 'sendEmail'])->name('invoices.send-email');
                 Route::post('/invoices/{invoice}/status', [\App\Http\Controllers\Admin\InvoiceController::class, 'updateStatus'])->name('invoices.update-status');
+                Route::resource('/invoice-services', \App\Http\Controllers\Admin\InvoiceServiceController::class)->parameters(['invoice-services' => 'invoiceService']);
 
                 Route::resource('/leads', \App\Http\Controllers\Admin\LeadController::class);
                 Route::resource('/site-faqs', \App\Http\Controllers\Admin\SiteFaqController::class);
@@ -220,6 +222,7 @@ Route::middleware(['auth'])->group(function () {
     // Client Routes
     Route::group(['prefix' => 'client', 'as' => 'client.'], function () {
         Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class , 'index'])->name('dashboard');
+            Route::get('/orders/running', [\App\Http\Controllers\User\OrderController::class, 'running'])->name('orders.running');
             Route::resource('/orders', \App\Http\Controllers\User\OrderController::class);
             Route::get('/orders/{order}/invoice', [\App\Http\Controllers\User\OrderController::class , 'invoice'])->name('orders.invoice');
             Route::post('/orders/{order}/submit-proof', [\App\Http\Controllers\User\OrderController::class , 'submitProof'])->name('orders.submit_proof');

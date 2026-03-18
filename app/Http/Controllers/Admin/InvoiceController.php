@@ -36,10 +36,17 @@ class InvoiceController extends Controller
     /**
      * Show the form for creating a new invoice.
      */
-    public function create()
+    public function create(Request $request)
     {
         $clients = User::where('is_admin', false)->orderBy('name')->get();
-        return view('admin.invoices.create', compact('clients'));
+        $invoiceServices = \App\Models\InvoiceService::orderBy('name')->get();
+        
+        $order = null;
+        if ($request->has('order_id')) {
+            $order = \App\Models\Order::with('package.service', 'user')->find($request->order_id);
+        }
+
+        return view('admin.invoices.create', compact('clients', 'invoiceServices', 'order'));
     }
 
     /**
@@ -49,6 +56,8 @@ class InvoiceController extends Controller
     {
         $request->validate([
             'user_id'       => 'required|exists:users,id',
+            'type'          => 'nullable|in:custom,renewal',
+            'order_id'      => 'nullable|exists:orders,id',
             'currency'      => 'required|string|max:10',
             'due_date'      => 'nullable|date',
             'status'        => 'required|in:draft,unpaid,paid,cancelled,overdue',
@@ -67,6 +76,8 @@ class InvoiceController extends Controller
 
         $invoice = Invoice::create([
             'user_id'        => $request->user_id,
+            'type'           => $request->type ?? 'custom',
+            'order_id'       => $request->order_id,
             'invoice_number' => 'INV-' . strtoupper(Str::random(8)),
             'currency'       => $request->currency,
             'subtotal'       => $subtotal,
@@ -91,6 +102,21 @@ class InvoiceController extends Controller
                 'total'       => $lineTotal,
             ]);
         }
+        
+        // Load relationships for mail
+        $invoice->load(['user', 'items']);
+        
+        try {
+            Mail::to($invoice->user->email)->send(new \App\Mail\InvoiceCreated($invoice));
+            
+            app(\App\Services\NotificationService::class)->send(
+                'invoice_created',
+                $invoice->user,
+                ['link' => route('client.invoices.show', $invoice)]
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Invoice Creation Notification Error: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.invoices.show', $invoice)->with('success', 'Invoice created successfully.');
     }
@@ -111,7 +137,12 @@ class InvoiceController extends Controller
     {
         $invoice->load(['user', 'items']);
         $clients = User::where('is_admin', false)->orderBy('name')->get();
-        return view('admin.invoices.edit', compact('invoice', 'clients'));
+        $invoiceServices = \App\Models\InvoiceService::orderBy('name')->get();
+        $order = null;
+        if ($invoice->order_id) {
+            $order = \App\Models\Order::find($invoice->order_id);
+        }
+        return view('admin.invoices.edit', compact('invoice', 'clients', 'invoiceServices', 'order'));
     }
 
     /**
@@ -121,6 +152,8 @@ class InvoiceController extends Controller
     {
         $request->validate([
             'user_id'       => 'required|exists:users,id',
+            'type'          => 'nullable|in:custom,renewal',
+            'order_id'      => 'nullable|exists:orders,id',
             'currency'      => 'required|string|max:10',
             'due_date'      => 'nullable|date',
             'status'        => 'required|in:draft,unpaid,paid,cancelled,overdue',
@@ -139,6 +172,8 @@ class InvoiceController extends Controller
 
         $invoice->update([
             'user_id'        => $request->user_id,
+            'type'           => $request->type ?? 'custom',
+            'order_id'       => $request->order_id,
             'currency'       => $request->currency,
             'subtotal'       => $subtotal,
             'discount_type'  => $request->discount_type,

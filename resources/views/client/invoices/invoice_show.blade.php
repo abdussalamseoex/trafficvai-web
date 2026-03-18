@@ -33,8 +33,11 @@
                             <div class="text-gray-400 text-sm">{{ auth()->user()->email }}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-gray-400 text-xs uppercase tracking-widest mb-1">Invoice</div>
+                            <div class="text-gray-400 text-xs uppercase tracking-widest mb-1">{{ ucfirst($invoice->type ?? 'Custom') }} Invoice</div>
                             <div class="text-3xl font-black text-brand">{{ $invoice->invoice_number }}</div>
+                            @if($invoice->type === 'renewal' && $invoice->order_id)
+                                <div class="text-sm text-purple-400 mt-1 font-semibold border border-purple-800/50 bg-purple-900/20 px-3 py-1 rounded-full inline-block">Order #{{ $invoice->order_id }}</div>
+                            @endif
                             @php
                                 $colors = ['draft'=>'gray','unpaid'=>'yellow','paid'=>'green','cancelled'=>'red','overdue'=>'red'];
                                 $c = $colors[$invoice->status] ?? 'gray';

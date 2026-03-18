@@ -10,7 +10,7 @@ class Order extends Model
         'user_id', 'project_id', 'package_id', 'guest_post_site_id',
         'status', 'total_amount', 'is_read_admin', 'report_file_path',
         'guest_post_url', 'guest_post_anchor', 'service_tier', 'article_body',
-        'published_url', 'is_emergency', 'expected_delivery_date',
+        'published_url', 'is_emergency', 'expected_delivery_date', 'expiry_date',
         'coupon_id', 'discount_amount', 'subtotal_amount',
         'payment_method', 'payment_status', 'transaction_id', 'payment_url',
         'wallet_amount', 'payment_notes'
@@ -20,6 +20,7 @@ class Order extends Model
     {
         return [
             'expected_delivery_date' => 'datetime',
+            'expiry_date' => 'datetime',
             'is_emergency' => 'boolean',
             'wallet_amount' => 'decimal:2',
         ];
@@ -68,5 +69,10 @@ class Order extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
     }
 }
