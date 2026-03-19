@@ -33,7 +33,7 @@
 
 <!-- BODY -->
 <tr><td style="background:#fff;padding:36px 40px;">
-  <p style="margin:0 0 4px;font-size:13px;color:#6b7280;">Hello, Agency Admin 👋</p>
+  <p style="margin:0 0 4px;font-size:13px;color:#6b7280;">Hello, Agency Admin</p>
   <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#111827;letter-spacing:-0.5px;">New Order <span style="color:#E8470A;">#{{ $order_id }}</span> Received</h1>
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px;">
   <p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">A new order has been placed on your platform. Please review the order details below and take the necessary action in your admin panel.</p>
@@ -41,12 +41,12 @@
   <!-- INFO CARD -->
   <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#fffbf0,#fff7ed);border:1px solid #ffedd5;border-left:4px solid #E8470A;border-radius:12px;margin-bottom:24px;">
   <tr><td style="padding:20px 24px;">
-    <p style="margin:0 0 14px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#E8470A;font-weight:600;font-family:'JetBrains Mono',monospace;">📦 Order Summary</p>
+    <p style="margin:0 0 14px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#E8470A;font-weight:600;font-family:'JetBrains Mono',monospace;">Order Summary</p>
     <table width="100%" cellpadding="0" cellspacing="0">
     <tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#6b7280;">Order ID</span></td><td align="right" style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#E8470A;font-weight:600;font-family:'JetBrains Mono',monospace;">#{{ $order_id }}</span></td></tr>
     <tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#6b7280;">Client Name</span></td><td align="right" style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#111827;font-weight:600;">{{ $client_name }}</span></td></tr>
     <tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#6b7280;">Order Amount</span></td><td align="right" style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#E8470A;font-weight:600;font-family:'JetBrains Mono',monospace;">{{ $order_amount }}</span></td></tr>
-    <tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#6b7280;">Status</span></td><td align="right" style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:12px;font-weight:600;background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:100px;">🟡 Awaiting Review</span></td></tr>
+    <tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#6b7280;">Status</span></td><td align="right" style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:12px;font-weight:600;background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:100px;">Awaiting Review</span></td></tr>
     <tr><td style="padding:8px 0;"><span style="font-size:13px;color:#6b7280;">Placed At</span></td><td align="right" style="padding:8px 0;"><span style="font-size:13px;color:#111827;font-weight:600;font-family:'JetBrains Mono',monospace;">{{ $order_date }}</span></td></tr>
     </table>
   </td></tr>
@@ -55,13 +55,13 @@
   <!-- CTA BUTTON -->
   <table cellpadding="0" cellspacing="0" style="margin:8px 0 20px;">
   <tr><td style="background:linear-gradient(135deg,#E8470A,#ea580c);border-radius:10px;">
-    <a href="{{ $admin_panel_url }}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#fff;text-decoration:none;letter-spacing:0.3px;">View in Admin Panel →</a>
+    <a href="{{ $admin_panel_url }}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#fff;text-decoration:none;letter-spacing:0.3px;">View in Admin Panel</a>
   </td></tr>
   </table>
 
   <!-- NOTE -->
   <table width="100%" cellpadding="0" cellspacing="0">
-  <tr><td style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;font-size:13px;color:#78350f;"><strong style="color:#92400e;">⚡ Action Required:</strong> Please review and process this order at your earliest convenience. The client is awaiting confirmation.</td></tr>
+  <tr><td style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;font-size:13px;color:#78350f;"><strong style="color:#92400e;">Action Required:</strong> Please review and process this order at your earliest convenience. The client is awaiting confirmation.</td></tr>
   </table>
 </td></tr>
 

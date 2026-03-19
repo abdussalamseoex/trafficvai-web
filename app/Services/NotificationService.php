@@ -72,7 +72,7 @@ class NotificationService
     }
 
     /**
-     * Sync Blade templates to Database (so admin can edit them)
+     * Sync Blade templates to Database (FORCE OVERWRITE)
      */
     public function syncTemplatesToDatabase()
     {
@@ -86,6 +86,7 @@ class NotificationService
 
         foreach ($templates as $slug => $view) {
             try {
+                // Render the template with placeholders
                 $content = view($view, [
                     'logo_url' => '{logo_url}',
                     'client_name' => '{client_name}',
@@ -119,17 +120,17 @@ class NotificationService
                     'year' => '{year}',
                 ])->render();
 
+                // FORCE UPDATE existing or create new
                 \App\Models\EmailTemplate::updateOrCreate(
                     ['slug' => $slug],
                     [
-                        'name' => ucwords(str_replace(['_', '.'], ' ', $slug)),
+                        'name' => ucwords(str_replace(['_', 'client'], [' ', ' (Client)'], $slug)),
                         'subject' => $this->getDefaultSubject($slug),
                         'body' => $content,
                         'type' => str_contains($slug, 'payment') ? 'payment' : 'order'
                     ]
                 );
             } catch (\Exception $e) {
-                // Silently ignore or use standard Log if available
                 if (class_exists('\Illuminate\Support\Facades\Log')) {
                     \Illuminate\Support\Facades\Log::error("Failed to sync template $slug: " . $e->getMessage());
                 }

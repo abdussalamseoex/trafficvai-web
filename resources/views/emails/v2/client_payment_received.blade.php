@@ -30,27 +30,27 @@
 
 <!-- BODY -->
 <tr><td style="background:#fff;padding:36px 40px;">
-  <p style="margin:0 0 4px;font-size:13px;color:#6b7280;">Hello, {{ $client_name }} 👋</p>
-  <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#111827;letter-spacing:-0.5px;">Payment <span style="color:#E8470A;">Received!</span> 🎉</h1>
+  <p style="margin:0 0 4px;font-size:13px;color:#6b7280;">Hello, {{ $client_name }}</p>
+  <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#111827;letter-spacing:-0.5px;">Payment <span style="color:#E8470A;">Received!</span></h1>
   <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px;">
   <p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">Great news! We have <strong>successfully received your payment</strong>. Your order is now being processed and you'll receive an update shortly.</p>
 
   <!-- INFO CARD -->
   <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#fffbf0,#fff7ed);border:1px solid #ffedd5;border-left:4px solid #E8470A;border-radius:12px;margin-bottom:24px;">
   <tr><td style="padding:20px 24px;">
-    <p style="margin:0 0 14px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#E8470A;font-weight:600;font-family:'JetBrains Mono',monospace;">🧾 Payment Receipt</p>
+    <p style="margin:0 0 14px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#E8470A;font-weight:600;font-family:'JetBrains Mono',monospace;">Payment Receipt</p>
     <table width="100%" cellpadding="0" cellspacing="0">
     <tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#6b7280;">Order ID</span></td><td align="right" style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#E8470A;font-weight:600;font-family:'JetBrains Mono',monospace;">#{{ $order_id }}</span></td></tr>
     <tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#6b7280;">Amount Paid</span></td><td align="right" style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#E8470A;font-weight:600;font-family:'JetBrains Mono',monospace;">{{ $order_amount }}</span></td></tr>
     <tr><td style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#6b7280;">Payment Date</span></td><td align="right" style="padding:8px 0;border-bottom:1px solid rgba(255,237,213,0.5);"><span style="font-size:13px;color:#111827;font-weight:600;font-family:'JetBrains Mono',monospace;">{{ $payment_date }}</span></td></tr>
-    <tr><td style="padding:8px 0;"><span style="font-size:13px;color:#6b7280;">Status</span></td><td align="right" style="padding:8px 0;"><span style="font-size:12px;font-weight:600;background:#dcfce7;color:#14532d;padding:4px 12px;border-radius:100px;">✅ Payment Confirmed</span></td></tr>
+    <tr><td style="padding:8px 0;"><span style="font-size:13px;color:#6b7280;">Status</span></td><td align="right" style="padding:8px 0;"><span style="font-size:12px;font-weight:600;background:#dcfce7;color:#14532d;padding:4px 12px;border-radius:100px;">Payment Confirmed</span></td></tr>
     </table>
   </td></tr>
   </table>
 
   <table cellpadding="0" cellspacing="0" style="margin:8px 0 20px;">
   <tr><td style="background:linear-gradient(135deg,#E8470A,#ea580c);border-radius:10px;">
-    <a href="{{ $order_details_url }}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#fff;text-decoration:none;">View Order Details →</a>
+    <a href="{{ $order_details_url }}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#fff;text-decoration:none;">View Order Details</a>
   </td></tr>
   </table>
 
