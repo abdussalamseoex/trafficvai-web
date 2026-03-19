@@ -10,21 +10,101 @@
         <!-- Navigation -->
         <x-frontend-header />
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Hero / Service Info -->
-            <div class="max-w-4xl mx-auto text-center mb-16">
-                <nav class="flex justify-center space-x-2 text-sm text-gray-500 mb-6">
-                    <a href="{{ route('campaigns.index', $type) }}" class="hover:text-indigo-600">{{ $title }}</a>
-                    <span>/</span>
-                    <span class="text-gray-900 font-medium">{{ $service->name }}</span>
-                </nav>
-                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
-                    {{ $service->name }}
-                </h1>
-                <p class="text-xl text-gray-600 leading-relaxed">
-                    {{ $service->description }}
-                </p>
+        <!-- Hero Section -->
+        <section class="w-full">
+            <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div class="absolute -top-32 -left-32 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl"></div>
+                    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                </div>
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+                    <nav class="flex items-center space-x-2 text-sm text-gray-400 mb-10">
+                        <a href="{{ route('campaigns.index', $type) }}" class="hover:text-orange-400 transition-colors">{{ $title }}</a>
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="text-gray-300 font-medium">{{ $service->name }}</span>
+                    </nav>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                        <div>
+                            <div class="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 rounded-full px-4 py-1.5 mb-6">
+                                <div class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                                <span class="text-orange-400 text-xs font-bold uppercase tracking-widest">Premium Service</span>
+                            </div>
+                            <h1 class="text-4xl md:text-5xl font-black text-white leading-tight mb-6">{{ $service->name }}</h1>
+                            @if($service->description)
+                            <p class="text-lg text-gray-300 leading-relaxed mb-8">{{ $service->description }}</p>
+                            @endif
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#pricing-section"
+                                   onclick="event.preventDefault(); document.getElementById('pricing-section').scrollIntoView({behavior:'smooth',block:'start'});"
+                                   class="inline-flex items-center gap-2 bg-[#E8470A] hover:bg-orange-600 text-white font-black px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl shadow-orange-600/30 hover:scale-105 active:scale-95">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                    Order Now
+                                </a>
+                                @if($service->sample_link)
+                                <a href="{{ $service->sample_link }}" target="_blank" rel="noopener noreferrer"
+                                   class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-sm">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    Sample / Download
+                                </a>
+                                @endif
+                            </div>
+                            @php
+                                $badge1 = \App\Models\Setting::get('service_hero_badge_1', 'Secure Payment');
+                                $badge2 = \App\Models\Setting::get('service_hero_badge_2', 'Professional Team');
+                                $badge3 = \App\Models\Setting::get('service_hero_badge_3', 'Results Guaranteed');
+                            @endphp
+                            <div class="flex flex-wrap gap-5 mt-8 pt-8 border-t border-white/10">
+                                <span class="flex items-center gap-2 text-gray-400 text-sm"><svg class="w-4 h-4 text-green-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>{{ $badge1 }}</span>
+                                <span class="flex items-center gap-2 text-gray-400 text-sm"><svg class="w-4 h-4 text-green-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>{{ $badge2 }}</span>
+                                <span class="flex items-center gap-2 text-gray-400 text-sm"><svg class="w-4 h-4 text-green-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>{{ $badge3 }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            @php
+                                $embedUrl = null;
+                                if ($service->hero_video_url) {
+                                    if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/', $service->hero_video_url, $m)) {
+                                        $embedUrl = 'https://www.youtube.com/embed/' . $m[1] . '?rel=0&modestbranding=1';
+                                    } elseif (preg_match('/vimeo\.com\/(\d+)/', $service->hero_video_url, $m)) {
+                                        $embedUrl = 'https://player.vimeo.com/video/' . $m[1] . '?byline=0&portrait=0';
+                                    }
+                                }
+                                $isDirectVideo = $service->hero_video_url && !$embedUrl;
+                            @endphp
+                            <div class="rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10">
+                                @if($embedUrl)
+                                    <div class="aspect-video bg-gray-900">
+                                        <iframe src="{{ $embedUrl }}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="{{ $service->name }}"></iframe>
+                                    </div>
+                                @elseif($isDirectVideo)
+                                    <div class="aspect-video bg-gray-900">
+                                        <video class="w-full h-full object-cover" controls preload="metadata" @if($service->hero_image) poster="{{ Storage::disk('public')->url($service->hero_image) }}" @endif>
+                                            <source src="{{ $service->hero_video_url }}">
+                                        </video>
+                                    </div>
+                                @elseif($service->hero_image)
+                                    <div class="aspect-video bg-gray-800">
+                                        <img src="{{ Storage::disk('public')->url($service->hero_image) }}" alt="{{ $service->name }}" class="w-full h-full object-cover">
+                                    </div>
+                                @else
+                                    <div class="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 flex flex-col items-center justify-center gap-4 relative">
+                                        <div class="w-20 h-20 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+                                            <svg class="w-10 h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-white font-bold text-lg">{{ $service->name }}</p>
+                                            <p class="text-gray-500 text-sm mt-1">Premium Quality Service</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </section>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
             <!-- Pricing / Packages Section -->
             <div class="mb-20" x-data="{ 
