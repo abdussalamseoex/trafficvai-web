@@ -1,4 +1,4 @@
-<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0F1117] text-white transition-transform duration-300 ease-in-out transform"
+<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0F1117] text-white transition-transform duration-300 ease-in-out transform flex flex-col h-screen overflow-hidden shadow-2xl"
     :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen, 'md:translate-x-0': true}"
     x-cloak>
     
@@ -18,7 +18,7 @@
         }
     </style>
     
-    <div class="flex items-center justify-center h-16 bg-[#0F1117] border-b border-gray-800/50">
+    <div class="flex-shrink-0 flex items-center justify-center h-16 bg-[#0F1117] border-b border-gray-800/50">
         <a href="{{ route('home') }}" class="flex items-center justify-center w-full px-4">
             <img src="{{ asset('images/logo.png') }}" alt="TrafficVai" class="h-10 w-auto object-contain" />
         </a>
@@ -33,7 +33,7 @@
         </button>
     </div>
 
-    <div class="overflow-y-auto h-full pb-32 custom-scrollbar">
+    <div class="flex-1 overflow-y-auto custom-scrollbar pb-10">
         <nav class="mt-6 px-4 space-y-2">
             
             @if(Auth::user()->is_admin)
@@ -429,7 +429,7 @@
     </div>
 
     <!-- Sidebar Footer (User Info) -->
-    <div class="absolute bottom-0 left-0 right-0 p-4 bg-[#0F1117] border-t border-gray-800/50">
+    <div class="flex-shrink-0 p-4 bg-[#0F1117] border-t border-gray-800/50 mt-auto">
         <a href="{{ route('profile.edit') }}" class="flex items-center w-full focus:outline-none hover:bg-white/5 p-2 rounded-xl transition duration-150 group">
             <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-lg leading-none">
                 {{ substr(Auth::user()->name, 0, 1) }}
