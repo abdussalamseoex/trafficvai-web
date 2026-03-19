@@ -527,6 +527,17 @@
                             @endforeach
                         </div>
 
+                        <!-- Partial Payment Option for Simple Views -->
+                        <div class="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-xl" x-show="paymentMethod !== 'wallet' && walletBalance > 0">
+                            <label class="flex items-center cursor-pointer">
+                                <div class="relative">
+                                    <input type="checkbox" class="sr-only" x-model="useWallet">
+                                    <div class="w-10 h-6 bg-gray-200 rounded-full shadow-inner transition" :class="useWallet ? 'bg-indigo-600' : ''"></div>
+                                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform" :class="useWallet ? 'translate-x-4' : ''"></div>
+                                </div>
+                                <span class="ml-3 text-gray-700 text-xs font-medium">Use my <span class="text-indigo-600 font-bold"><span class="price-convert" data-base-price="{{ auth()->user()->balance }}">${{ number_format(auth()->user()->balance, 2) }}</span></span> account balance</span>
+                            </label>
+                        </div>
                         </div>
                     <!-- Checkout Layout -->
                     <div class="flex flex-col w-full gap-6">
