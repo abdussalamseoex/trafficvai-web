@@ -8,14 +8,16 @@ use Illuminate\Support\Facades\Artisan;
 
 class UpdateService
 {
-    /**
-     * Check if there are updates available on GitHub.
-     * 
-     * @return array
-     */
     public function checkForUpdates()
     {
         try {
+            if (!$this->isGitAvailable()) {
+                return [
+                    'update_available' => false,
+                    'error' => 'Git is not installed or not in the PHP shell_exec path. Please check your server configuration.'
+                ];
+            }
+
             // First, fetch the latest from the remote
             $this->executeCommand('git fetch');
 
@@ -23,21 +25,59 @@ class UpdateService
             $local = $this->executeCommand('git rev-parse HEAD');
             $remote = $this->executeCommand('git rev-parse @{u}');
 
-            if ($local !== $remote) {
-                // Get the changes/commit messages
-                $changes = $this->executeCommand('git log HEAD..@{u} --oneline');
-                return [
-                    'update_available' => true,
-                    'remote_version' => substr($remote, 0, 7),
-                    'changes' => $changes,
+            // Check if commands returned valid hashes (40 chars hex)
+            if (!preg_match('/^[a-f0-9]{40}$/', $local) || !preg_match('/^[a-f0-9]{40}$/', $remote)) {
+                 return [
+                    'update_available' => false,
+                    'error' => 'Git repository is not initialized or tracking is broken. Output: ' . $remote
                 ];
             }
 
-            return ['update_available' => false];
+            $updateAvailable = ($local !== $remote);
+            $changes = $updateAvailable ? $this->executeCommand('git log HEAD..@{u} --oneline') : '';
+
+            return [
+                'update_available' => $updateAvailable,
+                'local_version' => substr($local, 0, 7),
+                'remote_version' => substr($remote, 0, 7),
+                'changes' => $changes,
+            ];
         } catch (\Exception $e) {
             Log::error('UpdateService Check Error: ' . $e->getMessage());
             return ['update_available' => false, 'error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Check if git is available in the shell path.
+     * 
+     * @return bool
+     */
+    public function isGitAvailable()
+    {
+        $output = $this->executeCommand('git --version');
+        return str_contains(strtolower($output), 'git version');
+    }
+
+    /**
+     * Get the current system status for the UI.
+     * 
+     * @return array
+     */
+    public function getSystemStatus()
+    {
+        if (!$this->isGitAvailable()) {
+            return ['error' => 'Git not found'];
+        }
+
+        $local = substr($this->executeCommand('git rev-parse HEAD'), 0, 7);
+        $branch = $this->executeCommand('git rev-parse --abbrev-ref HEAD');
+
+        return [
+            'version' => $local,
+            'branch' => $branch,
+            'git' => true
+        ];
     }
 
     /**

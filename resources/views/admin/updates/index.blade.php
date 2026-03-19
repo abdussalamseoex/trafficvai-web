@@ -18,11 +18,11 @@
                     <h3 class="text-2xl font-black text-gray-900 mb-2">Update Management</h3>
                     <p class="text-gray-500 mb-8 max-w-2xl">Keep your system running smoothly by applying the latest updates from GitHub. This process will pull the latest code, run database migrations, and clear system cache.</p>
                     
-                    <div class="flex flex-wrap gap-4">
+                    <div class="flex flex-wrap gap-4 items-center">
                         <form action="{{ route('admin.updates.check') }}" method="POST">
                             @csrf
-                            <button type="submit" class="inline-flex items-center px-6 py-3 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition shadow-sm border border-indigo-100">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <button type="submit" class="inline-flex items-center px-6 py-3 bg-white text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition shadow-sm border border-gray-200">
+                                <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 Check for Updates
                             </button>
                         </form>
@@ -36,15 +36,32 @@
                                 </button>
                             </form>
                         @endif
+
+                        <div class="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg border border-gray-100">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Current:</span>
+                            <span class="text-sm font-mono font-bold text-gray-600 bg-white px-2 py-0.5 rounded border border-gray-100 italic">{{ $status['version'] ?? 'Unknown' }}</span>
+                            <span class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-tighter">{{ $status['branch'] ?? 'main' }}</span>
+                        </div>
                     </div>
 
                     @if(session('update_available'))
                         <div class="mt-8 p-6 bg-indigo-50 rounded-2xl border border-indigo-100">
-                            <h4 class="text-indigo-900 font-bold mb-3 flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                                Latest Commit Details ({{ session('remote_version') }})
-                            </h4>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-indigo-900 font-bold flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                                    Updates Available (Comparing {{ session('local_version') }} → {{ session('remote_version') }})
+                                </h4>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-indigo-400 bg-white px-3 py-1 rounded-full border border-indigo-100 shadow-sm">New Version Found</span>
+                            </div>
                             <pre class="bg-indigo-100/50 p-4 rounded-xl text-sm text-indigo-800 font-mono whitespace-pre-wrap overflow-x-auto">{{ session('changes') }}</pre>
+                        </div>
+                    @elseif(session('last_check_status'))
+                         <div class="mt-8 p-6 bg-green-50 rounded-2xl border border-green-100 border-dashed">
+                            <div class="flex items-center gap-3 text-green-800 font-bold mb-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                System is fully up to date
+                            </div>
+                            <p class="text-sm text-green-600/80 ml-8 italic">Verified local commit <span class="font-mono font-bold">{{ session('local_version') }}</span> matches remote <span class="font-mono font-bold">{{ session('remote_version') }}</span> on GitHub.</p>
                         </div>
                     @endif
                 </div>

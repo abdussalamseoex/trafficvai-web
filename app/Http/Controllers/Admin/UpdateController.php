@@ -18,8 +18,9 @@ class UpdateController extends Controller
 
     public function index()
     {
+        $status = $this->updateService->getSystemStatus();
         $logs = UpdateLog::latest()->paginate(10);
-        return view('admin.updates.index', compact('logs'));
+        return view('admin.updates.index', compact('logs', 'status'));
     }
 
     public function check(Request $request)
@@ -33,13 +34,19 @@ class UpdateController extends Controller
         if ($result['update_available']) {
             return back()->with([
                 'update_available' => true,
+                'local_version' => $result['local_version'],
                 'remote_version' => $result['remote_version'],
                 'changes' => $result['changes'],
                 'success' => 'New updates are available on GitHub.'
             ]);
         }
 
-        return back()->with('success', 'Your system is up to date.');
+        return back()->with([
+            'success' => 'Your system is up to date.',
+            'last_check_status' => true,
+            'local_version' => $result['local_version'],
+            'remote_version' => $result['remote_version'],
+        ]);
     }
 
     public function update(Request $request)
