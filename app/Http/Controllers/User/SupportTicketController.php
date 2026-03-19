@@ -46,6 +46,11 @@ class SupportTicketController extends Controller
         // for now until a robust ticket messaging system is built.
 
         // As a placeholder, we just create the ticket record and show success.
+        app(\App\Services\NotificationService::class)->notifyAdmin(
+            "New Support Ticket Received",
+            "Client " . auth()->user()->name . " has opened a new support ticket: '{$request->subject}'. Priority: " . ucfirst($request->priority) . ".",
+            route('admin.support.show', $ticket->id)
+        );
 
         return redirect()->route('client.support.index')
             ->with('success', 'Your support ticket has been submitted successfully. We will respond shortly.');

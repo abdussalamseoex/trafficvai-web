@@ -92,6 +92,7 @@ class NotificationService
             'topup_pending' => 'emails.v2.universal_v2',
             'topup_approved' => 'emails.v2.universal_v2',
             'topup_rejected' => 'emails.v2.universal_v2',
+            'ticket_status_updated' => 'emails.v2.universal_v2',
         ];
 
         foreach ($templates as $slug => $view) {
@@ -164,6 +165,7 @@ class NotificationService
             'invoice_created' => "New Invoice Generated - TrafficVai",
             'test_connection' => "[TrafficVai] Connection Test Successful",
             'announcement' => "Important Announcement from TrafficVai",
+            'ticket_status_updated' => "Support Ticket Update - TrafficVai",
             default => ucwords(str_replace('_', ' ', $slug))
         };
     }
@@ -216,8 +218,13 @@ class NotificationService
             $subject = ucwords(str_replace('_', ' ', $templateSlug));
 
             if ($template) {
-                // AUTO-HEALING: If the DB template is plain-text (old version), force sync it with the beautiful V2 Blade view right now!
-                if (!str_contains($template->body, '<html') && !str_contains($template->body, '<body')) {
+                // AUTO-HEALING: If the DB template is plain-text (old version) OR has hardcoded "Notification" title, force sync it!
+                $needsHealing = !str_contains($template->body, '<html') && !str_contains($template->body, '<body');
+                if (!$needsHealing && (str_contains($template->body, '>Notification</h1>') || !str_contains($template->body, '{title}'))) {
+                    $needsHealing = true;
+                }
+
+                if ($needsHealing) {
                     $v2Mapping = [
                         'admin_new_order' => 'emails.v2.admin_new_order',
                         'admin_payment_proof' => 'emails.v2.admin_payment_proof',
@@ -234,6 +241,7 @@ class NotificationService
                         'topup_pending' => 'emails.v2.universal_v2',
                         'topup_approved' => 'emails.v2.universal_v2',
                         'topup_rejected' => 'emails.v2.universal_v2',
+                        'ticket_status_updated' => 'emails.v2.universal_v2',
                     ];
 
                     if (isset($v2Mapping[$templateSlug])) {
@@ -317,6 +325,7 @@ class NotificationService
                     'topup_pending' => 'emails.v2.universal_v2',
                     'topup_approved' => 'emails.v2.universal_v2',
                     'topup_rejected' => 'emails.v2.universal_v2',
+                    'ticket_status_updated' => 'emails.v2.universal_v2',
                 ];
 
                 if (isset($v2Mapping[$templateSlug])) {

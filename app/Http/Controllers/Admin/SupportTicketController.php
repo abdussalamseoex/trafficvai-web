@@ -39,9 +39,19 @@ class SupportTicketController extends Controller
             'status' => 'required|string|in:open,in-progress,closed',
         ]);
 
+        $oldStatus = $ticket->status;
+
         $ticket->update([
             'status' => $request->status,
         ]);
+
+        if ($oldStatus !== $request->status) {
+            app(\App\Services\NotificationService::class)->send('ticket_status_updated', $ticket->user, [
+                'title' => 'Support Ticket Update',
+                'message' => "Your support ticket '{$ticket->subject}' has been updated. New Status: " . ucfirst($request->status) . ".",
+                'link' => route('client.support.index')
+            ]);
+        }
 
         return redirect()->route('admin.support.show', $ticket->id)
             ->with('success', 'Ticket status updated successfully.');
