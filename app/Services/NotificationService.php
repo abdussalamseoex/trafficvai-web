@@ -208,8 +208,66 @@ class NotificationService
             $subject = ucwords(str_replace('_', ' ', $templateSlug));
 
             if ($template) {
+                // AUTO-HEALING: If the DB template is plain-text (old version), force sync it with the beautiful V2 Blade view right now!
+                if (!str_contains($template->body, '<html') && !str_contains($template->body, '<body')) {
+                    $v2Mapping = [
+                        'admin_new_order' => 'emails.v2.admin_new_order',
+                        'admin_payment_proof' => 'emails.v2.admin_payment_proof',
+                        'payment_approved' => 'emails.v2.client_payment_received',
+                        'order_status_updated' => 'emails.v2.client_order_update',
+                        'new_message_client' => 'emails.v2.client_new_message',
+                        'admin_notification' => 'emails.v2.admin_notification',
+                        'payment_failed' => 'emails.v2.payment_failed',
+                        'payment_refunded' => 'emails.v2.payment_refunded',
+                        'invoice_created' => 'emails.v2.invoice_created',
+                        'test_connection' => 'emails.v2.universal_v2',
+                    ];
+
+                    if (isset($v2Mapping[$templateSlug])) {
+                        // Generate fresh HTML with placeholder ({ tags }) for the DB
+                        $newBodyContent = view($v2Mapping[$templateSlug], [
+                            'logo_url' => '{logo_url}',
+                            'client_name' => '{client_name}',
+                            'user_name' => '{user_name}',
+                            'order_id' => '{order_id}',
+                            'id' => '{id}',
+                            'order_amount' => '{order_amount}',
+                            'amount' => '{amount}',
+                            'order_date' => '{order_date}',
+                            'date' => '{date}',
+                            'payment_date' => '{payment_date}',
+                            'submission_date' => '{submission_date}',
+                            'update_date' => '{update_date}',
+                            'message_date' => '{message_date}',
+                            'message_preview' => '{message_preview}',
+                            'message' => '{message}',
+                            'order_status' => '{order_status}',
+                            'status' => '{status}',
+                            'previous_status' => '{previous_status}',
+                            'admin_panel_url' => '{admin_panel_url}',
+                            'order_details_url' => '{order_details_url}',
+                            'order_url' => '{order_url}',
+                            'reply_url' => '{reply_url}',
+                            'dashboard_portal_url' => '{dashboard_portal_url}',
+                            'dashboard_url' => '{dashboard_url}',
+                            'contact_url' => '{contact_url}',
+                            'terms_url' => '{terms_url}',
+                            'privacy_url' => '{privacy_url}',
+                            'refund_url' => '{refund_url}',
+                            'inbox_url' => '{inbox_url}',
+                            'year' => '{year}',
+                        ])->render();
+                        
+                        $template->update(['body' => $newBodyContent]);
+                        // Log the healing
+                        if (class_exists('\Illuminate\Support\Facades\Log')) {
+                            \Illuminate\Support\Facades\Log::info("Auto-healed outdated plain-text DB template: " . $templateSlug);
+                        }
+                    }
+                }
+
                 $subject = $template->subject;
-                $body = $template->body;
+                $body = $template->body; // This is now guaranteed to be HTML if it was healed
 
                 foreach ($vars as $key => $value) {
                     if (is_string($value) || is_numeric($value)) {
@@ -218,7 +276,7 @@ class NotificationService
                     }
                 }
                 
-                // If it looks like plain text or partial HTML, wrap it in Generic template
+                // If the admin purposely saved plain text or it STILL failed to heal (somehow)
                 if (!str_contains($body, '<html') && !str_contains($body, '<body')) {
                     $vars['body'] = $body;
                     $vars['subject'] = $subject;
