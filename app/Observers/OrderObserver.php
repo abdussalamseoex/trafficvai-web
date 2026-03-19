@@ -39,6 +39,7 @@ class OrderObserver
                 'order_id' => $order->id,
                 'user_name' => $order->user->name,
                 'status' => str_replace('_', ' ', $order->status),
+                'previous_status' => str_replace('_', ' ', $order->getOriginal('status') ?? 'N/A'),
                 'link' => route('client.orders.show', $order)
             ]);
         }

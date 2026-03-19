@@ -82,6 +82,11 @@ class NotificationService
             'payment_approved' => 'emails.v2.client_payment_received',
             'order_status_updated' => 'emails.v2.client_order_update',
             'new_message_client' => 'emails.v2.client_new_message',
+            'admin_notification' => 'emails.v2.admin_notification',
+            'payment_failed' => 'emails.v2.payment_failed',
+            'payment_refunded' => 'emails.v2.payment_refunded',
+            'invoice_created' => 'emails.v2.invoice_created',
+            'test_connection' => 'emails.v2.universal_v2',
         ];
 
         foreach ($templates as $slug => $view) {
@@ -144,9 +149,14 @@ class NotificationService
         return match($slug) {
             'admin_new_order' => "[TrafficVai] New Order #{order_id} Received",
             'admin_payment_proof' => "[TrafficVai] Payment Proof Submitted for Order #{order_id}",
+            'admin_notification' => "[TrafficVai] System Notification",
             'payment_approved' => "Payment Received for Order #{order_id}",
+            'payment_failed' => "Payment Failed for Order #{order_id}",
+            'payment_refunded' => "Refund Processed for Order #{order_id}",
             'order_status_updated' => "Update on your Order #{order_id}",
             'new_message_client' => "New Message for Order #{order_id}",
+            'invoice_created' => "New Invoice Generated - TrafficVai",
+            'test_connection' => "[TrafficVai] Connection Test Successful",
             default => ucwords(str_replace('_', ' ', $slug))
         };
     }
@@ -225,6 +235,11 @@ class NotificationService
                     'payment_approved' => 'emails.v2.client_payment_received',
                     'order_status_updated' => 'emails.v2.client_order_update',
                     'new_message_client' => 'emails.v2.client_new_message',
+                    'admin_notification' => 'emails.v2.admin_notification',
+                    'payment_failed' => 'emails.v2.payment_failed',
+                    'payment_refunded' => 'emails.v2.payment_refunded',
+                    'invoice_created' => 'emails.v2.invoice_created',
+                    'test_connection' => 'emails.v2.universal_v2',
                 ];
 
                 if (isset($v2Mapping[$templateSlug])) {
