@@ -34,16 +34,26 @@ class SendBulkEmailJob implements ShouldQueue
         // Note: Status is already set to 'sent' in the controller for dashboard visibility
         // $this->announcement->update(['status' => 'processing']);
 
-        // Only send to actual clients (is_admin = 0 and role = 'client')
-        $clients = User::where('is_admin', false)->where('role', 'client')->get();
+        // Only send to actual clients (is_admin = 0 and role = 'client' or null)
+        $clients = User::where('is_admin', false)
+            ->where(function($q) {
+                $q->where('role', 'client')->orWhereNull('role');
+            })
+            ->get();
 
         foreach ($clients as $client) {
-            app(\App\Services\NotificationService::class)->sendEmail('announcement', $client->email, [
-                'user_name' => $client->name,
-                'title' => $this->announcement->subject,
-                'message' => $this->announcement->message,
-                'link' => url('/dashboard')
-            ]);
+            try {
+                app(\App\Services\NotificationService::class)->sendEmail('announcement', $client->email, [
+                    'user_name' => $client->name,
+                    'title' => $this->announcement->subject,
+                    'message' => $this->announcement->message,
+                    'link' => url('/dashboard')
+                ]);
+            } catch (\Exception $e) {
+                if (class_exists('\Illuminate\Support\Facades\Log')) {
+                    \Illuminate\Support\Facades\Log::error("Bulk Announcement Error for {$client->email}: " . $e->getMessage());
+                }
+            }
         }
 
         // Mark as sent

@@ -54,6 +54,7 @@ class RegisteredUserController extends Controller
             'website' => $request->website,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
+            'role' => 'client',
         ]);
 
         try {

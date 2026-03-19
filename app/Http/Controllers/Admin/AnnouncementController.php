@@ -47,9 +47,9 @@ class AnnouncementController extends Controller
         ]);
 
         if ($request->action === 'send') {
-            // If it includes an email, dispatch the job
+            // If it includes an email, dispatch the job synchronously for immediate results
             if (in_array($announcement->type, ['email', 'both'])) {
-                SendBulkEmailJob::dispatch($announcement);
+                SendBulkEmailJob::dispatchSync($announcement);
                 
                 return redirect()->route('admin.announcements.index')
                     ->with('success', 'Announcement published and bulk emails are being dispatched!');
