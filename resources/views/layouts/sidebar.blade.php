@@ -2,6 +2,22 @@
     :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen, 'md:translate-x-0': true}"
     x-cloak>
     
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+    
     <div class="flex items-center justify-center h-16 bg-[#0F1117] border-b border-gray-800/50">
         <a href="{{ route('home') }}" class="flex items-center justify-center w-full px-4">
             <img src="{{ asset('images/logo.png') }}" alt="TrafficVai" class="h-10 w-auto object-contain" />
@@ -17,7 +33,7 @@
         </button>
     </div>
 
-    <div class="overflow-y-auto h-full pb-20">
+    <div class="overflow-y-auto h-full pb-32 custom-scrollbar">
         <nav class="mt-6 px-4 space-y-2">
             
             @if(Auth::user()->is_admin)
@@ -347,7 +363,7 @@
                     </x-sidebar-link>
                 </x-sidebar-dropdown>
 
-                <x-sidebar-dropdown title="SEO Campaigns" :active="request()->routeIs('client.campaigns.*')">
+                <x-sidebar-dropdown title="SEO Campaigns" :active="request()->routeIs('client.seo_campaigns.*') || request()->routeIs('client.campaigns.*') || in_array(request()->route('type'), ['keyword-research', 'on-page-seo', 'technical-seo', 'local-seo', 'content-seo', 'seo-audit', 'monthly-seo', 'e-commerce-seo'])">
                     <x-slot name="icon">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </x-slot>
