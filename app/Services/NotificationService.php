@@ -156,7 +156,7 @@ class NotificationService
         return match($slug) {
             'admin_new_order' => "[TrafficVai] New Order #{order_id} Received",
             'admin_payment_proof' => "[TrafficVai] Payment Proof Submitted for Order #{order_id}",
-            'admin_notification' => "[TrafficVai] System Notification",
+            'admin_notification' => "[TrafficVai] {title}",
             'payment_approved' => "Payment Received for Order #{order_id}",
             'payment_failed' => "Payment Failed for Order #{order_id}",
             'payment_refunded' => "Refund Processed for Order #{order_id}",
@@ -305,6 +305,13 @@ class NotificationService
                     $renderedHtml = view('emails.v2.generic', $vars)->render();
                 } else {
                     $renderedHtml = $body;
+                }
+
+                if (\App\Models\Setting::get("email_toggle_{$templateSlug}", "1") == "0") {
+                    if (class_exists('\Illuminate\Support\Facades\Log')) {
+                        \Illuminate\Support\Facades\Log::info("Email not sent because template {$templateSlug} is disabled in Settings.");
+                    }
+                    return true;
                 }
             } 
             // 3. Fallback: Blade Templates (V2)

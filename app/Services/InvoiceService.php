@@ -45,6 +45,29 @@ class InvoiceService
 
             \Illuminate\Support\Facades\Log::info("Invoice #{$invoice->invoice_number} updated to paid. Total after update: {$invoice->total}");
 
+            // Notify Admin and Client
+            try {
+                $notificationService = app(\App\Services\NotificationService::class);
+                
+                // Notify Client
+                $notificationService->send('payment_approved', $invoice->user, [
+                    'order_id' => $invoice->invoice_number,
+                    'amount' => '$' . number_format($invoice->total, 2),
+                    'title' => 'Invoice Payment Successful',
+                    'date' => now()->format('M d, Y h:i A'),
+                    'link' => route('client.invoices.show', $invoice->id)
+                ]);
+
+                // Notify Admin
+                $notificationService->notifyAdmin(
+                    'Invoice Paid',
+                    "Invoice {$invoice->invoice_number} has been paid successfully by {$invoice->user->name} via " . ucfirst($paymentMethod) . ".",
+                    route('admin.invoices.show', $invoice->id)
+                );
+            } catch (\Exception $e) {
+                Log::error('Invoice Payment Notification Error: ' . $e->getMessage());
+            }
+
             // If it's not a wallet payment, we still want to record the transaction for accounting
             // Wallet payments are already recorded as 'debit' by WalletService::debit()
             if ($paymentMethod !== 'wallet') {

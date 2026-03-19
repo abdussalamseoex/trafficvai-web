@@ -232,6 +232,9 @@
                     <x-sidebar-link :href="route('admin.notifications.settings')" :active="request()->routeIs('admin.notifications.settings')">
                         {{ __('Global Settings') }}
                     </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.notifications.toggles.index')" :active="request()->routeIs('admin.notifications.toggles.*')">
+                        {{ __('Email Toggles') }}
+                    </x-sidebar-link>
                 </x-sidebar-dropdown>
 
                 <x-sidebar-dropdown title="Settings & Support" :active="request()->routeIs('admin.site-settings.*') || request()->routeIs('admin.support.*')">

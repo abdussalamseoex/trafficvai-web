@@ -182,6 +182,8 @@ Route::middleware(['auth'])->group(function () {
                     Route::get('/logs', [\App\Http\Controllers\Admin\NotificationController::class , 'logs'])->name('logs');
                     Route::get('/settings', [\App\Http\Controllers\Admin\NotificationController::class , 'settings'])->name('settings');
                     Route::post('/settings', [\App\Http\Controllers\Admin\NotificationController::class , 'updateSettings'])->name('settings.update');
+                    Route::get('/toggles', [\App\Http\Controllers\Admin\NotificationSettingController::class, 'index'])->name('toggles.index');
+                    Route::post('/toggles', [\App\Http\Controllers\Admin\NotificationSettingController::class, 'update'])->name('toggles.update');
                     Route::post('/test-email', [\App\Http\Controllers\Admin\NotificationController::class , 'testEmail'])->name('test-email');
 
                     Route::resource('/templates', \App\Http\Controllers\Admin\EmailTemplateController::class)->names([

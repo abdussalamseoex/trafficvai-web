@@ -112,6 +112,12 @@ class InvoiceController extends Controller
                 $invoice->user,
                 ['link' => route('client.invoices.show', $invoice)]
             );
+
+            app(\App\Services\NotificationService::class)->notifyAdmin(
+                'New Invoice Generated',
+                "A new invoice ({$invoice->invoice_number}) has been created for {$invoice->user->name}.",
+                route('admin.invoices.show', $invoice->id)
+            );
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Invoice Creation Notification Error: ' . $e->getMessage());
         }
