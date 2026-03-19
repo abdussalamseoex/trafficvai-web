@@ -89,9 +89,9 @@ class AppServiceProvider extends ServiceProvider
 
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             // Priority 1: Use already shared SEO data if available
+            // Note: View::getShared() returns data shared via View::share()
             $shared = \Illuminate\Support\Facades\View::getShared();
-            if (isset($shared['seo']) && $shared['seo']) {
-                // Already calculated and shared by a previous view in this request
+            if (isset($shared['seo']) && !empty($shared['seo'])) {
                 return;
             }
 
@@ -112,8 +112,10 @@ class AppServiceProvider extends ServiceProvider
                     $seo = $seoService->getMetadata($entity);
                     \Illuminate\Support\Facades\View::share('seo', $seo);
                 } else {
-                    // If no entity found, check if we're on the homepage or if we should use defaults
-                    if (\request()->routeIs('home') || !isset($shared['seo'])) {
+                    // Only calculate default SEO if we haven't already shared something
+                    // and this is the main layout or a top-level view.
+                    // To avoid multiple calculations, we check shared again.
+                    if (!isset($shared['seo'])) {
                         $seo = $seoService->getMetadata(null);
                         \Illuminate\Support\Facades\View::share('seo', $seo);
                     }
