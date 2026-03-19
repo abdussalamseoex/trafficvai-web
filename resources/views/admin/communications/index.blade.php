@@ -121,11 +121,23 @@
                                 :class="loadingMessages ? 'opacity-50' : ''"
                             >
                                 <template x-for="msg in filteredMessages" :key="msg.id">
-                                    <div class="flex flex-col group" :class="msg.is_self ? 'items-end' : 'items-start'">
+                                    <div class="flex group mb-6" :class="msg.is_self ? 'justify-end' : 'justify-start'">
+                                        <!-- Avatar for other user -->
+                                        <template x-if="!msg.is_self">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-900 flex-shrink-0 flex items-center justify-center text-[10px] font-black text-white mr-3 mt-1 shadow-sm uppercase">
+                                                <span x-text="(msg.sender_name || 'U').substring(0,1)"></span>
+                                            </div>
+                                        </template>
+
                                         <div class="flex flex-col max-w-[75%]" :class="msg.is_self ? 'items-end' : 'items-start'">
+                                            <!-- Name Label -->
+                                            <span class="text-[10px] font-black uppercase tracking-widest mb-1.5 px-1" 
+                                                  :class="msg.is_self ? 'text-purple-600' : 'text-gray-400'"
+                                                  x-text="msg.is_self ? 'You (Admin)' : (msg.sender_name || 'Client')"></span>
+
                                             <div 
-                                                class="px-5 py-4 shadow-none relative text-[14px] font-medium leading-relaxed"
-                                                :class="msg.is_self ? 'bg-[#9333ea] text-white rounded-[1.25rem] rounded-tr-none shadow-lg shadow-purple-100' : 'bg-[#f3f4f6] text-gray-700 rounded-[1.25rem] rounded-tl-none'"
+                                                class="px-5 py-3.5 shadow-none relative text-[14px] font-medium leading-relaxed"
+                                                :class="msg.is_self ? 'bg-[#9333ea] text-white rounded-[1.25rem] rounded-tr-none shadow-lg shadow-purple-100' : 'bg-[#f3f4f6] text-gray-700 rounded-[1.25rem] rounded-tl-none border border-gray-100'"
                                             >
                                                 <p class="whitespace-pre-wrap" x-text="msg.message"></p>
                                                 
@@ -156,17 +168,24 @@
                                                 </template>
                                             </div>
                                             <div class="flex items-center mt-1.5 space-x-1" :class="msg.is_self ? 'justify-end' : 'justify-start'">
-                                                <span class="text-[10px] text-gray-300 font-bold uppercase tracking-widest" x-text="msg.created_at"></span>
+                                                <span class="text-[9px] text-gray-400 font-black uppercase tracking-widest" x-text="msg.created_at"></span>
                                                 <template x-if="msg.is_self">
                                                     <div>
                                                         <!-- Read -->
-                                                        <svg x-show="msg.is_read" class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7m-6 8l3 3L22 7"></path></svg>
+                                                        <svg x-show="msg.is_read" class="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7m-6 8l3 3L22 7"></path></svg>
                                                         <!-- Unread -->
-                                                        <svg x-show="!msg.is_read" class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                        <svg x-show="!msg.is_read" class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                                     </div>
                                                 </template>
                                             </div>
                                         </div>
+
+                                        <!-- Avatar for self -->
+                                        <template x-if="msg.is_self">
+                                            <div class="w-8 h-8 rounded-lg bg-purple-600 flex-shrink-0 flex items-center justify-center text-[10px] font-black text-white ml-3 mt-1 shadow-md uppercase">
+                                                <span>A</span>
+                                            </div>
+                                        </template>
                                     </div>
                                 </template>
                             </div>
