@@ -119,11 +119,11 @@
                             <!-- Messages Area -->
                             <div 
                                 x-ref="messagesBox" 
-                                class="flex-1 overflow-y-auto p-10 space-y-6 bg-white custom-scrollbar scroll-smooth relative"
+                                class="flex-1 overflow-y-auto p-10 flex flex-col space-y-2 bg-[#f8fafc] custom-scrollbar scroll-smooth relative"
                                 :class="loadingMessages ? 'opacity-50' : ''"
                             >
                                 <template x-for="msg in messages" :key="msg.id">
-                                    <div class="flex group mb-6" :class="msg.is_self ? 'justify-end' : 'justify-start'">
+                                    <div class="flex w-full group mb-3" :class="msg.is_self ? 'justify-end' : 'justify-start'">
                                         <!-- Avatar for Support -->
                                         <template x-if="!msg.is_self">
                                             <div class="w-8 h-8 rounded-lg bg-purple-600 flex-shrink-0 flex items-center justify-center text-[10px] font-black text-white mr-3 mt-1 shadow-sm">
