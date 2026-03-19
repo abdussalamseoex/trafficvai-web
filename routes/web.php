@@ -33,7 +33,7 @@ Route::get('/fix-home-sections', function() {
                         'title' => 'Fully Managed SEO',
                         'description' => 'Complete, hands-off ranking campaigns. We analyze, strategize, and execute a custom link building masterplan to dominate your niche.',
                         'link_text' => 'Explore Campaigns',
-                        'link_url' => '/campaigns/seo-campaigns',
+                        'link_url' => '/seo-campaigns',
                     ],
                     [
                         'title' => 'Premium Guest Posts',
@@ -113,6 +113,25 @@ Route::get('/campaigns/{type}/category/{category:slug}', [\App\Http\Controllers\
 Route::get('/campaigns/{type}/{service:slug}', [\App\Http\Controllers\Frontend\CampaignController::class , 'show'])->name('campaigns.show');
 Route::post('/campaigns/{type}/{package}/checkout', [\App\Http\Controllers\Frontend\CampaignController::class , 'checkout'])->name('campaigns.checkout')->middleware(['auth']);
 
+// Dedicated SEO Campaigns Routes (clean slugs at top level)
+$seoTypes = 'seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo';
+
+Route::get('/{type}', [\App\Http\Controllers\Frontend\CampaignController::class , 'index'])
+    ->where('type', $seoTypes)
+    ->name('seo_campaigns.index');
+
+Route::get('/{type}/category/{category:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'category'])
+    ->where('type', $seoTypes)
+    ->name('seo_campaigns.category');
+
+Route::get('/{type}/{service:slug}', function ($type, \App\Models\Service $service) {
+    return app(\App\Http\Controllers\Frontend\CampaignController::class)->show($type, $service);
+})->where('type', $seoTypes)->name('seo_campaigns.show');
+
+Route::post('/{type}/{package}/checkout', function (\Illuminate\Http\Request $request, $type, \App\Models\Package $package) {
+    return app(\App\Http\Controllers\Frontend\CampaignController::class)->checkout($request, $type, $package);
+})->where('type', $seoTypes)->name('seo_campaigns.checkout')->middleware(['auth']);
+
 // Dedicated Link Building Routes (clean slug: /link-building/)
 Route::get('/link-building', [\App\Http\Controllers\Frontend\CampaignController::class , 'index'])->defaults('type', 'link-building')->name('link_building.index');
 Route::get('/link-building/category/{category:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'category'])->defaults('typePrefix', 'link-building')->name('link_building.category');
@@ -123,7 +142,7 @@ Route::post('/link-building/{package}/checkout', function (\Illuminate\Http\Requ
     return app(\App\Http\Controllers\Frontend\CampaignController::class)->checkout($request, 'link-building', $package);
 })->name('link_building.checkout')->middleware(['auth']);
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->group(function () use ($seoTypes) {
     // Universal Order Messages & Inbox
     Route::post('/orders/{order}/messages', [\App\Http\Controllers\OrderMessageController::class , 'store'])->name('orders.messages.store');
     Route::get('/inbox', [\App\Http\Controllers\CommunicationController::class , 'index'])->name('inbox');
@@ -265,7 +284,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Client Routes
-    Route::group(['prefix' => 'client', 'as' => 'client.'], function () {
+    Route::group(['prefix' => 'client', 'as' => 'client.'], function () use ($seoTypes) {
         Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class , 'index'])->name('dashboard');
             Route::get('/orders/running', [\App\Http\Controllers\User\OrderController::class, 'running'])->name('orders.running');
             Route::resource('/orders', \App\Http\Controllers\User\OrderController::class);
@@ -290,7 +309,15 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/guest-posts/{guestPost}/favorite', [\App\Http\Controllers\User\GuestPostController::class , 'toggleFavorite'])->name('guest_posts.favorite');
             Route::post('/guest-posts/{guestPost}/checkout', [\App\Http\Controllers\User\GuestPostController::class , 'checkout'])->name('guest_posts.checkout');
 
-            // Dynamic Campaign Routes (Client Dashboard)
+            // Dedicated SEO Campaigns Routes (Client Dashboard)
+            Route::group(['prefix' => '{type}', 'as' => 'seo_campaigns.'], function () use ($seoTypes) {
+                    Route::get('/', [\App\Http\Controllers\User\CampaignController::class , 'index'])->name('index');
+                    Route::get('/{service:slug}', [\App\Http\Controllers\User\CampaignController::class , 'show'])->name('show');
+                    Route::post('/{package}/checkout', [\App\Http\Controllers\User\CampaignController::class , 'checkout'])->name('checkout');
+                }
+            )->where(['type' => $seoTypes]);
+
+            // Dynamic Campaign Routes (Client Dashboard - Fallback)
             Route::group(['prefix' => 'campaigns/{type}', 'as' => 'campaigns.'], function () {
                     Route::get('/', [\App\Http\Controllers\User\CampaignController::class , 'index'])->name('index');
                     Route::get('/{service:slug}', [\App\Http\Controllers\User\CampaignController::class , 'show'])->name('show');

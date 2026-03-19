@@ -364,7 +364,7 @@
                         ];
                     @endphp
                     @foreach($seoCampaigns as $slug => $name)
-                        <x-sidebar-link :href="route('client.campaigns.index', $slug)" :active="request()->route('type') == $slug">
+                        <x-sidebar-link :href="route('client.seo_campaigns.index', $slug)" :active="request()->route('type') == $slug">
                             {{ __($name) }}
                         </x-sidebar-link>
                     @endforeach

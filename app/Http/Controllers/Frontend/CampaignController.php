@@ -19,7 +19,7 @@ class CampaignController extends Controller
         if ($type === 'seo-campaigns') {
             $types = [
                 'keyword-research', 'on-page-seo', 'technical-seo',
-                'link-building', 'local-seo', 'content-seo',
+                'local-seo', 'content-seo',
                 'seo-audit', 'monthly-seo', 'e-commerce-seo'
             ];
         }

@@ -42,7 +42,7 @@
                 
                 <!-- Services Dropdown (Desktop) -->
                 <div class="relative">
-                    <button @click="servicesDropdownOpen = !servicesDropdownOpen" type="button" class="flex items-center gap-x-1 px-3 py-2 rounded-lg text-sm font-semibold {{ request()->is('services*') || request()->is('campaigns*') || request()->is('guest-posts*') || request()->is('website-traffic*') ? 'text-white bg-white/20' : 'text-blue-100 hover:text-white hover:bg-white/10' }} transition outline-none" :aria-expanded="servicesDropdownOpen">
+                    <button @click="servicesDropdownOpen = !servicesDropdownOpen" type="button" class="flex items-center gap-x-1 px-3 py-2 rounded-lg text-sm font-semibold {{ request()->is('services*') || request()->is('campaigns*') || request()->is('seo-campaigns*') || request()->is('link-building*') || request()->is('guest-posts*') || request()->is('website-traffic*') ? 'text-white bg-white/20' : 'text-blue-100 hover:text-white hover:bg-white/10' }} transition outline-none" :aria-expanded="servicesDropdownOpen">
                         Services
                         <svg class="h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180 text-white': servicesDropdownOpen, 'text-blue-200': !servicesDropdownOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
@@ -91,7 +91,7 @@
                                         @endif
                                     @endforeach
                                 @else
-                                    <a href="{{ route('campaigns.index', 'seo-campaigns') }}" class="group relative flex gap-x-6 rounded-2xl p-4 hover:bg-indigo-50 transition">
+                                    <a href="{{ route('seo_campaigns.index', 'seo-campaigns') }}" class="group relative flex gap-x-6 rounded-2xl p-4 hover:bg-indigo-50 transition">
                                         <div class="mt-1 flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-gray-50 group-hover:bg-white group-hover:shadow-sm transition">
                                             <svg class="h-6 w-6 text-gray-600 group-hover:text-indigo-600 transition" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
@@ -224,7 +224,7 @@
                     @endif
                 @endforeach
             @else
-                <a href="{{ route('campaigns.index', 'seo-campaigns') }}" class="block px-4 py-3 {{ request()->is('campaigns/seo-campaigns*') ? 'text-white bg-white/20 font-bold' : 'text-blue-100 hover:text-white hover:bg-white/10 font-semibold' }} rounded-lg transition pl-6 select-none flex items-center gap-3">
+                <a href="{{ route('seo_campaigns.index', 'seo-campaigns') }}" class="block px-4 py-3 {{ request()->is('seo-campaigns*') ? 'text-white bg-white/20 font-bold' : 'text-blue-100 hover:text-white hover:bg-white/10 font-semibold' }} rounded-lg transition pl-6 select-none flex items-center gap-3">
                     <div class="w-1.5 h-1.5 rounded-full bg-brand"></div> SEO Campaigns
                 </a>
                 <a href="{{ route('services.index') }}" class="block px-4 py-3 {{ request()->is('services*') ? 'text-white bg-white/20 font-bold' : 'text-blue-100 hover:text-white hover:bg-white/10 font-semibold' }} rounded-lg transition pl-6 select-none flex items-center gap-3">
