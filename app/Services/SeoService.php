@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\SeoMeta;
 use App\Models\SeoGlobalSetting;
 use App\Models\SeoRedirect;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Request;
 
 class SeoService
@@ -51,8 +52,13 @@ class SeoService
         if ($seo && $seo->meta_title)
             return $seo->meta_title;
 
+        if (!$entity && Request::getPathInfo() === '/') {
+            $homeTitle = Setting::get('home_seo_title');
+            if ($homeTitle) return $homeTitle;
+        }
+
         $title = $entity ? ($entity->title ?? $entity->name ?? 'Page') : 'Home';
-        $siteName = $global->site_name ?? config('app.name');
+        $siteName = $global->site_name ?? Setting::get('site_name') ?? config('app.name');
 
         return "{$title} | {$siteName}";
     }
@@ -64,6 +70,11 @@ class SeoService
     {
         if ($seo && $seo->meta_description)
             return $seo->meta_description;
+
+        if (!$entity && Request::getPathInfo() === '/') {
+            $homeDesc = Setting::get('home_seo_description');
+            if ($homeDesc) return $homeDesc;
+        }
 
         $content = $entity ? ($entity->content ?? $entity->description ?? '') : '';
         return substr(strip_tags($content), 0, 160);
