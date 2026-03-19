@@ -453,7 +453,8 @@
                 <div class="max-w-xl mx-auto mt-8 bg-white border border-gray-100 p-8 rounded-3xl shadow-xl flex flex-col gap-6">
                     <!-- Payment Options -->
                     <div class="border-b border-gray-100 pb-6 w-full" x-show="selectedPackageId">
-                        <h3 class="text-gray-900 font-bold mb-3">Select Payment Method</h3>                        <div class="divide-y divide-gray-100 w-full">
+                        <h3 class="text-gray-900 font-bold mb-3">Select Payment Method</h3>
+                        <div class="divide-y divide-gray-100 w-full">
                             @foreach($gateways as $category => $methods)
                                 @if(count($methods) > 0)
                                 <div class="py-8 first:pt-0 last:pb-0">
