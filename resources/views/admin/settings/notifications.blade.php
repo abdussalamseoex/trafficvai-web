@@ -1,13 +1,15 @@
-@extends('layouts.admin')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Email Notification Toggles') }}
+        </h2>
+    </x-slot>
 
-@section('title', 'Email Notification Toggles')
-
-@section('content')
-<div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Email Notification Master Toggles</h1>
-        <p class="mb-0 text-muted">Enable or disable specific email notifications globally.</p>
-    </div>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <p class="mb-0 text-gray-500">Enable or disable specific email notifications globally.</p>
+            </div>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show">
@@ -61,5 +63,6 @@
             </form>
         </div>
     </div>
-</div>
-@endsection
+        </div>
+    </div>
+</x-app-layout>
