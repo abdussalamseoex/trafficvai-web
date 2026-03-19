@@ -44,13 +44,23 @@ class StaffController extends Controller
             'role' => ['required', 'string', Rule::in(['manager', 'seo_expert', 'writer'])],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'is_admin' => false, // Only super-admins get is_admin=1
         ]);
+
+        try {
+            app(\App\Services\NotificationService::class)->send('staff_account_created', $user, [
+                'login_url' => route('login'),
+                'password' => $request->password,
+                'role' => ucfirst(str_replace('_', ' ', $request->role)),
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Staff Account Email Error: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.staff.index')->with('success', 'Staff member added successfully.');
     }

@@ -93,6 +93,10 @@ class NotificationService
             'topup_approved' => 'emails.v2.universal_v2',
             'topup_rejected' => 'emails.v2.universal_v2',
             'ticket_status_updated' => 'emails.v2.universal_v2',
+            'welcome_email' => 'emails.v2.welcome',
+            'password_reset' => 'emails.v2.password_reset',
+            'staff_account_created' => 'emails.v2.staff_credentials',
+            'support_ticket_reply' => 'emails.v2.universal_v2',
         ];
 
         foreach ($templates as $slug => $view) {
@@ -130,6 +134,11 @@ class NotificationService
                     'refund_url' => '{refund_url}',
                     'inbox_url' => '{inbox_url}',
                     'year' => '{year}',
+                    'login_url' => '{login_url}',
+                    'action_url' => '{action_url}',
+                    'role' => '{role}',
+                    'password' => '{password}',
+                    'sender_name' => '{sender_name}',
                 ])->render();
 
                 // FORCE UPDATE existing or create new
@@ -166,6 +175,10 @@ class NotificationService
             'test_connection' => "[TrafficVai] Connection Test Successful",
             'announcement' => "Important Announcement from TrafficVai",
             'ticket_status_updated' => "Support Ticket Update - TrafficVai",
+            'welcome_email' => "Welcome to TrafficVai!",
+            'password_reset' => "Reset Your Password - TrafficVai",
+            'staff_account_created' => "Your TrafficVai Staff Account Credentials",
+            'support_ticket_reply' => "New Reply on Your Support Ticket",
             default => ucwords(str_replace('_', ' ', $slug))
         };
     }
@@ -210,6 +223,11 @@ class NotificationService
                 'is_admin' => str_contains($templateSlug, 'admin'),
                 'dashboard_portal_url' => str_contains($templateSlug, 'admin') ? url('/admin') : url('/dashboard'),
                 'year' => date('Y'),
+                'login_url' => $data['login_url'] ?? url('/login'),
+                'action_url' => $data['action_url'] ?? url('/dashboard'),
+                'role' => $data['role'] ?? 'Staff',
+                'password' => $data['password'] ?? '********',
+                'sender_name' => $data['sender_name'] ?? 'TrafficVai Team',
             ];
 
             // 2. Priority: Database Template (allows Admin to edit)
@@ -242,6 +260,10 @@ class NotificationService
                         'topup_approved' => 'emails.v2.universal_v2',
                         'topup_rejected' => 'emails.v2.universal_v2',
                         'ticket_status_updated' => 'emails.v2.universal_v2',
+                        'welcome_email' => 'emails.v2.welcome',
+                        'password_reset' => 'emails.v2.password_reset',
+                        'staff_account_created' => 'emails.v2.staff_credentials',
+                        'support_ticket_reply' => 'emails.v2.universal_v2',
                     ];
 
                     if (isset($v2Mapping[$templateSlug])) {
@@ -306,13 +328,6 @@ class NotificationService
                 } else {
                     $renderedHtml = $body;
                 }
-
-                if (\App\Models\Setting::get("email_toggle_{$templateSlug}", "1") == "0") {
-                    if (class_exists('\Illuminate\Support\Facades\Log')) {
-                        \Illuminate\Support\Facades\Log::info("Email not sent because template {$templateSlug} is disabled in Settings.");
-                    }
-                    return true;
-                }
             } 
             // 3. Fallback: Blade Templates (V2)
             else {
@@ -333,6 +348,10 @@ class NotificationService
                     'topup_approved' => 'emails.v2.universal_v2',
                     'topup_rejected' => 'emails.v2.universal_v2',
                     'ticket_status_updated' => 'emails.v2.universal_v2',
+                    'welcome_email' => 'emails.v2.welcome',
+                    'password_reset' => 'emails.v2.password_reset',
+                    'staff_account_created' => 'emails.v2.staff_credentials',
+                    'support_ticket_reply' => 'emails.v2.universal_v2',
                 ];
 
                 if (isset($v2Mapping[$templateSlug])) {
@@ -343,6 +362,14 @@ class NotificationService
                         $subject = str_replace('{' . $key . '}', $value, $subject);
                     }
                 }
+            }
+
+            // Global Toggle Check (Blocks both DB and Fallback emails)
+            if (\App\Models\Setting::get("email_toggle_{$templateSlug}", "1") == "0") {
+                if (class_exists('\Illuminate\Support\Facades\Log')) {
+                    \Illuminate\Support\Facades\Log::info("Email not sent because template {$templateSlug} is disabled in Settings.");
+                }
+                return true;
             }
 
             if (!$renderedHtml) {

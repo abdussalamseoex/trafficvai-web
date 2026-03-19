@@ -56,6 +56,15 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        try {
+            app(\App\Services\NotificationService::class)->send('welcome_email', $user, [
+                'login_url' => route('login'),
+                'contact_url' => route('contact'),
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Welcome Email Error: ' . $e->getMessage());
+        }
+
         event(new Registered($user));
 
         Auth::login($user);

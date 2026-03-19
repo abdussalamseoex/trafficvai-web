@@ -42,6 +42,30 @@ class SupportMessageController extends Controller
             'attachment_name' => $attachmentName,
         ]);
 
+        // Send Email Notification
+        try {
+            $notificationService = app(\App\Services\NotificationService::class);
+            $clientUser = \App\Models\User::find($clientId);
+
+            if ($user->is_admin) {
+                // Admin replied to Client
+                $notificationService->send('support_ticket_reply', $clientUser, [
+                    'sender_name' => $user->name,
+                    'message_preview' => \Illuminate\Support\Str::words($messageText, 20),
+                    'link' => route('inbox')
+                ]);
+            } else {
+                // Client replied to Admin
+                $notificationService->notifyAdmin(
+                    'New Support Reply from ' . $clientUser->name,
+                    "Client {$clientUser->name} has sent a new message in Support/Direct Inbox.\n\nMessage: " . \Illuminate\Support\Str::words($messageText, 30),
+                    route('inbox', ['user' => $clientUser->id])
+                );
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Support Reply Email Error: ' . $e->getMessage());
+        }
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',

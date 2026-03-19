@@ -130,4 +130,30 @@ class User extends Authenticatable
     {
         return $this->wallet ? $this->wallet->balance : 0.00;
     }
+
+    /**
+     * Send the password reset notification.
+     * Overriding Laravel's default to use our NotificationService.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $resetUrl = url(route('password.reset', [
+            'token' => $token,
+            'email' => $this->getEmailForPasswordReset(),
+        ], false));
+
+        try {
+            app(\App\Services\NotificationService::class)->send('password_reset', $this, [
+                'action_url' => $resetUrl,
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Custom Password Reset Email Error: ' . $e->getMessage());
+            
+            // Fallback to default if NotificationService fails
+            parent::sendPasswordResetNotification($token);
+        }
+    }
 }
