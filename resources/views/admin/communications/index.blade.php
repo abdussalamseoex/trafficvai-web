@@ -130,11 +130,6 @@
                                         </template>
 
                                         <div class="flex flex-col max-w-[75%]" :class="msg.is_self ? 'items-end' : 'items-start'">
-                                            <!-- Name Label -->
-                                            <span class="text-[10px] font-black uppercase tracking-widest mb-1.5 px-1" 
-                                                  :class="msg.is_self ? 'text-purple-600' : 'text-gray-400'"
-                                                  x-text="msg.is_self ? 'You (Admin)' : (msg.sender_name || 'Client')"></span>
-
                                             <div 
                                                 class="px-5 py-3.5 shadow-none relative text-[14px] font-medium leading-relaxed"
                                                 :class="msg.is_self ? 'bg-[#9333ea] text-white rounded-[1.25rem] rounded-tr-none shadow-lg shadow-purple-100' : 'bg-[#f3f4f6] text-gray-700 rounded-[1.25rem] rounded-tl-none border border-gray-100'"
