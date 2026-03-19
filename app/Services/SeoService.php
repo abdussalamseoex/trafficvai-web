@@ -21,7 +21,7 @@ class SeoService
             'title' => $this->getTitle($entity, $seo, $global),
             'description' => $this->getDescription($entity, $seo),
             'keywords' => $seo->meta_keywords ?? null,
-            'canonical' => $seo->canonical_url ?? Request::url(),
+            'canonical' => $seo->canonical_url ?? 'https://trafficvai.com' . (Request::getPathInfo() === '/' ? '' : Request::getPathInfo()),
             'robots' => $seo->robots_directive ?? 'index,follow',
             'og' => [
                 'title' => $seo->og_title ?? $this->getTitle($entity, $seo, $global),
@@ -95,7 +95,7 @@ class SeoService
         $data = [
             '@context' => 'https://schema.org',
             'name' => $entity->title ?? $entity->name,
-            'url' => Request::url(),
+            'url' => 'https://trafficvai.com' . (Request::getPathInfo() === '/' ? '' : Request::getPathInfo()),
         ];
 
         if (str_contains($type, 'Post')) {

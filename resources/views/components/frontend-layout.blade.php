@@ -15,7 +15,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="https://trafficvai.com{{ request()->getPathInfo() === '/' ? '' : request()->getPathInfo() }}">
 
     @php 
         $favicon = \App\Models\Setting::get('site_favicon');

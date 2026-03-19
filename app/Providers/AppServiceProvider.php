@@ -124,7 +124,7 @@ class AppServiceProvider extends ServiceProvider
                     'title' => config('app.name'),
                     'description' => '',
                     'keywords' => '',
-                    'canonical' => request()->url(),
+                    'canonical' => 'https://trafficvai.com' . (request()->getPathInfo() === '/' ? '' : request()->getPathInfo()),
                     'robots' => 'index,follow',
                     'og' => [
                         'title' => config('app.name'),
