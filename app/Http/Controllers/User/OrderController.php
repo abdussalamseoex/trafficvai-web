@@ -4,6 +4,9 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\User;
+use App\Models\Setting;
 
 class OrderController extends Controller
 {
@@ -30,7 +33,7 @@ class OrderController extends Controller
             ->whereNotNull('expiry_date')
             ->where('status', 'processing');
 
-        $reminderDays = \App\Models\Setting::get('renewal_reminder_days', 7);
+        $reminderDays = (int) Setting::get('renewal_reminder_days', 7);
         $targetDate = now()->addDays($reminderDays)->endOfDay();
 
         if ($request->filter === 'expiring_soon') {
@@ -45,7 +48,7 @@ class OrderController extends Controller
         return view('client.orders.running', compact('orders'));
     }
 
-    public function show(\App\Models\Order $order)
+    public function show(Order $order)
     {
         if ($order->user_id != auth()->id())
             abort(403);
@@ -62,7 +65,7 @@ class OrderController extends Controller
         return view('client.orders.show', compact('order'));
     }
 
-    public function update(Request $request, \App\Models\Order $order)
+    public function update(Request $request, Order $order)
     {
         if ($order->user_id != auth()->id())
             abort(403);
@@ -127,7 +130,7 @@ class OrderController extends Controller
         return redirect()->route('client.orders.show', $order)->with('success', 'Requirements submitted successfully. We are now processing your order.');
     }
 
-    public function submitProof(Request $request, \App\Models\Order $order)
+    public function submitProof(Request $request, Order $order)
     {
         if ($order->user_id != auth()->id()) {
             abort(403);
@@ -153,7 +156,7 @@ class OrderController extends Controller
 
         return redirect()->route('client.orders.show', $order)->with('success', 'Payment details submitted successfully. Our team will verify and activate your order shortly.');
     }
-    public function invoice(\App\Models\Order $order)
+    public function invoice(Order $order)
     {
         if ($order->user_id != auth()->id()) {
             abort(403);
