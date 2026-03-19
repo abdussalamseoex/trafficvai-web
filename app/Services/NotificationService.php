@@ -72,14 +72,80 @@ class NotificationService
     }
 
     /**
+     * Sync Blade templates to Database (so admin can edit them)
+     */
+    public function syncTemplatesToDatabase()
+    {
+        $templates = [
+            'admin_new_order' => 'emails.v2.admin_new_order',
+            'admin_payment_proof' => 'emails.v2.admin_payment_proof',
+            'payment_approved' => 'emails.v2.client_payment_received',
+            'order_status_updated' => 'emails.v2.client_order_update',
+            'new_message_client' => 'emails.v2.client_new_message',
+        ];
+
+        foreach ($templates as $slug => $view) {
+            try {
+                $content = view($view, [
+                    'logo_url' => '{logo_url}',
+                    'client_name' => '{client_name}',
+                    'order_id' => '{order_id}',
+                    'order_amount' => '{order_amount}',
+                    'order_date' => '{order_date}',
+                    'payment_date' => '{payment_date}',
+                    'submission_date' => '{submission_date}',
+                    'update_date' => '{update_date}',
+                    'message_date' => '{message_date}',
+                    'message_preview' => '{message_preview}',
+                    'order_status' => '{order_status}',
+                    'previous_status' => '{previous_status}',
+                    'admin_panel_url' => '{admin_panel_url}',
+                    'order_details_url' => '{order_details_url}',
+                    'order_url' => '{order_url}',
+                    'reply_url' => '{reply_url}',
+                    'year' => '{year}',
+                ])->render();
+
+                \App\Models\EmailTemplate::updateOrCreate(
+                    ['slug' => $slug],
+                    [
+                        'name' => ucwords(str_replace(['_', '.'], ' ', $slug)),
+                        'subject' => $this->getDefaultSubject($slug),
+                        'body' => $content,
+                        'type' => str_contains($slug, 'payment') ? 'payment' : 'order'
+                    ]
+                );
+            } catch (\Exception $e) {
+                // Silently ignore or use standard \Log if available
+                if (class_exists('\Log')) {
+                    \Log::error("Failed to sync template $slug: " . $e->getMessage());
+                }
+            }
+        }
+        return true;
+    }
+
+    private function getDefaultSubject($slug)
+    {
+        return match($slug) {
+            'admin_new_order' => "[TrafficVai] New Order #{order_id} Received",
+            'admin_payment_proof' => "[TrafficVai] Payment Proof Submitted for Order #{order_id}",
+            'payment_approved' => "Payment Received for Order #{order_id}",
+            'order_status_updated' => "Update on your Order #{order_id}",
+            'new_message_client' => "New Message for Order #{order_id}",
+            default => ucwords(str_replace('_', ' ', $slug))
+        };
+    }
+
+    /**
      * Internal method to send email using database templates and dynamic SMTP
      */
     public function sendEmail($templateSlug, $recipient, $data = [])
     {
         try {
-            // 1. Prepare Data for Blade Templates
+            // 1. Prepare Data for Replacement
             $vars = [
-                'logo_url' => config('app.url') . '/images/logo.png',
+                'logo_url' => \App\Models\Setting::get('site_logo') ? asset(\App\Models\Setting::get('site_logo')) : (config('app.url') . '/images/logo.png'),
                 'client_name' => $data['user_name'] ?? 'Client',
                 'order_id' => $data['order_id'] ?? 'N/A',
                 'order_amount' => $data['amount'] ?? ($data['order_amount'] ?? 'N/A'),
@@ -95,62 +161,50 @@ class NotificationService
                 'order_details_url' => isset($data['order_id']) ? route('client.orders.show', $data['order_id']) : url('/orders'),
                 'order_url' => url('/orders'),
                 'reply_url' => isset($data['order_id']) ? route('client.orders.show', $data['order_id']) : url('/orders'),
-                'is_admin' => str_contains($templateSlug, 'admin'),
-                'subject' => ucwords(str_replace('_', ' ', $templateSlug)),
+                'dashboard_url' => url('/dashboard'),
+                'contact_url' => url('/contact'),
+                'terms_url' => url('/terms'),
+                'privacy_url' => url('/privacy-policy'),
+                'refund_url' => url('/refund-policy'),
+                'inbox_url' => url('/inbox'),
+                'year' => date('Y'),
             ];
 
-            // 2. Custom Blade Templates check (V2)
-            $v2Mapping = [
-                'admin_new_order' => 'emails.v2.admin_new_order',
-                'admin_payment_proof' => 'emails.v2.admin_payment_proof',
-                'payment_approved' => 'emails.v2.client_payment_received',
-                'order_status_updated' => 'emails.v2.client_order_update',
-                'new_message_client' => 'emails.v2.client_new_message',
-            ];
-
+            // 2. Priority: Database Template (allows Admin to edit)
+            $template = \App\Models\EmailTemplate::where('slug', $templateSlug)->first();
             $renderedHtml = null;
-            $subject = $vars['subject'];
+            $subject = ucwords(str_replace('_', ' ', $templateSlug));
 
-            if (isset($v2Mapping[$templateSlug])) {
-                $renderedHtml = view($v2Mapping[$templateSlug], $vars)->render();
-                // Set specific subjects for V2
-                $subject = match($templateSlug) {
-                    'admin_new_order' => "[TrafficVai] New Order #{$vars['order_id']} Received",
-                    'admin_payment_proof' => "[TrafficVai] Payment Proof Submitted for Order #{$vars['order_id']}",
-                    'payment_approved' => "Payment Received for Order #{$vars['order_id']}",
-                    'order_status_updated' => "Update on your Order #{$vars['order_id']}",
-                    'new_message_client' => "New Message for Order #{$vars['order_id']}",
-                    default => $subject
-                };
-            } else {
-                // 3. Load from Database (Fallback)
-                $template = \App\Models\EmailTemplate::where('slug', $templateSlug)->first();
-                
-                if (!$template && $templateSlug === 'test_connection') {
-                    $template = \App\Models\EmailTemplate::create([
-                        'slug' => 'test_connection',
-                        'name' => 'SMTP Test Connection',
-                        'subject' => 'Test Email from {host}',
-                        'body' => '<p>Hello {user_name},</p><p>This is a test email sent from <strong>{host}</strong> at {time}.</p><p>If you are reading this, your SMTP settings are working correctly!</p>',
-                        'type' => 'general'
-                    ]);
+            if ($template) {
+                $subject = $template->subject;
+                $body = $template->body;
+
+                foreach ($vars as $key => $value) {
+                    $subject = str_replace('{' . $key . '}', $value, $subject);
+                    $body = str_replace('{' . $key . '}', $value, $body);
                 }
+                
+                // If it's a "v2" slug but stored in DB, we use the DB body directly
+                // (It already contains the full HTML structure if synced)
+                $renderedHtml = $body;
+            } 
+            // 3. Fallback: Blade Templates (V2)
+            else {
+                $v2Mapping = [
+                    'admin_new_order' => 'emails.v2.admin_new_order',
+                    'admin_payment_proof' => 'emails.v2.admin_payment_proof',
+                    'payment_approved' => 'emails.v2.client_payment_received',
+                    'order_status_updated' => 'emails.v2.client_order_update',
+                    'new_message_client' => 'emails.v2.client_new_message',
+                ];
 
-                if ($template) {
-                    $subject = $template->subject;
-                    $body = $template->body;
-
-                    foreach ($data as $key => $value) {
-                        if (is_string($value) || is_numeric($value)) {
-                            $subject = str_replace('{' . $key . '}', $value, $subject);
-                            $body = str_replace('{' . $key . '}', $value, $body);
-                        }
+                if (isset($v2Mapping[$templateSlug])) {
+                    $renderedHtml = view($v2Mapping[$templateSlug], $vars)->render();
+                    $subject = $this->getDefaultSubject($templateSlug);
+                    // Replace variables in subject manually since match/render doesn't do it for strings
+                    foreach ($vars as $key => $value) {
+                        $subject = str_replace('{' . $key . '}', $value, $subject);
                     }
-                    
-                    // Wrap in Generic Template
-                    $vars['body'] = $body;
-                    $vars['subject'] = $subject;
-                    $renderedHtml = view('emails.v2.generic', $vars)->render();
                 }
             }
 

@@ -70,9 +70,11 @@
   <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#fff;">Traffic<span style="color:#E8470A;">Vai</span></p>
   <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:12px 0;">
   <p style="margin:0 0 8px;">
-    <a href="{{ $order_url }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">My Orders</a>
-    <a href="{{ url('/messages') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Messages</a>
+    <a href="{{ url('/dashboard') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Dashboard</a>
     <a href="{{ url('/contact') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Contact</a>
+    <a href="{{ url('/terms') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Terms</a>
+    <a href="{{ url('/privacy-policy') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Privacy</a>
+    <a href="{{ url('/refund-policy') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Refund</a>
   </p>
   <p style="margin:0;font-size:11px;color:#4b5563;line-height:1.6;">Questions? Contact us at <span style="color:#E8470A;">support@trafficvai.com</span><br>© {{ date('Y') }} TrafficVai. All rights reserved.</p>
 </td></tr>

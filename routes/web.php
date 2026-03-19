@@ -351,3 +351,4 @@ Route::get('/mail-preview/message', function () {
     'link' => route('client.orders.index') // Note: replaced specific show route to avoid missing id errors
     ]);
 });
+

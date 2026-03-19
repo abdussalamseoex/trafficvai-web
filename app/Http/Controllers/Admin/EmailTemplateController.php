@@ -10,6 +10,11 @@ class EmailTemplateController extends Controller
 {
     public function index()
     {
+        // Sync professional templates to DB if missing or manually requested
+        if (request()->has('sync') || EmailTemplate::whereIn('slug', ['admin_new_order', 'admin_payment_proof', 'payment_approved', 'order_status_updated', 'new_message_client'])->count() < 5) {
+            app(\App\Services\NotificationService::class)->syncTemplatesToDatabase();
+        }
+
         $templates = EmailTemplate::all();
         return view('admin.notifications.templates.index', compact('templates'));
     }
