@@ -160,6 +160,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/payments/gateway-settings', [\App\Http\Controllers\Admin\GatewaySettingController::class , 'update'])->name('gateway-settings.update');
 
                 Route::resource('/support', \App\Http\Controllers\Admin\SupportTicketController::class)->parameters(['support' => 'ticket'])->only(['index', 'show', 'update']);
+                Route::post('/announcements/send-test', [\App\Http\Controllers\Admin\AnnouncementController::class, 'sendTest'])->name('announcements.send-test');
                 Route::resource('/announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->except(['show', 'edit', 'update']);
                 Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class , 'index'])->name('finance.index');
                 Route::get('/communications', [\App\Http\Controllers\CommunicationController::class , 'index'])->name('communications.index');

@@ -65,6 +65,9 @@
 
                         <!-- Actions -->
                         <div class="flex items-center justify-end mt-6 space-x-4 border-t pt-4">
+                            <button type="button" id="send-test-btn" class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2">
+                                Send Test Email
+                            </button>
                             <button type="submit" name="action" value="draft" class="px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                 Save as Draft
                             </button>
@@ -94,4 +97,44 @@
 
         </div>
     </div>
+
+    <script>
+        document.getElementById('send-test-btn').addEventListener('click', async function() {
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+
+            if (!subject || !message) {
+                alert('Please fill subject and message first.');
+                return;
+            }
+
+            const originalText = this.innerText;
+            this.disabled = true;
+            this.innerText = 'Sending...';
+
+            try {
+                const response = await fetch('{{ route('admin.announcements.send-test') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ subject, message })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('An error occurred while sending the test email.');
+            } finally {
+                this.disabled = false;
+                this.innerText = originalText;
+            }
+        });
+    </script>
 </x-app-layout>

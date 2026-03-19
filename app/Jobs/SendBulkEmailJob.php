@@ -31,8 +31,8 @@ class SendBulkEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        // Change status to processing
-        $this->announcement->update(['status' => 'processing']);
+        // Note: Status is already set to 'sent' in the controller for dashboard visibility
+        // $this->announcement->update(['status' => 'processing']);
 
         // Only send to actual clients (is_admin = 0 and role = 'client')
         $clients = User::where('is_admin', false)->where('role', 'client')->get();

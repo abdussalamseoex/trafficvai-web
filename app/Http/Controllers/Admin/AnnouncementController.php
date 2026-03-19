@@ -42,22 +42,18 @@ class AnnouncementController extends Controller
             'subject' => $request->subject,
             'message' => $request->message,
             'type' => $request->type,
-            'status' => 'draft',
+            'status' => $request->action === 'send' ? 'sent' : 'draft',
+            'sent_at' => $request->action === 'send' ? now() : null,
         ]);
 
         if ($request->action === 'send') {
-
             // If it includes an email, dispatch the job
             if (in_array($announcement->type, ['email', 'both'])) {
                 SendBulkEmailJob::dispatch($announcement);
-
-                // Note: The job will update the status to 'sent' once finished
+                
                 return redirect()->route('admin.announcements.index')
-                    ->with('success', 'Announcement saved and bulk emails are being sent in the background!');
-            }
-            else {
-                // If it's pure notice, just mark as sent
-                $announcement->update(['status' => 'sent', 'sent_at' => now()]);
+                    ->with('success', 'Announcement published and bulk emails are being dispatched!');
+            } else {
                 return redirect()->route('admin.announcements.index')
                     ->with('success', 'Dashboard Notice published successfully!');
             }
@@ -74,5 +70,31 @@ class AnnouncementController extends Controller
     {
         $announcement->delete();
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement deleted successfully.');
+    }
+
+    /**
+     * Send a test email to the current admin.
+     */
+    public function sendTest(Request $request)
+    {
+        $request->validate([
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $user = auth()->user();
+        
+        $sent = app(\App\Services\NotificationService::class)->sendEmail('announcement', $user->email, [
+            'user_name' => $user->name,
+            'title' => $request->subject,
+            'message' => $request->message,
+            'link' => url('/dashboard')
+        ]);
+
+        if ($sent) {
+            return response()->json(['status' => 'success', 'message' => 'Test email sent to your address: ' . $user->email]);
+        }
+        
+        return response()->json(['status' => 'error', 'message' => 'Failed to send test email. Check SMTP settings.'], 500);
     }
 }
