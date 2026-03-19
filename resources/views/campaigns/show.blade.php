@@ -177,15 +177,15 @@
                         <p class="text-gray-400 mb-8 max-w-2xl mx-auto">Get started today with our professional {{ $service->name }} services. All campaigns are monitored and managed through our secure client dashboard.</p>
                         
                         <div class="flex flex-wrap justify-center gap-6">
-                            <div class="flex items-center gap-3 text-white/80">
+                            <div class="flex items-center gap-3 text-white">
                                 <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 <span class="font-medium text-sm">Secure Payment</span>
                             </div>
-                            <div class="flex items-center gap-3 text-white/80">
+                            <div class="flex items-center gap-3 text-white">
                                 <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 <span class="font-medium text-sm">Real-time Progress</span>
                             </div>
-                            <div class="flex items-center gap-3 text-white/80">
+                            <div class="flex items-center gap-3 text-white">
                                 <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 <span class="font-medium text-sm">24/7 Support</span>
                             </div>
