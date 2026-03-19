@@ -107,8 +107,6 @@ class InvoiceController extends Controller
         $invoice->load(['user', 'items']);
         
         try {
-            Mail::to($invoice->user->email)->send(new \App\Mail\InvoiceCreated($invoice));
-            
             app(\App\Services\NotificationService::class)->send(
                 'invoice_created',
                 $invoice->user,
@@ -227,7 +225,11 @@ class InvoiceController extends Controller
     public function sendEmail(Invoice $invoice)
     {
         $invoice->load(['user', 'items']);
-        Mail::to($invoice->user->email)->send(new \App\Mail\InvoiceCreated($invoice));
+        app(\App\Services\NotificationService::class)->send(
+            'invoice_created',
+            $invoice->user,
+            ['link' => route('client.invoices.show', $invoice)]
+        );
         return back()->with('success', 'Invoice emailed to ' . $invoice->user->email . '.');
     }
 

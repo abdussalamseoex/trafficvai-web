@@ -80,28 +80,6 @@ class OrderController extends Controller
             $order->update(['status' => $hasRequirements ? 'processing' : 'pending_requirements']);
         }
 
-        if ($oldStatus !== $order->status) {
-            $serviceTitle = 'Order Update';
-            if ($order->package) {
-                $serviceTitle = 'Service: ' . $order->package->service->title . ' - ' . $order->package->name;
-            }
-            elseif ($order->guestPostSite) {
-                $serviceTitle = 'Guest Post: ' . $order->guestPostSite->site_name;
-            }
-
-            try {
-                \Illuminate\Support\Facades\Mail::to($order->user->email)->send(new \App\Mail\OrderStatusUpdated([
-                    'id' => $order->id,
-                    'user_name' => $order->user->name,
-                    'title' => $serviceTitle,
-                    'old_status' => str_replace('_', ' ', $oldStatus),
-                    'new_status' => str_replace('_', ' ', $order->status)
-                ]));
-            }
-            catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Order Status Mail Error: ' . $e->getMessage());
-            }
-        }
 
         return redirect()->route('admin.orders.show', $order)->with('success', 'Order updated successfully.');
     }

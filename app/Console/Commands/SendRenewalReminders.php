@@ -68,8 +68,6 @@ class SendRenewalReminders extends Command
 
             // Notify User
             try {
-                \Illuminate\Support\Facades\Mail::to($order->user->email)->send(new \App\Mail\InvoiceCreated($invoice));
-                
                 app(\App\Services\NotificationService::class)->send(
                     'invoice_created',
                     $order->user,

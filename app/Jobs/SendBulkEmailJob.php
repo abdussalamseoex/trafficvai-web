@@ -38,7 +38,12 @@ class SendBulkEmailJob implements ShouldQueue
         $clients = User::where('is_admin', false)->where('role', 'client')->get();
 
         foreach ($clients as $client) {
-            Mail::to($client->email)->send(new BulkAnnouncement($this->announcement));
+            app(\App\Services\NotificationService::class)->sendEmail('announcement', $client->email, [
+                'user_name' => $client->name,
+                'title' => $this->announcement->subject,
+                'message' => $this->announcement->message,
+                'link' => url('/dashboard')
+            ]);
         }
 
         // Mark as sent

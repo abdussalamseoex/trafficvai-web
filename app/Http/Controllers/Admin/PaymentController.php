@@ -77,13 +77,12 @@ class PaymentController extends Controller
             );
 
             try {
-                \Illuminate\Support\Facades\Mail::to($topupRequest->user->email)->send(new \App\Mail\WalletTopupReceipt([
-                    'user_name' => $topupRequest->user->name,
+                app(\App\Services\NotificationService::class)->send('topup_approved', $topupRequest->user, [
                     'amount' => $topupRequest->amount,
-                    'payment_method' => $topupRequest->payment_method,
-                    'transaction_id' => $topupRequest->transaction_id ?? $topupRequest->id,
-                    'date' => now()->format('M d, Y h:i A')
-                ]));
+                    'title' => 'Top-up Approved',
+                    'message' => "Your manual top-up of \${$topupRequest->amount} has been approved and added to your wallet.",
+                    'link' => url('/client/payments')
+                ]);
             }
             catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
@@ -112,6 +111,17 @@ class PaymentController extends Controller
             'status' => 'rejected',
             'admin_note' => $request->admin_note
         ]);
+
+        try {
+            app(\App\Services\NotificationService::class)->send('topup_rejected', $topupRequest->user, [
+                'amount' => $topupRequest->amount,
+                'title' => 'Top-up Rejected',
+                'message' => "Your top-up request for \${$topupRequest->amount} has been rejected. Reason: " . ($request->admin_note ?? 'Not provided') . ". Please contact support for further assistance.",
+                'link' => url('/client/payments')
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Mail Error (Topup Rejected): ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Top-up request rejected.');
     }

@@ -194,15 +194,12 @@ class PlisioCallbackController extends Controller
             Log::info("Plisio Callback: Wallet credited \${$topup->amount} for User #{$user->id}. txn_id={$txnId}");
 
             try {
-                \Illuminate\Support\Facades\Mail::to($user->email)->send(
-                    new \App\Mail\WalletTopupReceipt([
-                    'user_name' => $user->name,
+                app(\App\Services\NotificationService::class)->send('topup_approved', $user, [
                     'amount' => $topup->amount,
-                    'payment_method' => 'plisio',
-                    'transaction_id' => $txnId,
-                    'date' => now()->format('M d, Y h:i A'),
-                ])
-                );
+                    'title' => 'Top-up Approved',
+                    'message' => "Your crypto top-up of \${$topup->amount} via Plisio has been approved and added to your wallet.",
+                    'link' => url('/client/payments')
+                ]);
             }
             catch (\Exception $e) {
                 Log::error('Mail Error (Plisio Callback): ' . $e->getMessage());

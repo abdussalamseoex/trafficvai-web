@@ -118,14 +118,13 @@ class CampaignController extends Controller
         ]);
 
         try {
-            \Illuminate\Support\Facades\Mail::to(auth()->user()->email)->send(new \App\Mail\OrderConfirmation([
-                'id' => $order->id,
-                'user_name' => auth()->user()->name,
-                'title' => 'Campaign: ' . $package->service->title . ' - ' . $package->name,
+            app(\App\Services\NotificationService::class)->send('order_confirmation', auth()->user(), [
+                'order_id' => $order->id,
+                'title' => 'Order Confirmation: ' . $package->service->title . ' - ' . $package->name,
                 'amount' => $totalAmount,
-                'status' => 'Pending',
-                'date' => now()->format('M d, Y h:i A')
-            ]));
+                'status' => 'Pending Payment',
+                'link' => route('client.orders.show', $order)
+            ]);
         }
         catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Order Mail Error (Campaign): ' . $e->getMessage());

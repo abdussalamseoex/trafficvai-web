@@ -87,6 +87,11 @@ class NotificationService
             'payment_refunded' => 'emails.v2.payment_refunded',
             'invoice_created' => 'emails.v2.invoice_created',
             'test_connection' => 'emails.v2.universal_v2',
+            'announcement' => 'emails.v2.universal_v2',
+            'order_confirmation' => 'emails.v2.universal_v2',
+            'topup_pending' => 'emails.v2.universal_v2',
+            'topup_approved' => 'emails.v2.universal_v2',
+            'topup_rejected' => 'emails.v2.universal_v2',
         ];
 
         foreach ($templates as $slug => $view) {
@@ -94,6 +99,7 @@ class NotificationService
                 // Render the template with placeholders
                 $content = view($view, [
                     'logo_url' => '{logo_url}',
+                    'title' => '{title}',
                     'client_name' => '{client_name}',
                     'user_name' => '{user_name}',
                     'order_id' => '{order_id}',
@@ -157,6 +163,7 @@ class NotificationService
             'new_message_client' => "New Message for Order #{order_id}",
             'invoice_created' => "New Invoice Generated - TrafficVai",
             'test_connection' => "[TrafficVai] Connection Test Successful",
+            'announcement' => "Important Announcement from TrafficVai",
             default => ucwords(str_replace('_', ' ', $slug))
         };
     }
@@ -170,6 +177,7 @@ class NotificationService
             // 1. Prepare Data for Replacement (Comprehensive coverage)
             $vars = [
                 'logo_url' => \App\Models\Setting::get('site_logo') ? asset(\App\Models\Setting::get('site_logo')) : (config('app.url') . '/images/logo.png'),
+                'title' => $data['title'] ?? ucwords(str_replace('_', ' ', $templateSlug)),
                 'client_name' => $data['user_name'] ?? 'Client',
                 'user_name' => $data['user_name'] ?? 'Client', // Alias
                 'order_id' => $data['order_id'] ?? ($data['id'] ?? 'N/A'),
@@ -221,12 +229,18 @@ class NotificationService
                         'payment_refunded' => 'emails.v2.payment_refunded',
                         'invoice_created' => 'emails.v2.invoice_created',
                         'test_connection' => 'emails.v2.universal_v2',
+                        'announcement' => 'emails.v2.universal_v2',
+                        'order_confirmation' => 'emails.v2.universal_v2',
+                        'topup_pending' => 'emails.v2.universal_v2',
+                        'topup_approved' => 'emails.v2.universal_v2',
+                        'topup_rejected' => 'emails.v2.universal_v2',
                     ];
 
                     if (isset($v2Mapping[$templateSlug])) {
                         // Generate fresh HTML with placeholder ({ tags }) for the DB
                         $newBodyContent = view($v2Mapping[$templateSlug], [
                             'logo_url' => '{logo_url}',
+                            'title' => '{title}',
                             'client_name' => '{client_name}',
                             'user_name' => '{user_name}',
                             'order_id' => '{order_id}',
@@ -298,6 +312,11 @@ class NotificationService
                     'payment_refunded' => 'emails.v2.payment_refunded',
                     'invoice_created' => 'emails.v2.invoice_created',
                     'test_connection' => 'emails.v2.universal_v2',
+                    'announcement' => 'emails.v2.universal_v2',
+                    'order_confirmation' => 'emails.v2.universal_v2',
+                    'topup_pending' => 'emails.v2.universal_v2',
+                    'topup_approved' => 'emails.v2.universal_v2',
+                    'topup_rejected' => 'emails.v2.universal_v2',
                 ];
 
                 if (isset($v2Mapping[$templateSlug])) {

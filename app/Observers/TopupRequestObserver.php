@@ -35,6 +35,13 @@ class TopupRequestObserver
                 "User {$topupRequest->user->name} has requested a top-up of {$topupRequest->amount}",
                 route('admin.payments.topups')
             );
+
+            $this->notificationService->send('topup_pending', $topupRequest->user, [
+                'amount' => $topupRequest->amount,
+                'title' => 'Top-up Request Received',
+                'message' => "We have received your manual top-up request for \${$topupRequest->amount}. It is currently under review by our team and will be processed shortly.",
+                'link' => url('/client/payments')
+            ]);
         }
     }
 }

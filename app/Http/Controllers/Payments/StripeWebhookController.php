@@ -68,13 +68,12 @@ class StripeWebhookController extends Controller
                         Log::info("Wallet for User #{$user->id} credited with ${$amount} via Stripe Webhook.");
 
                         try {
-                            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WalletTopupReceipt([
-                                'user_name' => $user->name,
+                            app(\App\Services\NotificationService::class)->send('topup_approved', $user, [
                                 'amount' => $amount,
-                                'payment_method' => 'stripe',
-                                'transaction_id' => $session->id,
-                                'date' => now()->format('M d, Y h:i A')
-                            ]));
+                                'title' => 'Top-up Approved',
+                                'message' => "Your top-up of \${$amount} via Stripe has been approved and added to your wallet.",
+                                'link' => url('/client/payments')
+                            ]);
                         }
                         catch (\Exception $e) {
                             \Illuminate\Support\Facades\Log::error('Mail Error (Stripe Webhook): ' . $e->getMessage());

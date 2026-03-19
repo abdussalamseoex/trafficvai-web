@@ -52,18 +52,6 @@ class OrderMessageController extends Controller
             $order->update(['is_read_admin' => false]);
         }
         else {
-            // Admin sent the message, notify the user
-            try {
-                \Illuminate\Support\Facades\Mail::to($order->user->email)->send(new \App\Mail\NewMessageAlert([
-                    'recipient_name' => $order->user->name,
-                    'sender_name' => auth()->user()->name,
-                    'message' => $message->message,
-                    'link' => route('client.orders.show', $order)
-                ]));
-            }
-            catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Message Alert Mail Error: ' . $e->getMessage());
-            }
         }
 
         if ($request->ajax() || $request->wantsJson()) {
