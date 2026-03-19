@@ -11,11 +11,32 @@
     </x-slot>
 
     <!-- Trix Editor Dependencies -->
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
-    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
-    <style>
-        trix-editor { min-height: 500px; background: white; }
-    </style>
+    <!-- TinyMCE Editor Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            tinymce.init({
+                selector: '#content',
+                height: 500,
+                menubar: true,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                ],
+                toolbar: 'undo redo | blocks | ' +
+                'bold italic textcolor | alignleft aligncenter ' +
+                'alignright alignjustify | bullist numlist outdent indent | ' +
+                'link image | removeformat | code | help',
+                content_style: 'body { font-family:Inter,Helvetica,Arial,sans-serif; font-size:16px }',
+                setup: function (editor) {
+                    editor.on('change', function () {
+                        editor.save(); // ensure textarea is updated
+                    });
+                }
+            });
+        });
+    </script>
 
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
@@ -38,8 +59,7 @@
 
                                 <div>
                                     <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Content <span class="text-red-500">*</span></label>
-                                    <input id="content" type="hidden" name="content" value="{{ old('content', $page->content) }}">
-                                    <trix-editor input="content" class="trix-content focus:ring-indigo-500 focus:border-indigo-500 rounded-md border-gray-300 shadow-sm prose max-w-none prose-indigo"></trix-editor>
+                                    <textarea name="content" id="content" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('content', $page->content) }}</textarea>
                                     @error('content') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                                 </div>
                             </div>
