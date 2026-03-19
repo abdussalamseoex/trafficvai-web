@@ -12,6 +12,7 @@ class GuestPostController extends Controller
 {
     public function index(Request $request)
     {
+        /** @var Builder $query */
         $query = GuestPostSite::query();
 
         // Advanced Filtering
@@ -72,11 +73,7 @@ class GuestPostController extends Controller
         // Keyword Search (URL, Niche, or Description)
         if ($request->filled('q')) {
             $keyword = $request->q;
-            $query->where(function ($q) use ($keyword) {
-                $q->where('url', 'like', "%{$keyword}%")
-                    ->orWhere('niche', 'like', "%{$keyword}%")
-                    ->orWhere('description', 'like', "%{$keyword}%");
-            });
+            $query->whereRaw('(url LIKE ? OR niche LIKE ? OR description LIKE ?)', ["%{$keyword}%", "%{$keyword}%", "%{$keyword}%"]);
         }
 
         // Favorites Filter

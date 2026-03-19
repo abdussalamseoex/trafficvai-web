@@ -6,83 +6,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased text-gray-900 bg-gray-50" x-data="{ 
-    showCheckoutModal: false, 
-    selectedSite: null, 
-    paymentMethod: null,
-    isProcessing: false,
-    deliveryOption: 'standard',
-    expressFee: {{ \App\Models\Setting::get('express_delivery_fee_guest_post', 50) }},
-    couponCode: '',
-    couponApplied: false,
-    discountAmount: 0,
-    currentCouponType: null,
-    currentCouponValue: 0,
-    couponMessage: '',
-    couponError: false,
-    isChecking: false,
-
-    applyCoupon() {
-        if(!this.couponCode) return;
-        this.isChecking = true;
-        this.couponMessage = '';
-        fetch('{{ route('services.coupon.check') }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ code: this.couponCode, is_global: true })
-        })
-        .then(res => res.json())
-        .then(data => {
-            this.isChecking = false;
-            if(data.valid) {
-                this.couponApplied = true;
-                this.couponError = false;
-                this.couponMessage = data.message;
-                this.currentCouponType = data.type;
-                this.currentCouponValue = data.value;
-            } else {
-                this.couponApplied = false;
-                this.couponError = true;
-                this.couponMessage = data.message;
-            }
-        })
-        .catch(() => { this.isChecking = false; this.couponError = true; });
-    },
-
-    removeCoupon() {
-        this.couponCode = '';
-        this.couponApplied = false;
-        this.discountAmount = 0;
-        this.couponMessage = '';
-    },
-
-    getTotal() {
-        if (!this.selectedSite) return 0;
-        let total = parseFloat(this.selectedSite.price);
-        if (this.deliveryOption === 'express') {
-            total += parseFloat(this.selectedSite.express_delivery_price || 50);
-        }
-        if(this.couponApplied) {
-            if(this.currentCouponType === 'percentage') {
-                total = total - (total * this.currentCouponValue / 100);
-            } else {
-                total = total - this.currentCouponValue;
-            }
-        }
-        return Math.max(0, total);
-    },
-
-    getDiscountAmount() {
-        if (!this.selectedSite || !this.couponApplied) return 0;
-        let total = parseFloat(this.selectedSite.price);
-        if (this.deliveryOption === 'express') {
-            total += parseFloat(this.selectedSite.express_delivery_price || 50);
-        }
-        if(this.currentCouponType === 'percentage') {
-            return (total * this.currentCouponValue / 100);
-        }
-        return this.currentCouponValue;
-    }
-}">
+} ">
     <div class="min-h-screen bg-gray-50">
         <!-- Navigation -->
         <x-frontend-header />
@@ -181,15 +105,9 @@
                                     <span class="price-convert" data-base-price="{{ $site->price }}">${{ number_format($site->price) }}</span>
                                 </td>
                                 <td class="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
-                                    @auth
-                                    <button @click="selectedSite = { id: {{ $site->id }}, url: '{{ str_replace(['http://', 'https://'], '', $site->url) }}', price: {{ $site->price }}, express_delivery_price: {{ $site->express_delivery_price ?? 50 }} }; deliveryOption = 'standard'; showCheckoutModal = true;" type="button" class="bg-brand text-white hover:bg-orange-600 px-5 py-2 rounded-lg font-bold transition duration-150 whitespace-nowrap">
+                                    <a href="{{ route('client.guest_posts.show', $site->id) }}" class="inline-block bg-brand text-white hover:bg-orange-600 px-8 py-2.5 rounded-xl font-bold transition duration-150 whitespace-nowrap shadow-sm">
                                         Buy Post
-                                    </button>
-                                    @else
-                                    <a href="{{ route('login') }}" class="inline-block bg-gray-100 text-gray-700 hover:bg-gray-200 px-5 py-2 rounded-lg font-bold transition duration-150">
-                                        Log in to Buy
                                     </a>
-                                    @endauth
                                 </td>
                             </tr>
                             @empty

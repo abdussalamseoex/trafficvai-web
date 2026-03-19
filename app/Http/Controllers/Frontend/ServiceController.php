@@ -65,61 +65,10 @@ class ServiceController extends Controller
 
     public function checkout(Request $request, \App\Models\Package $package)
     {
-        $addonIds = $request->input('addons', []);
-        $addons = \App\Models\Addon::whereIn('id', $addonIds)
-            ->where('service_id', $package->service_id)
-            ->get();
-
-        $subtotalAmount = $package->price + $addons->sum('price');
-        $totalAmount = $subtotalAmount;
-        $discountAmount = 0;
-        $couponId = null;
-
-        if ($request->filled('coupon_code')) {
-            $coupon = \App\Models\Coupon::where('code', $request->input('coupon_code'))->first();
-            if ($coupon && $coupon->isValid()) {
-                if ($coupon->is_global || $coupon->service_id == $package->service_id) {
-                    $couponId = $coupon->id;
-                    if ($coupon->type === 'percentage') {
-                        $discountAmount = ($subtotalAmount * $coupon->value) / 100;
-                    }
-                    else {
-                        $discountAmount = $coupon->value;
-                    }
-                    $totalAmount = max(0, $subtotalAmount - $discountAmount);
-
-                    // Increment usage
-                    $coupon->increment('used_count');
-                }
-            }
-        }
-
-        $order = \App\Models\Order::create([
-            'user_id' => auth()->id(),
-            'project_id' => $request->input('project_id'),
-            'package_id' => $package->id,
-            'status' => 'pending_payment',
-            'subtotal_amount' => $subtotalAmount,
-            'discount_amount' => $discountAmount,
-            'total_amount' => $totalAmount,
-            'coupon_id' => $couponId,
+        return redirect()->route('client.services.show', [
+            'service' => $package->service->slug,
+            'package_id' => $package->id
         ]);
-
-        foreach ($addons as $addon) {
-            \App\Models\OrderAddon::create([
-                'order_id' => $order->id,
-                'addon_id' => $addon->id,
-                'price' => $addon->price,
-            ]);
-        }
-
-        $paymentMethod = $request->input('payment_method', 'stripe');
-
-        $partialResponse = \App\Services\Payments\PaymentGatewayManager::processPotentialWalletPayment($request, $order);
-        if ($partialResponse)
-            return $partialResponse;
-
-        return \App\Services\Payments\PaymentGatewayManager::resolve($paymentMethod)->processPayment($order);
     }
 
     public function checkCoupon(Request $request)

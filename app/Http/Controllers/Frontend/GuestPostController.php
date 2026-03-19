@@ -25,59 +25,8 @@ class GuestPostController extends Controller
 
     public function checkout(Request $request, \App\Models\GuestPostSite $guestPost)
     {
-        $tier = $request->input('service_tier', 'placement');
-        $price = $guestPost->price;
-        if ($tier === 'creation_placement')
-            $price = $guestPost->price_creation_placement;
-        if ($tier === 'link_insertion')
-            $price = $guestPost->price_link_insertion;
-
-        // Add emergency fee if selected
-        if ($request->input('is_emergency') == '1') {
-            $price += 50;
-        }
-
-        $subtotalAmount = $price;
-        $discountAmount = 0;
-        $couponId = null;
-
-        if ($request->filled('coupon_code')) {
-            $coupon = \App\Models\Coupon::where('code', $request->input('coupon_code'))->first();
-            if ($coupon && $coupon->isValid()) {
-                if ($coupon->is_global) {
-                    $couponId = $coupon->id;
-                    if ($coupon->type === 'percentage') {
-                        $discountAmount = ($subtotalAmount * $coupon->value) / 100;
-                    }
-                    else {
-                        $discountAmount = $coupon->value;
-                    }
-                    $price = max(0, $subtotalAmount - $discountAmount);
-                    $coupon->increment('used_count');
-                }
-            }
-        }
-
-        $order = \App\Models\Order::create([
-            'user_id' => auth()->id(),
-            'project_id' => $request->input('project_id'),
-            'guest_post_site_id' => $guestPost->id,
-            'package_id' => null,
-            'status' => 'pending_payment',
-            'subtotal_amount' => $subtotalAmount,
-            'discount_amount' => $discountAmount,
-            'total_amount' => $price,
-            'coupon_id' => $couponId,
-            'service_tier' => $tier,
-            'is_emergency' => $request->input('is_emergency') == '1',
+        return redirect()->route('client.guest_posts.index', [
+            'site_id' => $guestPost->id
         ]);
-
-        $paymentMethod = $request->input('payment_method', 'stripe');
-
-        $partialResponse = \App\Services\Payments\PaymentGatewayManager::processPotentialWalletPayment($request, $order);
-        if ($partialResponse)
-            return $partialResponse;
-
-        return \App\Services\Payments\PaymentGatewayManager::resolve($paymentMethod)->processPayment($order);
     }
 }

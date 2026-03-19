@@ -110,156 +110,11 @@
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
             <!-- Pricing / Packages Section -->
-            <div class="mb-20" x-data="{ 
-                selectedPackageId: {{ $service->packages->sortBy('price')->values()->first()->id ?? 'null' }},
-                selectedPackagePrice: {{ $service->packages->sortBy('price')->values()->first()->price ?? 0 }},
-                selectedAddons: [],
-                addonPrices: {},
-                deliveryOption: 'standard', // 'standard' or 'express'
-                packageData: {
-                    @foreach ($service->packages as $package)
-                    {{ $package->id }}: {
-                        price: {{ $package->price }},
-                        turnaround: {{ $package->turnaround_time_days ?? 'null' }},
-                        express_turnaround: {{ $package->express_turnaround_time_days ?? 'null' }},
-                        emergency_fee: {{ $package->emergency_fee ?? 0 }}
-                    },
-                    @endforeach
-                },
-                paymentMethod: null,
-                isProcessing: false,
-                walletBalance: {{ auth()->user()->balance ?? 0 }},
-                useWallet: false,
-                couponCode: '',
-                isChecking: false,
-                couponApplied: false,
-                discountAmount: 0,
-                currentCouponType: null,
-                currentCouponValue: 0,
-                couponMessage: '',
-                couponError: false,
-                
-                toggleAddon(id, price) {
-                    if (this.selectedAddons.includes(id)) {
-                        this.selectedAddons = this.selectedAddons.filter(i => i !== id);
-                    } else {
-                        this.selectedAddons.push(id);
-                        this.addonPrices[id] = price;
-                    }
-                },
-
-                applyCoupon() {
-                    if(!this.couponCode) return;
-                    this.isChecking = true;
-                    this.couponMessage = '';
-                    
-                    fetch('{{ route('services.coupon.check') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            code: this.couponCode,
-                            service_id: {{ $service->id }}
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        this.isChecking = false;
-                        if(data.valid) {
-                            this.couponApplied = true;
-                            this.couponError = false;
-                            this.couponMessage = data.message;
-                            this.currentCouponType = data.type;
-                            this.currentCouponValue = data.value;
-                        } else {
-                            this.couponApplied = false;
-                            this.couponError = true;
-                            this.couponMessage = data.message;
-                        }
-                    })
-                    .catch(err => {
-                        this.isChecking = false;
-                        this.couponError = true;
-                        this.couponMessage = 'Error validating coupon.';
-                    });
-                },
-
-                removeCoupon() {
-                    this.couponApplied = false;
-                    this.couponCode = '';
-                    this.discountAmount = 0;
-                    this.couponMessage = '';
-                },
-                
-                getTotal() {
-                    let addonsTotal = this.selectedAddons.reduce((sum, id) => sum + (this.addonPrices[id] || 0), 0);
-                    let total = parseFloat(this.selectedPackagePrice) + addonsTotal;
-
-                    if(this.couponApplied) {
-                        if(this.currentCouponType === 'percentage') {
-                            total = total - (total * this.currentCouponValue / 100);
-                        } else {
-                            total = total - this.currentCouponValue;
-                        }
-                    }
-
-                    if (this.useWallet && this.walletBalance > 0) {
-                        total = Math.max(0, total - this.walletBalance);
-                    }
-                    return Math.max(0, total);
-                },
-
-                getWalletDeduction() {
-                    let addonsTotal = this.selectedAddons.reduce((sum, id) => sum + (this.addonPrices[id] || 0), 0);
-                    let total = parseFloat(this.selectedPackagePrice) + addonsTotal;
-
-                    if(this.couponApplied) {
-                        if(this.currentCouponType === 'percentage') {
-                            total = total - (total * this.currentCouponValue / 100);
-                        } else {
-                            total = total - this.currentCouponValue;
-                        }
-                    }
-
-                    return Math.min(total, this.walletBalance);
-                }
-            }">
-
-                <!-- Compact Active Coupons Banner -->
-                @if(isset($activeCoupons) && $activeCoupons->count() > 0)
-                <div class="max-w-4xl mx-auto mb-12 space-y-4">
-                    @foreach($activeCoupons as $coupon)
-                    <div class="bg-white border border-blue-200 rounded-xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between transition hover:shadow-md">
-                        <div class="mb-4 sm:mb-0 text-left">
-                            <span class="inline-block bg-brand text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-2">Special Offer</span>
-                            <h4 class="text-xl font-bold text-gray-900 mb-1 leading-tight">
-                                {{ $coupon->type === 'percentage' ? rtrim(rtrim(number_format($coupon->value, 2), '0'), '.') . '% OFF' : '$' . rtrim(rtrim(number_format($coupon->value, 2), '0'), '.') . ' OFF' }} Promo Code
-                            </h4>
-                            <p class="text-gray-500 text-sm">Use this exclusive code to get a special discount on your order</p>
-                        </div>
-                        <div class="flex items-center gap-3 w-full sm:w-auto mt-1 sm:mt-0">
-                            <div class="border border-blue-300 border-dashed rounded-lg px-5 py-2.5 bg-blue-50/50 hidden sm:block">
-                                <span class="text-blue-600 font-bold text-lg select-all tracking-wider">{{ $coupon->code }}</span>
-                            </div>
-                            <button type="button" @click="couponCode = '{{ $coupon->code }}'; applyCoupon(); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })" 
-                                    class="w-full sm:w-auto bg-brand hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg transition shrink-0 flex items-center justify-center">
-                                <span x-show="couponCode !== '{{ $coupon->code }}' || !couponApplied" class="whitespace-nowrap">Apply this Promo</span>
-                                <span x-show="couponCode === '{{ $coupon->code }}' && couponApplied && !isChecking">Applied! ✓</span>
-                                <svg x-show="couponCode === '{{ $coupon->code }}' && isChecking" class="animate-spin h-5 w-5 ml-2 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
+            <div class="mb-20" x-data="{}">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                     @foreach ($service->packages->sortBy('price') as $package)
                     <div 
-                        @click="selectedPackageId = {{ $package->id }}; selectedPackagePrice = {{ $package->price }}"
-                        class="cursor-pointer bg-white border-2 rounded-3xl p-8 transition-all duration-300 relative flex flex-col h-full"
-                        :class="selectedPackageId === {{ $package->id }} ? 'border-indigo-600 shadow-2xl scale-[1.02] z-10' : 'border-gray-100 hover:border-gray-200 shadow-sm'"
+                        class="bg-white border-2 rounded-3xl p-8 transition-all duration-300 relative flex flex-col h-full border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl group"
                     >
                         @if($loop->iteration == 2)
                         <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
@@ -270,16 +125,15 @@
                         <div class="mb-8">
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="text-2xl font-bold text-gray-900">{{ $package->name }}</h3>
-                                <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center" :class="selectedPackageId === {{ $package->id }} ? 'border-indigo-600' : 'border-gray-300'">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-indigo-600" x-show="selectedPackageId === {{ $package->id }}"></div>
-                                </div>
                             </div>
                             <p class="text-gray-500 text-sm leading-relaxed min-h-[48px]">{{ $package->description }}</p>
                         </div>
 
                         <div class="mb-8">
-                            <span class="text-4xl font-black text-gray-900"><span class="price-convert" data-base-price="{{ $package->price }}">${{ number_format($package->price, 0) }}</span></span>
-                            <span class="text-gray-500 text-sm ml-1 font-medium">/ package</span>
+                            <div class="flex items-baseline mb-2">
+                                <span class="text-4xl font-black text-gray-900 leading-none" x-text="$store.currency ? $store.currency.format({{ $package->price }}) : '$' + {{ $package->price }}"></span>
+                            </div>
+                            <span class="text-gray-500 text-sm font-medium">/ package</span>
                         </div>
 
                         <ul class="space-y-4 flex-1 mb-8">
@@ -294,190 +148,47 @@
                                 @endforeach
                             @endif
                         </ul>
+
+                        @php
+                            $targetRoute = ($type === 'link-building') 
+                                ? route('client.link_building.show', $service->slug) 
+                                : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) 
+                                    ? route('client.seo_campaigns.show', ['type' => $type, 'service' => $service->slug]) 
+                                    : route('client.campaigns.show', ['type' => $type, 'service' => $service->slug]));
+                        @endphp
+
+                        <div class="mt-auto">
+                            <a href="{{ $targetRoute }}?package_id={{ $package->id }}" 
+                               class="block w-full text-center bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-[#E8470A] transition-all duration-300 shadow-lg group-hover:scale-[1.02]">
+                                Order {{ $package->name }}
+                            </a>
+                        </div>
                     </div>
                     @endforeach
                 </div>
 
-                <!-- Addons Section -->
-                @if($service->addons->count() > 0)
+                <!-- Info Section about benefits -->
                 <div class="max-w-4xl mx-auto bg-gray-900 rounded-[2.5rem] p-10 shadow-2xl overflow-hidden relative border border-gray-800">
-                    <!-- Background Decor -->
                     <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl"></div>
                     <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl"></div>
 
-                    <div class="relative z-10 mb-8">
-                        <h2 class="text-3xl font-bold text-white mb-2">Enhance Your Package</h2>
-                        <p class="text-gray-400">Add these complementary extras to supercharge your SEO results.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-                        @foreach ($service->addons as $addon)
-                        <div 
-                            @click="toggleAddon({{ $addon->id }}, {{ $addon->price }})"
-                            class="group cursor-pointer flex items-center p-5 rounded-2xl border transition-all duration-300"
-                            :class="selectedAddons.includes({{ $addon->id }}) ? 'bg-indigo-600/20 border-indigo-500/50' : 'bg-gray-800/40 border-gray-700 hover:border-gray-600'"
-                        >
-                            <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors mr-4" :class="selectedAddons.includes({{ $addon->id }}) ? 'bg-indigo-500 border-indigo-500' : 'border-gray-600'">
-                                <svg x-show="selectedAddons.includes({{ $addon->id }})" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    <div class="relative z-10 text-center">
+                        <h2 class="text-3xl font-bold text-white mb-4">Ready to elevate your digital presence?</h2>
+                        <p class="text-gray-400 mb-8 max-w-2xl mx-auto">Get started today with our professional {{ $service->name }} services. All campaigns are monitored and managed through our secure client dashboard.</p>
+                        
+                        <div class="flex flex-wrap justify-center gap-6">
+                            <div class="flex items-center gap-3 text-white/80">
+                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="font-medium text-sm">Secure Payment</span>
                             </div>
-                            <div class="flex-1">
-                                <h4 class="text-white font-bold">{{ $addon->name }}</h4>
-                                <p class="text-gray-400 text-xs">{{ $addon->description }}</p>
+                            <div class="flex items-center gap-3 text-white/80">
+                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="font-medium text-sm">Real-time Progress</span>
                             </div>
-                            <div class="text-right ml-4">
-                                <span class="text-indigo-400 font-bold">+<span class="price-convert" data-base-price="{{ $addon->price }}">${{ number_format($addon->price, 0) }}</span></span>
+                            <div class="flex items-center gap-3 text-white/80">
+                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span class="font-medium text-sm">24/7 Support</span>
                             </div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    <div class="mb-8 border-t border-gray-800 pt-8" x-show="selectedPackageId">
-                        <h3 class="text-white font-bold mb-4 ml-1">Select Payment Method</h3>
-                        <div class="divide-y divide-gray-800">
-                            @php
-                                $allEnabled = \App\Services\Payments\PaymentGatewayManager::getEnabledGateways();
-                            @endphp
-                            @foreach($gateways as $category => $methods)
-                                @if(count($methods) > 0)
-                                <div class="py-8 first:pt-0 last:pb-0">
-                                    <div class="flex items-center gap-3 mb-6 ml-1">
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-800">
-                                            @if($category === 'global')
-                                                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5V14a2 2 0 01-2-2h-1a2 2 0 00-2-2 2 2 0 01-2-2V7a2 2 0 00-2-2H8.065M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            @elseif($category === 'crypto')
-                                                <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            @else
-                                                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                            @endif
-                                        </div>
-                                        <h4 class="text-xs font-black text-gray-300 uppercase tracking-widest">{{ $category === 'global' ? 'Global Gateways' : ($category === 'crypto' ? 'Pay with Crypto' : ($category === 'bangladesh' ? 'Bangladesh Local (BDT)' : ucwords($category))) }}</h4>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                                        @foreach($methods as $slug => $gateway)
-                                        <label class="group relative cursor-pointer border-2 bg-gray-900/40 hover:bg-gray-800 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-200 outline-none" 
-                                               :class="paymentMethod === '{{ $slug }}' ? 'border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/5 transform scale-[1.02]' : (('{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth) ? 'opacity-50 cursor-not-allowed border-gray-800' : 'border-gray-800 hover:border-gray-700')  "
-                                               @click="'{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth ? $dispatch('notify', {type: 'error', message: 'Please log in to use your account balance.'}) : paymentMethod = '{{ $slug }}'">
-                                            <input type="radio" name="payment_method" class="sr-only" value="{{ $slug }}" x-model="paymentMethod" :disabled="'{{ $slug }}' === 'wallet' && @auth {{ auth()->user()->balance }} < getTotal() @else true @endauth">
-                                            
-                                            <!-- Integrated Badge -->
-                                            <div class="absolute top-3 right-3">
-                                                <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter shadow-sm"
-                                                      :class="'{{ $gateway['type'] ?? 'manual' }}' === 'automatic' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-gray-700 text-gray-400'">
-                                                    {{ ($gateway['type'] ?? 'manual') === 'automatic' ? 'Instant' : 'Manual' }}
-                                                </span>
-                                            </div>
-
-                                            <!-- Radio Indicator -->
-                                            <div class="absolute top-4 left-4">
-                                                <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors" 
-                                                     :class="paymentMethod === '{{ $slug }}' ? 'border-indigo-500' : 'border-gray-600 group-hover:border-gray-500'">
-                                                    <div class="w-2 h-2 bg-indigo-500 rounded-full" x-show="paymentMethod === '{{ $slug }}'"></div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Logo/Visual -->
-                                            <div class="h-12 flex items-center justify-center mb-4 mt-2">
-                                                @if($slug === 'wallet')
-                                                    <div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-500">
-                                                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                                                    </div>
-                                                @elseif(isset($gateway['logo']))
-                                                    <img src="{{ $gateway['logo'] }}" alt="{{ $gateway['name'] }}" class="h-full object-contain brightness-110 grayscale-0 group-hover:grayscale-0 opacity-80 transition-opacity group-hover:opacity-100"
-                                                          onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($gateway['name']) }}&color=7F9CF5&background=1F2937&font-size=0.33';">
-                                                @endif
-                                            </div>
-
-                                            <div class="flex flex-col">
-                                                <span class="text-gray-100 font-bold text-sm">{{ $slug === 'wallet' ? 'Account Balance' : $gateway['name'] }}</span>
-                                                @auth
-                                                    @if($slug === 'wallet')
-                                                        <span class="text-[10px] font-bold mt-1" :class="{{ auth()->user()->balance }} < getTotal() ? 'text-red-400' : 'text-indigo-400'">
-                                                            <span x-show="{{ auth()->user()->balance }} < getTotal()">Insufficient Funds</span>
-                                                            <span x-show="{{ auth()->user()->balance }} >= getTotal()">Pay via Account</span>
-                                                        </span>
-                                                    @else
-                                                        <span class="text-[9px] text-gray-500 mt-1 line-clamp-1">{{ $gateway['description'] ?? 'Fastest way to pay' }}</span>
-                                                    @endif
-                                                @else
-                                                    <span class="text-[9px] text-gray-500 mt-1 line-clamp-1">Login to see balance</span>
-                                                @endauth
-                                            </div>
-                                        </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-
-                        <!-- Partial Payment Option -->
-                        <div class="mt-4 p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl" x-show="paymentMethod !== 'wallet' && walletBalance > 0">
-                            <label class="flex items-center cursor-pointer">
-                                <div class="relative">
-                                    <input type="checkbox" class="sr-only" x-model="useWallet">
-                                    <div class="w-10 h-6 bg-gray-700 rounded-full shadow-inner transition" :class="useWallet ? 'bg-indigo-600' : ''"></div>
-                                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform" :class="useWallet ? 'translate-x-4' : ''"></div>
-                                </div>
-                                <span class="ml-3 text-white text-sm font-medium">Use my <span class="text-indigo-400 font-bold">@auth ${{ number_format(auth()->user()->balance, 2) }} @else $0.00 @endauth</span> account balance</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Final Checkout Bar -->
-                    <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0 relative z-10">
-                        <div>
-                            <p class="text-gray-400 text-sm font-medium mb-1">Total Project Investment:</p>
-                            <div class="flex items-baseline">
-                                 <span class="text-5xl font-black text-white">$<span x-text="getTotal().toLocaleString()"></span></span>
-                                <span x-show="useWallet && getWalletDeduction() > 0" class="ml-3 text-indigo-400 font-bold text-sm">
-                                    (-$<span x-text="getWalletDeduction().toLocaleString()"></span> from wallet)
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto mt-4 md:mt-0">
-                            <!-- Coupon Input -->
-                            <div class="relative w-full md:w-64">
-                                <input type="text" x-model="couponCode" @keydown.enter.prevent="applyCoupon()" placeholder="Promo code" class="w-full bg-gray-900 border border-gray-700 text-white rounded-xl py-3 pl-4 pr-12 focus:ring-orange-500 focus:border-orange-500 uppercase text-sm">
-                                <button type="button" @click="applyCoupon()" x-show="!couponApplied" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-orange-600 text-white font-bold px-3 rounded-lg flex items-center transition" :class="isChecking ? 'opacity-70 cursor-not-allowed' : ''" :disabled="isChecking">
-                                    <span x-show="!isChecking" class="text-xs">Apply</span>
-                                    <svg x-show="isChecking" class="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                </button>
-                                <button type="button" x-show="couponApplied" x-cloak @click="removeCoupon()" style="display:none;" class="absolute right-1 top-1 bottom-1 text-red-500 hover:bg-red-500/10 px-2 rounded-lg transition" title="Remove Coupon">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>
-
-                            @auth
-                            @php
-                                $checkoutPrefix = ($type === 'link-building') ? '/link-building/' : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? '/' . $type . '/' : '/campaigns/' . $type . '/');
-                            @endphp
-                            <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
-                                @csrf
-                                <template x-for="addonId in selectedAddons">
-                                    <input type="hidden" name="addons[]" :value="addonId">
-                                </template>
-                                <input type="hidden" name="coupon_code" :value="couponCode">
-                                <input type="hidden" name="payment_method" :value="paymentMethod">
-                                <input type="hidden" name="use_wallet" :value="useWallet ? 1 : 0">
-                                <button type="submit" class="w-full md:w-auto bg-brand hover:bg-orange-600 text-white font-black text-xl px-12 py-5 rounded-2xl transition duration-300 transform hover:scale-105 active:scale-95 shadow-xl shadow-orange-600/20 flex items-center justify-center" :disabled="isProcessing" :class="{ 'opacity-75 cursor-wait': isProcessing }">
-                                    <span x-show="!isProcessing">Proceed to Order</span>
-                                    <span x-show="isProcessing" style="display: none;" class="flex items-center">
-                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        Processing...
-                                    </span>
-                                    <svg x-show="!isProcessing" class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                </button>
-                            </form>
-                            @else
-                            <div class="flex flex-col items-end">
-                                <a href="{{ route('login') }}" class="w-full md:w-auto bg-white/10 hover:bg-white/20 text-white font-bold px-10 py-4 rounded-xl transition backdrop-blur-sm border border-white/10 text-center">
-                                    Log in to Continue
-                                </a>
-                                <p class="text-gray-500 text-[10px] mt-2 text-center w-full uppercase tracking-tighter">Already have an account? Log in back</p>
-                            </div>
-                            @endauth
                         </div>
                     </div>
                 </div>

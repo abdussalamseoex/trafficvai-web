@@ -27,9 +27,14 @@
             </div>
 
             <!-- Pricing / Packages Section -->
+            @php
+                $defaultPackage = $service->packages->sortBy('price')->values()->first();
+                $requestedPackageId = request()->get('package_id');
+                $selectedPackage = $service->packages->firstWhere('id', $requestedPackageId) ?: $defaultPackage;
+            @endphp
             <div class="mb-12" x-data="{ 
-                selectedPackageId: {{ $service->packages->sortBy('price')->values()->first()->id ?? 'null' }},
-                selectedPackagePrice: {{ $service->packages->sortBy('price')->values()->first()->price ?? 0 }},
+                selectedPackageId: {{ $selectedPackage->id ?? 'null' }},
+                selectedPackagePrice: {{ $selectedPackage->price ?? 0 }},
                 selectedDelivery: 'standard',
                 packages: [
                     @foreach($service->packages as $pkg)
