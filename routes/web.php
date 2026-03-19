@@ -107,15 +107,27 @@ Route::post('/plisio/callback', [\App\Http\Controllers\Payments\PlisioCallbackCo
 Route::get('/robots.txt', [\App\Http\Controllers\SeoController::class , 'robots']);
 Route::get('/sitemap.xml', [\App\Http\Controllers\SeoController::class , 'sitemap']);
 
-// Dynamic Campaign Routes (Frontend)
-Route::get('/campaigns/{type}', [\App\Http\Controllers\Frontend\CampaignController::class , 'index'])->name('campaigns.index');
+// Redirects and short URLs for Campaigns
+$seoTypes = 'seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo';
+
+// Old Dynamic Campaign Routes (now handling redirects)
+Route::get('/campaigns/{type}', function($type) use ($seoTypes) {
+    if (preg_match('/^('.$seoTypes.')$/', $type)) return redirect('/' . $type, 301);
+    if ($type === 'link-building') return redirect('/link-building', 301);
+    return app(\App\Http\Controllers\Frontend\CampaignController::class)->index($type);
+})->name('campaigns.index');
+
 Route::get('/campaigns/{type}/category/{category:slug}', [\App\Http\Controllers\Frontend\ServiceController::class , 'category'])->name('campaigns.category');
-Route::get('/campaigns/{type}/{service:slug}', [\App\Http\Controllers\Frontend\CampaignController::class , 'show'])->name('campaigns.show');
+
+Route::get('/campaigns/{type}/{service:slug}', function($type, \App\Models\Service $service) use ($seoTypes) {
+    if (preg_match('/^('.$seoTypes.')$/', $type)) return redirect('/' . $type . '/' . $service->slug, 301);
+    if ($type === 'link-building') return redirect('/link-building/' . $service->slug, 301);
+    return app(\App\Http\Controllers\Frontend\CampaignController::class)->show($type, $service);
+})->name('campaigns.show');
+
 Route::post('/campaigns/{type}/{package}/checkout', [\App\Http\Controllers\Frontend\CampaignController::class , 'checkout'])->name('campaigns.checkout')->middleware(['auth']);
 
 // Dedicated SEO Campaigns Routes (clean slugs at top level)
-$seoTypes = 'seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo';
-
 Route::get('/{type}', [\App\Http\Controllers\Frontend\CampaignController::class , 'index'])
     ->where('type', $seoTypes)
     ->name('seo_campaigns.index');
@@ -317,13 +329,20 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
                 }
             )->where(['type' => $seoTypes]);
 
-            // Dynamic Campaign Routes (Client Dashboard - Fallback)
-            Route::group(['prefix' => 'campaigns/{type}', 'as' => 'campaigns.'], function () {
-                    Route::get('/', [\App\Http\Controllers\User\CampaignController::class , 'index'])->name('index');
-                    Route::get('/{service:slug}', [\App\Http\Controllers\User\CampaignController::class , 'show'])->name('show');
-                    Route::post('/{package}/checkout', [\App\Http\Controllers\User\CampaignController::class , 'checkout'])->name('checkout');
-                }
-            );
+            // Old Client Campaign Routes (now handling redirects)
+            Route::get('/campaigns/{type}', function($type) use ($seoTypes) {
+                if (preg_match('/^('.$seoTypes.')$/', $type)) return redirect('/client/' . $type, 301);
+                if ($type === 'link-building') return redirect('/client/link-building', 301);
+                return app(\App\Http\Controllers\User\CampaignController::class)->index($type);
+            })->name('campaigns.index');
+
+            Route::get('/campaigns/{type}/{service:slug}', function($type, \App\Models\Service $service) use ($seoTypes) {
+                if (preg_match('/^('.$seoTypes.')$/', $type)) return redirect('/client/' . $type . '/' . $service->slug, 301);
+                if ($type === 'link-building') return redirect('/client/link-building/' . $service->slug, 301);
+                return app(\App\Http\Controllers\User\CampaignController::class)->show($type, $service);
+            })->name('campaigns.show');
+
+            Route::post('/campaigns/{type}/{package}/checkout', [\App\Http\Controllers\User\CampaignController::class , 'checkout'])->name('campaigns.checkout');
 
             // Dedicated Link Building Routes (Client Dashboard)
             Route::get('/link-building', [\App\Http\Controllers\User\CampaignController::class , 'index'])->defaults('type', 'link-building')->name('link_building.index');

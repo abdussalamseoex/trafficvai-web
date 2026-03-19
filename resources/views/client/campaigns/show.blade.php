@@ -9,7 +9,10 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             <div class="mb-4">
-                <a href="{{ $type === 'link-building' ? route('client.link_building.index') : route('client.campaigns.index', $type) }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                @php
+                    $indexRoute = ($type === 'link-building') ? route('client.link_building.index') : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? route('client.seo_campaigns.index', $type) : route('client.campaigns.index', $type));
+                @endphp
+                <a href="{{ $indexRoute }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
                     <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     Back to Catalog
                 </a>
@@ -364,7 +367,10 @@
                         </div>
 
                         <div class="w-full md:w-auto">
-                            <form method="POST" :action="'{{ $type === 'link-building' ? '/client/link-building/' : '/client/campaigns/' . $type . '/' }}' + selectedPackageId + '/checkout'" class="flex flex-col md:flex-row md:items-end gap-4" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
+                            @php
+                                $checkoutPrefix = ($type === 'link-building') ? '/client/link-building/' : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? '/client/' . $type . '/' : '/client/campaigns/' . $type . '/');
+                            @endphp
+                            <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" class="flex flex-col md:flex-row md:items-end gap-4" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
                                 @csrf
                                 <template x-for="addonId in selectedAddons">
                                     <input type="hidden" name="addons[]" :value="addonId">
@@ -527,7 +533,10 @@
 
                         <!-- Bottom Row: Form -->
                         <div class="flex w-full justify-end border-t border-gray-100 pt-6">
-                            <form method="POST" :action="'{{ $type === 'link-building' ? '/client/link-building/' : '/client/campaigns/' . $type . '/' }}' + selectedPackageId + '/checkout'" class="flex flex-col sm:flex-row items-end gap-4 w-full justify-end" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
+                            @php
+                                $checkoutPrefix = ($type === 'link-building') ? '/client/link-building/' : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? '/client/' . $type . '/' : '/client/campaigns/' . $type . '/');
+                            @endphp
+                            <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" class="flex flex-col sm:flex-row items-end gap-4 w-full justify-end" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
                                 @csrf
                                 <input type="hidden" name="payment_method" :value="paymentMethod">
                                 <input type="hidden" name="use_wallet" :value="useWallet ? 1 : 0">

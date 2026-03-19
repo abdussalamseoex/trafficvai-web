@@ -39,7 +39,10 @@
                                 <span class="border border-green-500 text-green-600 text-xs font-bold px-3 py-1 rounded-full">{{ $service->packages->count() }} PLANS</span>
                                 @endif
                             </div>
-                            <a href="{{ route('campaigns.show', ['type' => $type, 'service' => $service->slug]) }}" class="w-full inline-flex items-center justify-center bg-brand hover:opacity-90 text-white font-bold text-sm py-3 px-4 rounded-xl transition-all duration-200 shadow-md">
+                            @php
+                                $showRoute = ($type === 'link-building') ? route('link_building.show', $service->slug) : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? route('seo_campaigns.show', ['type' => $type, 'service' => $service->slug]) : route('campaigns.show', ['type' => $type, 'service' => $service->slug]));
+                            @endphp
+                            <a href="{{ $showRoute }}" class="w-full inline-flex items-center justify-center bg-brand hover:opacity-90 text-white font-bold text-sm py-3 px-4 rounded-xl transition-all duration-200 shadow-md">
                                 View Packages
                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                             </a>
@@ -66,7 +69,10 @@
                                 <span class="border border-green-500 text-green-600 text-xs font-bold px-3 py-1 rounded-full">{{ $service->packages->count() }} PLANS</span>
                                 @endif
                             </div>
-                            <a href="{{ route('campaigns.show', ['type' => $type, 'service' => $service->slug]) }}" class="w-full inline-flex items-center justify-center bg-brand hover:opacity-90 text-white font-bold text-sm py-3 px-4 rounded-xl transition-all duration-200 shadow-md">
+                            @php
+                                $showRoute = ($type === 'link-building') ? route('link_building.show', $service->slug) : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? route('seo_campaigns.show', ['type' => $type, 'service' => $service->slug]) : route('campaigns.show', ['type' => $type, 'service' => $service->slug]));
+                            @endphp
+                            <a href="{{ $showRoute }}" class="w-full inline-flex items-center justify-center bg-brand hover:opacity-90 text-white font-bold text-sm py-3 px-4 rounded-xl transition-all duration-200 shadow-md">
                                 View Packages
                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                             </a>

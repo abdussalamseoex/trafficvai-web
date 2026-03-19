@@ -18,8 +18,11 @@
                     <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
                 </div>
                 <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+                    @php
+                        $indexRoute = ($type === 'link-building') ? route('link_building.index') : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? route('seo_campaigns.index', $type) : route('campaigns.index', $type));
+                    @endphp
                     <nav class="flex items-center space-x-2 text-sm text-gray-400 mb-10">
-                        <a href="{{ route('campaigns.index', $type) }}" class="hover:text-orange-400 transition-colors">{{ $title }}</a>
+                        <a href="{{ $indexRoute }}" class="hover:text-orange-400 transition-colors">{{ $title }}</a>
                         <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         <span class="text-gray-300 font-medium">{{ $service->name }}</span>
                     </nav>
@@ -447,7 +450,10 @@
                             </div>
 
                             @auth
-                            <form method="POST" :action="'/campaigns/{{ $type }}/' + selectedPackageId + '/checkout'" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
+                            @php
+                                $checkoutPrefix = ($type === 'link-building') ? '/link-building/' : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? '/' . $type . '/' : '/campaigns/' . $type . '/');
+                            @endphp
+                            <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
                                 @csrf
                                 <template x-for="addonId in selectedAddons">
                                     <input type="hidden" name="addons[]" :value="addonId">
@@ -595,7 +601,10 @@
                         </div>
                     </div>
                     @auth
-                    <form method="POST" :action="'/campaigns/{{ $type }}/' + selectedPackageId + '/checkout'" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
+                    @php
+                        $checkoutPrefix = ($type === 'link-building') ? '/link-building/' : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? '/' . $type . '/' : '/campaigns/' . $type . '/');
+                    @endphp
+                    <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
                         @csrf
                         <input type="hidden" name="payment_method" :value="paymentMethod">
                         <input type="hidden" name="coupon_code" :value="couponApplied ? couponCode : ''">
