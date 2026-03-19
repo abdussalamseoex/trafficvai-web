@@ -13,15 +13,15 @@
 
 @if($is_admin ?? false)
 <!-- ADMIN RIBBON -->
-<tr><td style="background:linear-gradient(90deg,#7c3aed,#4f46e5);padding:8px 40px;text-align:center;font-size:11px;color:rgba(255,255,255,0.85);letter-spacing:1px;font-family:'JetBrains Mono',monospace;">⚙ ADMIN PANEL NOTIFICATION · TRAFFICVAI SYSTEM</td></tr>
+<tr><td style="background:linear-gradient(90deg,#E8470A,#f97316);padding:8px 40px;text-align:center;font-size:11px;color:rgba(255,255,255,0.85);letter-spacing:1px;font-family:'JetBrains Mono',monospace;">⚙ ADMIN PANEL NOTIFICATION · TRAFFICVAI SYSTEM</td></tr>
 @endif
 
 <!-- HEADER -->
-<tr><td style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#1d4ed8 100%);padding:36px 40px 28px;">
+<tr><td style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#E8470A 100%);padding:36px 40px 28px;">
   <table width="100%" cellpadding="0" cellspacing="0">
   <tr>
     <td style="vertical-align:middle;">
-      <img src="{{ $logo_url ?? 'https://trafficvai.com/assets/logo.png' }}" alt="TrafficVai" height="44" style="display:block;">
+      <img src="{{ $logo_url ?? 'https://trafficvai.com/images/logo.png' }}" alt="TrafficVai" height="44" style="display:block;">
     </td>
   </tr>
   <tr><td style="padding-top:20px;">
@@ -42,11 +42,12 @@
 
 <!-- FOOTER -->
 <tr><td style="background:#1e1b4b;padding:28px 40px;text-align:center;">
-  <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#fff;">Traffic<span style="color:#a5b4fc;">Vai</span></p>
+  <img src="{{ $logo_url ?? 'https://trafficvai.com/images/logo.png' }}" alt="TrafficVai" height="34" style="display:block;margin:0 auto 16px;">
+  <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#fff;">Traffic<span style="color:#E8470A;">Vai</span></p>
   <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:12px 0;">
   <p style="margin:0 0 8px;">
     <a href="{{ url('/dashboard') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Dashboard</a>
-    <a href="{{ url('/support') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Support</a>
+    <a href="{{ url('/contact') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Contact</a>
   </p>
   <p style="margin:0;font-size:11px;color:#4b5563;line-height:1.6;">© {{ date('Y') }} TrafficVai. All rights reserved.</p>
 </td></tr>

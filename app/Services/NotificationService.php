@@ -22,11 +22,14 @@ class NotificationService
             'link' => $link
         ]);
 
-        // Also send email to all admins
-        $admins = \App\Models\User::where('is_admin', true)->get();
-        foreach ($admins as $admin) {
-            $this->sendEmail($slug, $admin->email, [
-                'user_name' => $admin->name,
+        // Also send email to all staff members
+        $staff = \App\Models\User::where('is_admin', true)
+            ->orWhereIn('role', ['manager', 'seo_expert', 'writer'])
+            ->get();
+
+        foreach ($staff as $member) {
+            $this->sendEmail($slug, $member->email, [
+                'user_name' => $member->name,
                 'title' => $title,
                 'message' => $message,
                 'link' => $link ?? url('/'),
