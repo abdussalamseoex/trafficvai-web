@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Setting;
+use App\Models\Order;
+use App\Models\User;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        $orders = \App\Models\Order::with('user', 'package.service')
+        $orders = Order::with('user', 'package.service')
             ->withCount(['messages as unread_messages_count' => function ($query) {
             $query->where('is_read', false)
                 ->whereHas('user', function ($q) {
@@ -24,11 +27,11 @@ class OrderController extends Controller
 
     public function running(\Illuminate\Http\Request $request)
     {
-        $query = \App\Models\Order::with('user', 'package.service')
+        $query = Order::with('user', 'package.service')
             ->whereNotNull('expiry_date')
             ->where('status', 'processing');
 
-        $reminderDays = \App\Models\Setting::get('renewal_reminder_days', 7);
+        $reminderDays = (int) Setting::get('renewal_reminder_days', 7);
         $targetDate = now()->addDays($reminderDays)->endOfDay();
 
         if ($request->filter === 'expiring_soon') {
