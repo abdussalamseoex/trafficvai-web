@@ -129,7 +129,7 @@ class CommunicationController extends Controller
                 return [
                 'id' => $m->id,
                 'message' => $m->message,
-                'is_self' => $m->user_id === $user->id,
+                'is_self' => (int)$m->user_id === (int)$user->id,
                 'sender_name' => $m->user->name,
                 'created_at' => $m->created_at->diffForHumans(),
                 'full_date' => $m->created_at->format('M d, Y H:i A'),
@@ -166,7 +166,7 @@ class CommunicationController extends Controller
                 return [
                 'id' => $m->id,
                 'message' => $m->message,
-                'is_self' => $m->sender_id === $user->id,
+                'is_self' => (int)$m->sender_id === (int)$user->id,
                 'sender_name' => $m->sender->name,
                 'created_at' => $m->created_at->diffForHumans(),
                 'full_date' => $m->created_at->format('M d, Y H:i A'),
