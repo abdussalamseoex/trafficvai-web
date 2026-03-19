@@ -20,6 +20,47 @@ Route::get('/', function () {
         return view('welcome', compact('sections'));
     })->name('home');
 
+Route::get('/fix-home-sections', function() {
+    $services = \App\Models\HomeSection::where('key', 'services')->first();
+    if ($services) {
+        $services->update([
+            'content' => [
+                'super_title' => 'Our Solutions',
+                'headline' => 'Comprehensive Digital Authority',
+                'subheadline' => 'From fully-managed SEO to high-traffic guest placements, we provide the raw ranking power your brand needs.',
+                'cards' => [
+                    [
+                        'title' => 'Fully Managed SEO',
+                        'description' => 'Complete, hands-off ranking campaigns. We analyze, strategize, and execute a custom link building masterplan to dominate your niche.',
+                        'link_text' => 'Explore Campaigns',
+                        'link_url' => '/campaigns/seo-campaigns',
+                    ],
+                    [
+                        'title' => 'Premium Guest Posts',
+                        'description' => 'Browse our live inventory of thousands of real websites. Strict metric requirements guarantee you only place content on sites that drive authority.',
+                        'link_text' => 'Browse Inventory',
+                        'link_url' => '/guest-posts',
+                    ],
+		            [
+                        'title' => 'Link Building Services',
+                        'description' => 'Powerful, contextual editorial links acquired through genuine manual outreach. We strictly vet sites for organic traffic and domain health.',
+                        'link_text' => 'View Packages',
+                        'link_url' => '/link-building',
+                    ],
+                    [
+                        'title' => 'Targeted Website Traffic',
+                        'description' => 'Boost your organic behavioral signals. We deliver high-quality, targeted geographic traffic to improve CTR, bounce rate, and overall engagement.',
+                        'link_text' => 'Boost Traffic',
+                        'link_url' => '/traffic',
+                    ],
+                ]
+            ]
+        ]);
+        return "Home sections fixed!";
+    }
+    return "Home section not found.";
+});
+
 Route::get('/about', [\App\Http\Controllers\Frontend\PageController::class , 'show'])->defaults('slug', 'about')->name('about');
 Route::get('/contact', [\App\Http\Controllers\Frontend\PageController::class , 'show'])->defaults('slug', 'contact')->name('contact');
 Route::post('/contact', [\App\Http\Controllers\ContactController::class , 'store'])->name('contact.store');

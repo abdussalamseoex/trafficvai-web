@@ -32,6 +32,15 @@ class HomeSectionController extends Controller
                 $path = $file->store('home-sections', 'public');
                 $value = $path;
             }
+
+            // If the field was an array (from JSON textarea), decode it back
+            if (isset($content[$key]) && (is_array($content[$key]) || is_object($content[$key])) && is_string($value)) {
+                $decoded = json_decode($value, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $value = $decoded;
+                }
+            }
+
             $content[$key] = $value;
         }
 

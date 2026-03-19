@@ -10,7 +10,7 @@
         </div>
         <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
             <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-4">
-                @foreach($c['cards'] ?? [] as $card)
+                @foreach(is_array($c['cards'] ?? null) ? $c['cards'] : [] as $card)
                 <div class="flex flex-col group p-8 rounded-3xl bg-gray-50 hover:bg-white border border-transparent hover:border-blue-100 transition duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-100/50">
                     <dt class="text-xl font-bold leading-7 text-gray-900 mb-4 group-hover:text-blue-600 transition">
                         {{ $card['title'] }}
