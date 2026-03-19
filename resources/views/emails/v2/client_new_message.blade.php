@@ -70,7 +70,7 @@
   <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#fff;">Traffic<span style="color:#E8470A;">Vai</span></p>
   <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:12px 0;">
   <p style="margin:0 0 8px;">
-    <a href="{{ url('/dashboard') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Dashboard</a>
+    <a href="{{ $dashboard_portal_url ?? url('/dashboard') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Dashboard</a>
     <a href="{{ url('/contact') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Contact</a>
     <a href="{{ url('/terms') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Terms</a>
     <a href="{{ url('/privacy-policy') }}" style="color:#8b92a5;text-decoration:none;font-size:12px;margin:0 10px;">Privacy</a>

@@ -89,20 +89,33 @@ class NotificationService
                 $content = view($view, [
                     'logo_url' => '{logo_url}',
                     'client_name' => '{client_name}',
+                    'user_name' => '{user_name}',
                     'order_id' => '{order_id}',
+                    'id' => '{id}',
                     'order_amount' => '{order_amount}',
+                    'amount' => '{amount}',
                     'order_date' => '{order_date}',
+                    'date' => '{date}',
                     'payment_date' => '{payment_date}',
                     'submission_date' => '{submission_date}',
                     'update_date' => '{update_date}',
                     'message_date' => '{message_date}',
                     'message_preview' => '{message_preview}',
+                    'message' => '{message}',
                     'order_status' => '{order_status}',
+                    'status' => '{status}',
                     'previous_status' => '{previous_status}',
                     'admin_panel_url' => '{admin_panel_url}',
                     'order_details_url' => '{order_details_url}',
                     'order_url' => '{order_url}',
                     'reply_url' => '{reply_url}',
+                    'dashboard_portal_url' => '{dashboard_portal_url}',
+                    'dashboard_url' => '{dashboard_url}',
+                    'contact_url' => '{contact_url}',
+                    'terms_url' => '{terms_url}',
+                    'privacy_url' => '{privacy_url}',
+                    'refund_url' => '{refund_url}',
+                    'inbox_url' => '{inbox_url}',
                     'year' => '{year}',
                 ])->render();
 
@@ -116,9 +129,9 @@ class NotificationService
                     ]
                 );
             } catch (\Exception $e) {
-                // Silently ignore or use standard \Log if available
-                if (class_exists('\Log')) {
-                    \Log::error("Failed to sync template $slug: " . $e->getMessage());
+                // Silently ignore or use standard Log if available
+                if (class_exists('\Illuminate\Support\Facades\Log')) {
+                    \Illuminate\Support\Facades\Log::error("Failed to sync template $slug: " . $e->getMessage());
                 }
             }
         }
@@ -143,30 +156,38 @@ class NotificationService
     public function sendEmail($templateSlug, $recipient, $data = [])
     {
         try {
-            // 1. Prepare Data for Replacement
+            // 1. Prepare Data for Replacement (Comprehensive coverage)
             $vars = [
                 'logo_url' => \App\Models\Setting::get('site_logo') ? asset(\App\Models\Setting::get('site_logo')) : (config('app.url') . '/images/logo.png'),
                 'client_name' => $data['user_name'] ?? 'Client',
-                'order_id' => $data['order_id'] ?? 'N/A',
+                'user_name' => $data['user_name'] ?? 'Client', // Alias
+                'order_id' => $data['order_id'] ?? ($data['id'] ?? 'N/A'),
+                'id' => $data['order_id'] ?? ($data['id'] ?? 'N/A'), // Alias
                 'order_amount' => $data['amount'] ?? ($data['order_amount'] ?? 'N/A'),
+                'amount' => $data['amount'] ?? ($data['order_amount'] ?? 'N/A'), // Alias
                 'order_date' => $data['order_date'] ?? ($data['date'] ?? now()->format('M d, Y h:i A')),
+                'date' => $data['order_date'] ?? ($data['date'] ?? now()->format('M d, Y h:i A')), // Alias
                 'payment_date' => $data['payment_date'] ?? ($data['date'] ?? now()->format('M d, Y h:i A')),
                 'submission_date' => $data['submission_date'] ?? now()->format('M d, Y h:i A'),
                 'update_date' => $data['update_date'] ?? now()->format('M d, Y h:i A'),
                 'message_date' => $data['message_date'] ?? now()->format('M d, Y h:i A'),
-                'message_preview' => $data['message_preview'] ?? '',
+                'message_preview' => $data['message_preview'] ?? ($data['message'] ?? ''),
+                'message' => $data['message_preview'] ?? ($data['message'] ?? ''), // Alias
                 'order_status' => $data['status'] ?? ($data['order_status'] ?? 'pending'),
+                'status' => $data['status'] ?? ($data['order_status'] ?? 'pending'), // Alias
                 'previous_status' => $data['previous_status'] ?? 'N/A',
                 'admin_panel_url' => isset($data['order_id']) ? route('admin.orders.show', $data['order_id']) : url('/admin'),
-                'order_details_url' => isset($data['order_id']) ? route('client.orders.show', $data['order_id']) : url('/orders'),
-                'order_url' => url('/orders'),
-                'reply_url' => isset($data['order_id']) ? route('client.orders.show', $data['order_id']) : url('/orders'),
+                'order_details_url' => isset($data['order_id']) ? route('client.orders.show', $data['order_id']) : url('/client/orders'),
+                'order_url' => url('/client/orders'),
+                'reply_url' => isset($data['order_id']) ? route('client.orders.show', $data['order_id']) : url('/client/orders'),
                 'dashboard_url' => url('/dashboard'),
                 'contact_url' => url('/contact'),
                 'terms_url' => url('/terms'),
                 'privacy_url' => url('/privacy-policy'),
                 'refund_url' => url('/refund-policy'),
                 'inbox_url' => url('/inbox'),
+                'is_admin' => str_contains($templateSlug, 'admin'),
+                'dashboard_portal_url' => str_contains($templateSlug, 'admin') ? url('/admin') : url('/dashboard'),
                 'year' => date('Y'),
             ];
 
@@ -180,13 +201,20 @@ class NotificationService
                 $body = $template->body;
 
                 foreach ($vars as $key => $value) {
-                    $subject = str_replace('{' . $key . '}', $value, $subject);
-                    $body = str_replace('{' . $key . '}', $value, $body);
+                    if (is_string($value) || is_numeric($value)) {
+                        $subject = str_replace('{' . $key . '}', (string)$value, $subject);
+                        $body = str_replace('{' . $key . '}', (string)$value, $body);
+                    }
                 }
                 
-                // If it's a "v2" slug but stored in DB, we use the DB body directly
-                // (It already contains the full HTML structure if synced)
-                $renderedHtml = $body;
+                // If it looks like plain text or partial HTML, wrap it in Generic template
+                if (!str_contains($body, '<html') && !str_contains($body, '<body')) {
+                    $vars['body'] = $body;
+                    $vars['subject'] = $subject;
+                    $renderedHtml = view('emails.v2.generic', $vars)->render();
+                } else {
+                    $renderedHtml = $body;
+                }
             } 
             // 3. Fallback: Blade Templates (V2)
             else {
