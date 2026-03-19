@@ -283,7 +283,7 @@
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                         @foreach($methods as $slug => $gateway)
-                                        <label class="relative cursor-pointer border border-gray-700 bg-gray-800/50 hover:bg-gray-800 rounded-xl px-4 py-4 flex items-center gap-4 transition shadow-sm overflow-hidden" 
+                                        <label class="group relative cursor-pointer border border-gray-700 bg-gray-800/50 hover:bg-gray-800 rounded-xl px-4 py-4 flex items-center gap-4 transition shadow-sm overflow-hidden" 
                                                :class="paymentMethod === '{{ $slug }}' ? 'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-500/10' : ''">
                                             <input type="radio" name="payment_method" class="sr-only" value="{{ $slug }}" x-model="paymentMethod">
                                             
@@ -302,8 +302,8 @@
                                             <div class="flex flex-col">
                                                 <div class="flex items-center gap-3">
                                                     @if(isset($gateway['logo']))
-                                                        <div class="h-8 max-h-8 flex items-center">
-                                                            <img src="{{ $gateway['logo'] }}" alt="{{ $gateway['name'] }}" class="h-full object-contain opacity-90">
+                                                        <div class="h-10 w-12 flex items-center justify-center">
+                                                            <img src="{{ $gateway['logo'] }}" alt="{{ $gateway['name'] }}" class="h-10 w-auto max-h-full max-w-full object-contain group-hover:scale-110 transition-all duration-300">
                                                         </div>
                                                     @endif
                                                     <span class="text-white font-bold text-sm">{{ $slug === 'wallet' ? 'Account Balance' : $gateway['name'] }}</span>
@@ -335,47 +335,51 @@
                     </div>
 
                     <!-- Final Checkout Bar -->
-                    <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0 relative z-10">
-                        <div>
-                            <p class="text-gray-400 text-sm font-medium mb-1">Total Project Investment:</p>
-                            <div class="flex flex-col">
-                                <span class="text-5xl font-black text-white"><span class="price-convert" :data-base-price="getFinalTotal()">$<span x-text="(getFinalTotal() * ($store?.currency === 'USD' ? 1 : ($store?.rates || {BDT:{rate:120},EUR:{rate:0.95}})[$store?.currency || 'USD']?.rate || 1)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span></span>
+                    <div class="pt-8 border-t border-gray-800 relative z-10">
+                        <!-- Summary & Coupon Row -->
+                        <div class="flex flex-col lg:flex-row items-center justify-between gap-8 mb-8">
+                            <div class="text-center lg:text-left">
+                                <p class="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Total Project Investment</p>
                                 
-                                <div x-show="couponApplied && discountAmount > 0" style="display: none;" class="mt-1">
-                                    <span class="text-gray-500 line-through text-xs mr-2">$<span x-text="getSubtotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
-                                    <span class="text-blue-500 font-bold text-xs">Save $<span x-text="discountAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                <div x-show="couponApplied && discountAmount > 0" style="display: none;" class="mb-2 flex items-center justify-center lg:justify-start gap-3">
+                                    <span class="text-gray-500 line-through text-lg font-medium">$<span x-text="getSubtotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                    <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full text-xs font-bold">Save $<span x-text="discountAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
                                 </div>
 
-                                <span x-show="useWallet && getWalletDeduction() > 0" style="display: none;" class="text-indigo-400 font-bold text-xs mt-1">
-                                    (-$<span x-text="getWalletDeduction().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span> from account balance)
-                                </span>
+                                <div class="flex items-center justify-center lg:justify-start gap-4">
+                                    <span class="text-6xl font-black text-white leading-tight tracking-tighter">$<span x-text="getTotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                    <div x-show="useWallet && getWalletDeduction() > 0" style="display: none;" class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-xl">
+                                        <p class="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">From Wallet: <span class="text-white">-$<span x-text="getWalletDeduction().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span></p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="flex-1 max-w-sm px-4 hidden lg:flex flex-col">
-                            <!-- Coupon Input & Remove Button -->
-                            <div class="flex items-center gap-2 relative">
-                                <div class="relative flex-1">
-                                    <input type="text" x-model="couponCode" @keydown.enter.prevent="applyCoupon()" placeholder="Have a coupon?" class="w-full bg-gray-800 border border-gray-700 text-white rounded-xl py-3 pl-4 pr-12 focus:ring-indigo-500 focus:border-indigo-500 uppercase">
-                                    <button type="button" @click="applyCoupon()" x-show="!couponApplied" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-orange-600 text-white font-bold px-4 rounded-lg flex items-center transition" :class="isChecking ? 'opacity-70 cursor-not-allowed' : ''" :disabled="isChecking">
-                                        <span x-show="!isChecking">Apply</span>
-                                        <svg x-show="isChecking" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <div class="flex-1 max-w-md w-full flex flex-col">
+                                <!-- Coupon Input -->
+                                <div class="flex items-center gap-2 relative">
+                                    <div class="relative flex-1">
+                                        <input type="text" x-model="couponCode" @keydown.enter.prevent="applyCoupon()" placeholder="Have a coupon?" class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-2xl py-4 pl-5 pr-12 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase transition-all placeholder:text-gray-600">
+                                        <button type="button" @click="applyCoupon()" x-show="!couponApplied" class="absolute right-2 top-2 bottom-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 rounded-xl flex items-center transition shadow-lg shadow-indigo-600/20" :class="isChecking ? 'opacity-70 cursor-not-allowed' : ''" :disabled="isChecking">
+                                            <span x-show="!isChecking" class="text-sm">Apply</span>
+                                            <svg x-show="isChecking" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        </button>
+                                    </div>
+                                    <button type="button" x-show="couponApplied" @click="removeCoupon()" style="display:none;" class="bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 px-5 py-4 rounded-2xl font-bold text-sm flex items-center justify-center shrink-0 transition" title="Remove Coupon">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
                                 </div>
-                                <button type="button" x-show="couponApplied" @click="removeCoupon()" style="display:none;" class="bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 px-4 py-3 rounded-xl font-medium text-sm flex items-center justify-center shrink-0 transition" title="Remove Coupon">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Remove
-                                </button>
-                            </div>
-                            <div x-show="couponMessage" style="display:none;" class="w-full mt-2">
-                                <p :class="couponError ? 'text-red-400' : 'text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded text-xs'" class="text-xs" x-html="(couponError ? '' : '<svg class=\'w-3 h-3 inline mr-1\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M5 13l4 4L19 7\'></path></svg>') + couponMessage"></p>
+                                <div x-show="couponMessage" style="display:none;" class="w-full mt-3">
+                                    <p :class="couponError ? 'text-red-400 bg-red-400/10 border-red-400/20' : 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'" class="px-3 py-2 border rounded-xl text-xs font-medium flex items-center gap-2" x-html="(couponError ? '<svg class=\'w-3 h-3 flex-shrink-0\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\'></path></svg>' : '<svg class=\'w-3 h-3 flex-shrink-0\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M5 13l4 4L19 7\'></path></svg>') + couponMessage"></p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="w-full md:w-auto">
+                        <!-- Action Row (Separated Background) -->
+                        <div class="bg-gray-800/40 rounded-[2rem] p-8 border border-gray-700/50">
                             @php
                                 $checkoutPrefix = ($type === 'link-building') ? '/client/link-building/' : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? '/client/' . $type . '/' : '/client/campaigns/' . $type . '/');
                             @endphp
-                            <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" class="flex flex-col md:flex-row md:items-end gap-4" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
+                            <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" class="flex flex-col lg:flex-row items-center lg:items-end gap-8" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
                                 @csrf
                                 <template x-for="addonId in selectedAddons">
                                     <input type="hidden" name="addons[]" :value="addonId">
@@ -383,34 +387,44 @@
                                 <input type="hidden" name="payment_method" :value="paymentMethod">
                                 <input type="hidden" name="use_wallet" :value="useWallet ? 1 : 0">
                                 <input type="hidden" name="coupon_code" :value="couponApplied ? couponCode : ''">
-                                
-                                <div class="w-full md:w-32 text-left">
-                                    <label for="is_emergency_1" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Delivery Option</label>
-                                    <select name="is_emergency" id="is_emergency_1" x-model="selectedDelivery" class="block w-full rounded-xl border-gray-700 bg-gray-800 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="standard" x-text="'Standard' + (getPackageDeliveryDays(selectedPackageId) ? ` (${getPackageDeliveryDays(selectedPackageId)} Days)` : '')"></option>
-                                        <option value="express" x-show="getPackageExpressFee(selectedPackageId) > 0 || getPackageExpressDays(selectedPackageId)" x-text="'Express' + (getPackageExpressDays(selectedPackageId) ? ` (${getPackageExpressDays(selectedPackageId)} Days)` : '') + (getPackageExpressFee(selectedPackageId) > 0 ? ` (+$${getPackageExpressFee(selectedPackageId)})` : '')"></option>
-                                    </select>
+
+                                <div class="w-full lg:w-48 text-left">
+                                    <label for="is_emergency_1" class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 ml-1">Delivery Option</label>
+                                    <div class="relative">
+                                        <select name="is_emergency" id="is_emergency_1" x-model="selectedDelivery" class="block w-full rounded-2xl border-gray-700 bg-gray-900/50 text-white shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm py-4 pl-4 transition-all appearance-none cursor-pointer">
+                                            <option value="standard" x-text="'Standard' + (getPackageDeliveryDays(selectedPackageId) ? ` (${getPackageDeliveryDays(selectedPackageId)} Days)` : '')"></option>
+                                            <option value="express" x-show="getPackageExpressFee(selectedPackageId) > 0 || getPackageExpressDays(selectedPackageId)" x-text="'Express' + (getPackageExpressDays(selectedPackageId) ? ` (${getPackageExpressDays(selectedPackageId)} Days)` : '') + (getPackageExpressFee(selectedPackageId) > 0 ? ` (+$${getPackageExpressFee(selectedPackageId)})` : '')"></option>
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="w-full md:w-48 text-left">
-                                    <label for="project_id_1" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Assign Project</label>
-                                    <select name="project_id" id="project_id_1" class="block w-full rounded-xl border-gray-700 bg-gray-800 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="">None</option>
-                                        @if(auth()->check())
-                                            @foreach(auth()->user()->projects as $project)
-                                                <option value="{{ $project->id }}">{{ $project->name }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
+                                <div class="w-full lg:w-64 text-left">
+                                    <label for="project_id_1" class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 ml-1">Assign Project</label>
+                                    <div class="relative">
+                                        <select name="project_id" id="project_id_1" class="block w-full rounded-2xl border-gray-700 bg-gray-900/50 text-white shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm py-4 pl-4 transition-all appearance-none cursor-pointer">
+                                            <option value="">None (Personal Project)</option>
+                                            @if(auth()->check())
+                                                @foreach(auth()->user()->projects as $project)
+                                                    <option value="{{ $project->id }}">{{ $project->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-400">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <button type="submit" class="w-full md:w-auto bg-brand hover:bg-orange-600 text-white font-black text-xl px-12 py-5 rounded-2xl transition duration-300 transform hover:scale-105 active:scale-95 shadow-xl shadow-orange-600/20 flex items-center justify-center" :disabled="isProcessing" :class="{ 'opacity-75 cursor-wait': isProcessing }">
-                                    <span x-show="!isProcessing">Proceed to Order</span>
+                                <button type="submit" class="w-full lg:flex-1 bg-brand hover:bg-orange-600 text-white font-black text-2xl py-6 rounded-3xl transition duration-300 transform hover:scale-[1.02] active:scale-95 shadow-2xl shadow-orange-600/30 flex items-center justify-center group" :disabled="isProcessing" :class="{ 'opacity-75 cursor-wait': isProcessing }">
+                                    <span x-show="!isProcessing" class="mr-3">Proceed to Order</span>
                                     <span x-show="isProcessing" style="display: none;" class="flex items-center">
-                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        <svg class="animate-spin -ml-1 mr-3 h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                         Processing...
                                     </span>
-                                    <svg x-show="!isProcessing" class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    <svg x-show="!isProcessing" class="w-7 h-7 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                                 </button>
                             </form>
                         </div>
@@ -497,86 +511,97 @@
                         </div>
                     <!-- Checkout Layout -->
                     <div class="flex flex-col w-full gap-6">
-                        <!-- Top Row: Price & Coupon -->
-                        <div class="flex flex-col md:flex-row items-center justify-between gap-6 w-full">
-                            <div class="w-full md:w-auto">
-                                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">Final Price</p>
-                                <div class="flex flex-col">
-                                    <span class="text-4xl font-black text-gray-900"><span class="price-convert" :data-base-price="getTotal()">$<span x-text="(getTotal() * ($store?.currency === 'USD' ? 1 : ($store?.rates || {BDT:{rate:120},EUR:{rate:0.95}})[$store?.currency || 'USD']?.rate || 1)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span></span>
-                                    
-                                    <div x-show="couponApplied && discountAmount > 0" style="display: none;" class="mt-1 flex items-center gap-2">
-                                        <span class="text-gray-400 line-through text-sm mr-2">$<span x-text="getSubtotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
-                                        <span class="text-blue-600 font-bold tracking-tight text-sm bg-blue-50 px-2 py-0.5 rounded">Save $<span x-text="discountAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
-                                    </div>
+                    <div class="pt-8 border-t border-gray-100 relative z-10 w-full">
+                        <!-- Summary & Coupon Row -->
+                        <div class="flex flex-col lg:flex-row items-center justify-between gap-6 mb-8">
+                            <div class="text-center lg:text-left">
+                                <p class="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Final Investment</p>
+                                
+                                <div x-show="couponApplied && discountAmount > 0" style="display: none;" class="mb-1 flex items-center justify-center lg:justify-start gap-2">
+                                    <span class="text-gray-400 line-through text-sm font-medium">$<span x-text="getSubtotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                    <span class="bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-full text-[10px] font-bold">Save $<span x-text="discountAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                </div>
 
-                                    <div x-show="useWallet && getWalletDeduction() > 0" style="display: none;" class="text-[11px] font-bold text-indigo-500 mt-1 flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0-2.08.402-2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        -$<span x-text="getWalletDeduction().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span> from account balance
+                                <div class="flex items-center justify-center lg:justify-start gap-3">
+                                    <span class="text-5xl font-black text-gray-900 leading-none">$<span x-text="getTotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                    <div x-show="useWallet && getWalletDeduction() > 0" style="display: none;" class="bg-indigo-50 text-indigo-600 border border-indigo-100 px-2 py-1 rounded-lg">
+                                        <p class="text-[9px] font-bold uppercase tracking-widest whitespace-nowrap">From Balance: <span class="text-gray-900">-$<span x-text="getWalletDeduction().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span></p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Coupon Input for Simple View -->
-                            <div class="w-full md:w-1/3 flex flex-col mb-4 md:mb-0">
+                            <div class="flex-1 max-w-xs w-full flex flex-col">
+                                <!-- Coupon Input -->
                                 <div class="flex items-center gap-2 relative">
-                                    <div class="relative w-full">
-                                        <input type="text" x-model="couponCode" @keydown.enter.prevent="applyCoupon()" placeholder="Coupon?" class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl py-3 pl-4 pr-12 focus:ring-indigo-500 focus:border-indigo-500 uppercase text-sm font-medium transition-shadow">
-                                        <button type="button" @click="applyCoupon()" x-show="!couponApplied" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-orange-600 text-white font-bold px-4 rounded-lg flex items-center transition" :class="isChecking ? 'opacity-70 cursor-not-allowed' : ''" :disabled="isChecking">
+                                    <div class="relative flex-1">
+                                        <input type="text" x-model="couponCode" @keydown.enter.prevent="applyCoupon()" placeholder="Coupon code?" class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl py-3.5 pl-4 pr-12 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 uppercase transition-all placeholder:text-gray-400 text-sm">
+                                        <button type="button" @click="applyCoupon()" x-show="!couponApplied" class="absolute right-1.5 top-1.5 bottom-1.5 bg-brand hover:bg-orange-600 text-white font-bold px-4 rounded-xl flex items-center transition shadow-md shadow-orange-600/10" :class="isChecking ? 'opacity-70 cursor-not-allowed' : ''" :disabled="isChecking">
                                             <span x-show="!isChecking" class="text-xs">Apply</span>
-                                            <svg x-show="isChecking" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                            <svg x-show="isChecking" class="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                         </button>
                                     </div>
-                                    <button type="button" x-show="couponApplied" @click="removeCoupon()" style="display:none;" class="bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 p-3 rounded-xl transition shadow-sm" title="Remove">
+                                    <button type="button" x-show="couponApplied" @click="removeCoupon()" style="display:none;" class="bg-red-50 text-red-500 hover:bg-red-100 border border-red-100 p-3.5 rounded-2xl transition" title="Remove Coupon">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
                                 </div>
-                                <div x-show="couponMessage" style="display:none;" class="w-full mt-2 pl-1">
-                                    <p :class="couponError ? 'text-red-500' : 'text-blue-600'" class="text-xs font-medium" x-html="couponMessage"></p>
+                                <div x-show="couponMessage" style="display:none;" class="w-full mt-2">
+                                    <p :class="couponError ? 'text-red-500 bg-red-50' : 'text-blue-600 bg-blue-50'" class="px-3 py-1.5 rounded-lg text-[10px] font-medium flex items-center gap-1.5" x-html="couponMessage"></p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Bottom Row: Form -->
-                        <div class="flex w-full justify-end border-t border-gray-100 pt-6">
+                        <!-- Action Row -->
+                        <div class="bg-gray-50 rounded-3xl p-6 border border-gray-100">
                             @php
                                 $checkoutPrefix = ($type === 'link-building') ? '/client/link-building/' : (preg_match('/^(seo-campaigns|keyword-research|on-page-seo|technical-seo|local-seo|content-seo|seo-audit|monthly-seo|e-commerce-seo)$/', $type) ? '/client/' . $type . '/' : '/client/campaigns/' . $type . '/');
                             @endphp
-                            <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" class="flex flex-col sm:flex-row items-end gap-4 w-full justify-end" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
+                            <form method="POST" :action="'{{ $checkoutPrefix }}' + selectedPackageId + '/checkout'" class="flex flex-col lg:flex-row items-center lg:items-end gap-5" @submit.prevent="if(!paymentMethod && getTotal() > 0) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
                                 @csrf
+                                <input type="hidden" name="coupon_code" :value="couponApplied ? couponCode : ''">
                                 <input type="hidden" name="payment_method" :value="paymentMethod">
                                 <input type="hidden" name="use_wallet" :value="useWallet ? 1 : 0">
-                                <input type="hidden" name="coupon_code" :value="couponApplied ? couponCode : ''">
-                                
-                                <div class="w-full sm:w-40">
-                                    <label for="is_emergency_2" class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Delivery Option</label>
-                                    <select name="is_emergency" id="is_emergency_2" x-model="selectedDelivery" class="block w-full rounded-xl border-gray-200 bg-gray-50 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm py-3 transition-colors">
-                                        <option value="standard" x-text="'Standard' + (getPackageDeliveryDays(selectedPackageId) ? ` (${getPackageDeliveryDays(selectedPackageId)} Days)` : '')"></option>
-                                        <option value="express" x-show="getPackageExpressFee(selectedPackageId) > 0 || getPackageExpressDays(selectedPackageId)" x-text="'Express' + (getPackageExpressDays(selectedPackageId) ? ` (${getPackageExpressDays(selectedPackageId)} Days)` : '') + (getPackageExpressFee(selectedPackageId) > 0 ? ` (+ $${getPackageExpressFee(selectedPackageId)})` : '')"></option>
-                                    </select>
+
+                                <div class="w-full lg:w-32 text-left">
+                                    <label for="is_emergency_2" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Speed</label>
+                                    <div class="relative">
+                                        <select name="is_emergency" id="is_emergency_2" x-model="selectedDelivery" class="block w-full rounded-xl border-gray-200 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-xs py-3 pl-3 transition-all appearance-none cursor-pointer">
+                                            <option value="standard" x-text="'Standard' + (getPackageDeliveryDays(selectedPackageId) ? ` (${getPackageDeliveryDays(selectedPackageId)}d)` : '')"></option>
+                                            <option value="express" x-show="getPackageExpressFee(selectedPackageId) > 0 || getPackageExpressDays(selectedPackageId)" x-text="'Express' + (getPackageExpressDays(selectedPackageId) ? ` (${getPackageExpressDays(selectedPackageId)}d)` : '') + (getPackageExpressFee(selectedPackageId) > 0 ? ` (+$${getPackageExpressFee(selectedPackageId)})` : '')"></option>
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-400">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                <div class="w-full sm:w-48">
-                                    <label for="project_id_2" class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Assign Project</label>
-                                    <select name="project_id" id="project_id_2" class="block w-full rounded-xl border-gray-200 bg-gray-50 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 transition-colors">
-                                        <option value="">None</option>
-                                        @if(auth()->check())
-                                            @foreach(auth()->user()->projects as $project)
-                                                <option value="{{ $project->id }}">{{ $project->name }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
+
+                                <div class="w-full lg:w-44 text-left">
+                                    <label for="project_id_2" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Project</label>
+                                    <div class="relative">
+                                        <select name="project_id" id="project_id_2" class="block w-full rounded-xl border-gray-200 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-xs py-3 pl-3 transition-all appearance-none cursor-pointer">
+                                            <option value="">Personal</option>
+                                            @if(auth()->check())
+                                                @foreach(auth()->user()->projects as $project)
+                                                    <option value="{{ $project->id }}">{{ $project->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-400">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                <button type="submit" class="w-full sm:w-auto bg-brand hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-xl transition duration-300 shadow-md shadow-orange-600/20 active:scale-95 flex items-center justify-center" :disabled="isProcessing" :class="{ 'opacity-75 cursor-wait': isProcessing }">
-                                    <span x-show="!isProcessing">Order Now</span>
+
+                                <button type="submit" class="w-full lg:flex-1 bg-brand hover:bg-orange-600 text-white font-black text-xl py-4 rounded-2xl transition duration-300 transform hover:scale-[1.02] active:scale-95 shadow-xl shadow-orange-600/10 flex items-center justify-center group" :disabled="isProcessing" :class="{ 'opacity-75 cursor-wait': isProcessing }">
+                                    <span x-show="!isProcessing" class="mr-2">Order Now</span>
                                     <span x-show="isProcessing" style="display: none;" class="flex items-center">
-                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                         Processing...
                                     </span>
-                                    <svg x-show="!isProcessing" class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    <svg x-show="!isProcessing" class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                                 </button>
                             </form>
                         </div>
+                    </div>
                     </div>
                 </div>
                 @endif
