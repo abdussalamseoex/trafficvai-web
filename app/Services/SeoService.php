@@ -211,13 +211,13 @@ class SeoService
         if (str_contains($class, 'Service')) {
             // Check if it's under a specific campaign type
             $seoTypes = ['seo-campaigns', 'keyword-research', 'on-page-seo', 'technical-seo', 'local-seo', 'content-seo', 'seo-audit', 'monthly-seo', 'e-commerce-seo'];
-            if (in_array($entity->type, $seoTypes)) {
-                return url($entity->type . '/' . $slug);
+            if (in_array($entity->service_type, $seoTypes)) {
+                return url($entity->service_type . '/' . $slug);
             }
-            if ($entity->type === 'link-building') {
+            if ($entity->service_type === 'link-building') {
                 return url('link-building/' . $slug);
             }
-            if ($entity->type === 'traffic') {
+            if ($entity->service_type === 'traffic') {
                 return url('website-traffic/' . $slug);
             }
             return url('services/' . $slug);
