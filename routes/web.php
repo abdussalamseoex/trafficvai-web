@@ -4,6 +4,19 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+Route::get('/fix-favicon', function () {
+    $favicon = \App\Models\Setting::get('site_favicon');
+    if ($favicon) {
+        $source = storage_path('app/public/' . str_replace('storage/', '', $favicon));
+        if (file_exists($source)) {
+            copy($source, public_path('favicon.ico'));
+            return "Favicon successfully placed in public folder! The 404 error is fixed.";
+        }
+        return "Favicon source file not found.";
+    }
+    return "No custom favicon setting found.";
+});
+
 Route::get('/favicon.ico', function () {
     $favicon = \App\Models\Setting::get('site_favicon');
     if ($favicon) {
