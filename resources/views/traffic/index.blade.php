@@ -13,9 +13,9 @@
 
         <!-- Hero Section -->
         <x-page-hero
-            badge="Website Traffic Packages"
-            title="Skyrocket Your Traffic"
-            description="Result-driven website traffic packages tailored for your analytics goals. Real visitors, measurable impact."
+            :badge="$page->hero_badge ?? 'Website Traffic Packages'"
+            :title="$page->title ?? 'Skyrocket Your Traffic'"
+            :description="$page->hero_description ?? 'Result-driven website traffic packages tailored for your analytics goals. Real visitors, measurable impact.'"
             cta-label="Browse Packages"
             cta-scroll="traffic-list"
         />

@@ -13,9 +13,9 @@
 
         <!-- Hero Section -->
         <x-page-hero
-            badge="Link Building & SEO Services"
-            title="Skyrocket Your Rankings"
-            description="Choose from our result-driven SEO link building and guest posting packages tailored for your specific needs."
+            :badge="$page->hero_badge ?? 'Link Building & SEO Services'"
+            :title="$page->title ?? 'Skyrocket Your Rankings'"
+            :description="$page->hero_description ?? 'Choose from our result-driven SEO link building and guest posting packages tailored for your specific needs.'"
             cta-label="Browse All Services"
             cta-scroll="services-list"
         />

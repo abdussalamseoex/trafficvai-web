@@ -13,9 +13,9 @@
 
         <!-- Hero Section -->
         <x-page-hero
-            badge="Curated Guest Post Marketplace"
-            title="Browse &amp; Buy Guest Posts"
-            description="Secure high-quality backlinks from real websites with genuine traffic. Browse our curated list of partner domains and instantly order placement."
+            :badge="$page->hero_badge ?? 'Curated Guest Post Marketplace'"
+            :title="$page->title ?? 'Browse & Buy Guest Posts'"
+            :description="$page->hero_description ?? 'Secure high-quality backlinks from real websites with genuine traffic. Browse our curated list of partner domains and instantly order placement.'"
             cta-label="Explore Inventory"
             cta-scroll="gp-inventory"
         />

@@ -9,6 +9,7 @@ class ServiceController extends Controller
 {
     public function index()
     {
+        $page = \App\Models\Page::where('slug', 'services')->first();
         $categories = \App\Models\Category::where('is_active', true)
             ->where('type', 'service')
             ->with(['services' => function ($query) {
@@ -23,7 +24,7 @@ class ServiceController extends Controller
             ->with('packages')
             ->get();
 
-        return view('services.index', compact('categories', 'uncategorizedServices'));
+        return view('services.index', compact('categories', 'uncategorizedServices', 'page'));
     }
 
     public function category(\App\Models\Category $category)

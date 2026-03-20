@@ -9,6 +9,7 @@ class WebsiteTrafficController extends Controller
 {
     public function index()
     {
+        $page = \App\Models\Page::where('slug', 'website-traffic')->first();
         $categories = \App\Models\Category::where('is_active', true)
             ->with(['services' => function ($query) {
             $query->where('is_active', true)->where('service_type', 'traffic')->with('packages');
@@ -21,6 +22,6 @@ class WebsiteTrafficController extends Controller
             ->with('packages')
             ->get();
 
-        return view('traffic.index', compact('categories', 'uncategorizedServices'));
+        return view('traffic.index', compact('categories', 'uncategorizedServices', 'page'));
     }
 }

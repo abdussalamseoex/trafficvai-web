@@ -9,6 +9,7 @@ class GuestPostController extends Controller
 {
     public function index()
     {
+        $page = \App\Models\Page::where('slug', 'guest-posts')->first();
         $sites = \App\Models\GuestPostSite::where('is_active', true)->get();
         $gateways = \App\Services\Payments\PaymentGatewayManager::getEnabledGateways();
         $activeCoupons = \App\Models\Coupon::where('status', true)
@@ -20,7 +21,7 @@ class GuestPostController extends Controller
             $query->whereNull('max_uses')->orWhereColumn('used_count', '<', 'max_uses');
         })
             ->get();
-        return view('guest_posts.index', compact('sites', 'gateways', 'activeCoupons'));
+        return view('guest_posts.index', compact('sites', 'gateways', 'activeCoupons', 'page'));
     }
 
     public function checkout(Request $request, \App\Models\GuestPostSite $guestPost)

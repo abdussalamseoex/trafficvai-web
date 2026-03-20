@@ -15,6 +15,7 @@ class CampaignController extends Controller
 
     public function index($type)
     {
+        $page = \App\Models\Page::where('slug', $type)->first();
         $types = [$type];
         if ($type === 'seo-campaigns') {
             $types = [
@@ -38,7 +39,7 @@ class CampaignController extends Controller
 
         $title = $this->getTitle($type);
 
-        return view('campaigns.index', compact('categories', 'uncategorizedServices', 'type', 'title'));
+        return view('campaigns.index', compact('categories', 'uncategorizedServices', 'type', 'title', 'page'));
     }
 
     public function show($type, \App\Models\Service $service)

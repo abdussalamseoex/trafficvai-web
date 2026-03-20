@@ -10,16 +10,17 @@
         <!-- Navigation -->
         <x-frontend-header />
 
+        <!-- Hero Section -->
+        <x-page-hero
+            :badge="$page->hero_badge ?? 'Premium Solutions'"
+            :title="$page->title ?? ($title . ' Services')"
+            :description="$page->hero_description ?? ('Choose from our result-driven ' . strtolower($title) . ' packages tailored for your specific needs.')"
+            cta-label="Browse Packages"
+            cta-scroll="campaign-list"
+        />
+
         <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div class="text-center mb-16">
-                <h1 class="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl mb-4">
-                    {{ $title }} Services
-                </h1>
-                <p class="max-w-2xl mx-auto text-xl text-gray-500">
-                    Choose from our result-driven {{ strtolower($title) }} packages tailored for your specific needs.
-                </p>
-            </div>
+        <main id="campaign-list" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             
             @foreach ($categories as $category)
                 @if($category->services->count() > 0)

@@ -142,6 +142,10 @@ class UpdateService
             Artisan::call('db:seed', ['--class' => 'SiteFaqSeeder', '--force' => true]);
             $output .= Artisan::output();
 
+            $output .= "\n--- Seeding Service Pages ---\n";
+            Artisan::call('db:seed', ['--class' => 'ServicePageSeeder', '--force' => true]);
+            $output .= Artisan::output();
+
             // 4. Clear all caches (do NOT re-cache routes as this causes issues when new routes are added)
             $output .= "\n--- Refreshing Cache ---\n";
             Artisan::call('optimize:clear');
