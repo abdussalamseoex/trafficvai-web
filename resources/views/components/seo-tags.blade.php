@@ -15,7 +15,13 @@
 <meta name="robots" content="{{ $seo['robots'] }}">
 
 @if($faviconUrl)
-<link rel="icon" href="{{ $faviconUrl }}?v={{ file_exists(public_path(str_replace('storage/', '', $favicon))) ? filemtime(public_path(str_replace('storage/', '', $favicon))) : '1' }}">
+<link rel="icon" href="{{ $faviconUrl }}">
+<link rel="apple-touch-icon" href="{{ $faviconUrl }}">
+<link rel="shortcut icon" href="{{ $faviconUrl }}">
+@else
+<link rel="icon" href="{{ asset('favicon.ico') }}">
+<link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
+<link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 @endif
 
 <!-- Open Graph -->
