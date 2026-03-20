@@ -35,7 +35,7 @@
                                     Apply Update Now
                                 </button>
                             </form>
-                        @else
+                        @elseif(Route::has('admin.updates.sync'))
                             <form action="{{ route('admin.updates.sync') }}" method="POST" onsubmit="return confirm('This will refresh the database records and clear system cache. Continue?')">
                                 @csrf
                                 <button type="submit" class="inline-flex items-center px-6 py-3 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition border border-indigo-100">
