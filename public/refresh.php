@@ -14,6 +14,17 @@ $response = $kernel->handle(
 echo "<h1>Refreshing System...</h1>";
 
 try {
+    echo "--- Code Sync ---<br>";
+    echo "Fetching latest code... ";
+    $fetch = shell_exec("git fetch 2>&1");
+    echo "<pre>$fetch</pre>";
+
+    $currentBranch = trim(shell_exec("git rev-parse --abbrev-ref HEAD 2>&1") ?: 'main');
+    echo "Resetting to origin/$currentBranch... ";
+    $reset = shell_exec("git reset --hard origin/$currentBranch 2>&1");
+    echo "<pre>$reset</pre>";
+
+    echo "<br>--- Cache Refresh ---<br>";
     echo "Clearing Route Cache... ";
     Artisan::call('route:clear');
     echo "Done.<br>";
@@ -34,8 +45,8 @@ try {
     Artisan::call('optimize:clear');
     echo "Done.<br>";
 
-    echo "<br><h2 style='color: green;'>Success! All caches cleared.</h2>";
-    echo "<p><a href='/admin/updates'>Go back to System Updates</a></p>";
+    echo "<br><h2 style='color: green;'>Success! System refreshed and updated.</h2>";
+    echo "<p><a href='/admin/updates'>Go to System Updates</a> to run Force Sync if needed.</p>";
 } catch (\Exception $e) {
     echo "<br><h2 style='color: red;'>Error: " . $e->getMessage() . "</h2>";
 }
