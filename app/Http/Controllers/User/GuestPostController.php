@@ -83,7 +83,7 @@ class GuestPostController extends Controller
             });
         }
 
-        $sites = $query->latest()->paginate(24)->withQueryString();
+        $sites = $query->latest()->paginate(10)->withQueryString();
 
         $activeCoupons = \App\Models\Coupon::where('status', true)
             ->where('is_global', true)

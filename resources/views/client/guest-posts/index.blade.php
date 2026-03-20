@@ -272,7 +272,8 @@
                                     <span class="price-convert" data-base-price="{{ $site->price }}">${{ number_format($site->price) }}</span>
                                 </td>
                                 <td class="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('client.guest_posts.show', $site) }}" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl transition duration-150 shadow-sm">
+                                    @php $domainName = str_replace(['http://', 'https://', 'www.', '/'], '', $site->url); @endphp
+                                    <a href="{{ route('client.guest_posts.show', $domainName) }}" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl transition duration-150 shadow-sm">
                                         View Details
                                     </a>
                                 </td>
