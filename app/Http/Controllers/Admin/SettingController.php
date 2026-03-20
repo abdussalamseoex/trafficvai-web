@@ -29,9 +29,16 @@ class SettingController extends Controller
         if ($request->hasFile('site_favicon')) {
             $path = $request->file('site_favicon')->store('settings', 'public');
             Setting::updateOrCreate(
-            ['key' => 'site_favicon'],
-            ['value' => 'storage/' . $path]
+                ['key' => 'site_favicon'],
+                ['value' => 'storage/' . $path]
             );
+            
+            // Auto-clone to public/favicon.ico to prevent server 404 intercepts
+            try {
+                copy(storage_path('app/public/' . $path), public_path('favicon.ico'));
+            } catch (\Exception $e) {
+                // Silently ignore if permissions fail
+            }
         }
 
         // Initialize empty arrays for dynamic lists if they were completely removed in the UI
