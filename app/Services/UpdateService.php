@@ -190,4 +190,46 @@ class UpdateService
         $output = shell_exec($command . " 2>&1");
         return trim($output);
     }
+
+    /**
+     * Sync system database and cache without pulling new code.
+     * 
+     * @return array
+     */
+    public function syncSystem()
+    {
+        $log = UpdateLog::create([
+            'status' => 'pending',
+            'executed_at' => now(),
+        ]);
+
+        $output = "--- Manual System Sync Started ---\n";
+        
+        try {
+            $output .= "\n--- Running Migrations ---\n";
+            Artisan::call('migrate', ['--force' => true]);
+            $output .= Artisan::output();
+
+            $output .= "\n--- Seeding Service Pages ---\n";
+            Artisan::call('db:seed', ['--class' => 'ServicePageSeeder', '--force' => true]);
+            $output .= Artisan::output();
+
+            $output .= "\n--- Refreshing Cache ---\n";
+            Artisan::call('optimize:clear');
+            $output .= Artisan::output();
+
+            $log->update([
+                'status' => 'success',
+                'output' => $output,
+                'version' => substr($this->executeCommand('git rev-parse HEAD'), 0, 7),
+            ]);
+
+            return ['success' => true, 'output' => $output];
+
+        } catch (\Exception $e) {
+            $output .= "\n--- ERROR ---\n" . $e->getMessage();
+            $log->update(['status' => 'error', 'output' => $output]);
+            return ['success' => false, 'error' => $e->getMessage(), 'output' => $output];
+        }
+    }
 }

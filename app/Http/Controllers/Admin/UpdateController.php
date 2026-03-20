@@ -60,6 +60,17 @@ class UpdateController extends Controller
         return redirect()->route('admin.updates.index')->with('error', 'System update failed. Please check the logs.');
     }
 
+    public function sync(Request $request)
+    {
+        $result = $this->updateService->syncSystem();
+
+        if ($result['success']) {
+            return redirect()->route('admin.updates.index')->with('success', 'System synced successfully! All category pages and FAQs should now be visible.');
+        }
+
+        return redirect()->route('admin.updates.index')->with('error', 'System sync failed. Please check the logs.');
+    }
+
     public function showLog(UpdateLog $log)
     {
         return view('admin.updates.log', compact('log'));
