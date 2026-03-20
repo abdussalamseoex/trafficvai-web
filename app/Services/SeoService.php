@@ -22,7 +22,7 @@ class SeoService
             'title' => $this->getTitle($entity, $seo, $global),
             'description' => $this->getDescription($entity, $seo),
             'keywords' => $seo->meta_keywords ?? null,
-            'canonical' => $seo->canonical_url ?? 'https://trafficvai.com' . (Request::getPathInfo() === '/' ? '' : Request::getPathInfo()),
+            'canonical' => $seo->canonical_url ?? $this->getEntityUrl($entity),
             'robots' => $seo->robots_directive ?? 'index,follow',
             'og' => [
                 'title' => $seo->og_title ?? $this->getTitle($entity, $seo, $global),
@@ -141,29 +141,27 @@ class SeoService
         ];
 
         $urls = [];
+        $processedUrls = [];
 
         foreach ($entities as $modelClass) {
             $items = $modelClass::with('seoMeta')->get();
             foreach ($items as $item) {
                 // Explicitly exclude noindex pages
                 $seo = $item->seoMeta;
-                if ($seo && (str_contains($seo->robots_directive, 'noindex') || $seo->robots_index == 0)) {
+                if ($seo && (str_contains($seo->robots_directive ?? '', 'noindex') || ($seo->robots_index ?? 1) == 0)) {
                     continue;
                 }
 
-                $prefix = '';
-                if ($modelClass === \App\Models\Post::class)
-                    $prefix = 'blog/';
-                elseif ($modelClass === \App\Models\Service::class)
-                    $prefix = 'services/';
-                elseif ($modelClass === \App\Models\Category::class)
-                    $prefix = 'services/category/';
-                elseif ($modelClass === \App\Models\Page::class)
-                    $prefix = 'page/';
-                // for raw pages at root you might adjust prefix if needed
+                $loc = $this->getEntityUrl($item);
+                
+                // Avoid duplicates in sitemap
+                if (in_array($loc, $processedUrls)) {
+                    continue;
+                }
 
+                $processedUrls[] = $loc;
                 $urls[] = [
-                    'loc' => url($prefix . $item->slug),
+                    'loc' => $loc,
                     'lastmod' => $item->updated_at->toAtomString(),
                     'changefreq' => 'weekly',
                     'priority' => 0.8
@@ -171,6 +169,73 @@ class SeoService
             }
         }
 
+        // Add the homepage if not present
+        if (!in_array(url('/'), $processedUrls)) {
+            array_unshift($urls, [
+                'loc' => url('/'),
+                'lastmod' => now()->toAtomString(),
+                'changefreq' => 'daily',
+                'priority' => 1.0
+            ]);
+        }
+
         return $urls;
+    }
+
+    /**
+     * Get the canonical/public URL for an entity.
+     */
+    public function getEntityUrl($entity)
+    {
+        if (!$entity) {
+            return url('/') . (Request::getPathInfo() === '/' ? '' : Request::getPathInfo());
+        }
+
+        $slug = $entity->slug;
+        $class = get_class($entity);
+
+        // System Pages (The 13 indices)
+        $systemSlugs = ['services', 'guest-posts', 'website-traffic', 'link-building', 'seo-campaigns', 'keyword-research', 'on-page-seo', 'technical-seo', 'local-seo', 'content-seo', 'seo-audit', 'monthly-seo', 'e-commerce-seo'];
+        
+        if (in_array($slug, $systemSlugs)) {
+            if ($slug === 'website-traffic') return url('website-traffic');
+            if ($slug === 'guest-posts') return url('guest-posts');
+            if ($slug === 'link-building') return url('link-building');
+            return url($slug);
+        }
+
+        if (str_contains($class, 'Post')) {
+            return url('blog/' . $slug);
+        }
+        
+        if (str_contains($class, 'Service')) {
+            // Check if it's under a specific campaign type
+            $seoTypes = ['seo-campaigns', 'keyword-research', 'on-page-seo', 'technical-seo', 'local-seo', 'content-seo', 'seo-audit', 'monthly-seo', 'e-commerce-seo'];
+            if (in_array($entity->type, $seoTypes)) {
+                return url($entity->type . '/' . $slug);
+            }
+            if ($entity->type === 'link-building') {
+                return url('link-building/' . $slug);
+            }
+            if ($entity->type === 'traffic') {
+                return url('website-traffic/' . $slug);
+            }
+            return url('services/' . $slug);
+        }
+
+        if (str_contains($class, 'Category')) {
+            return url('services/category/' . $slug);
+        }
+
+        if (str_contains($class, 'Page')) {
+            // Standard static pages
+            $rootPages = ['contact', 'about', 'privacy-policy', 'terms', 'refund-policy'];
+            if (in_array($slug, $rootPages)) {
+                return url($slug);
+            }
+            return url('page/' . $slug);
+        }
+
+        return url($slug);
     }
 }

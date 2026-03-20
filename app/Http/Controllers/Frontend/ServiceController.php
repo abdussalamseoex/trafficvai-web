@@ -42,6 +42,15 @@ class ServiceController extends Controller
     public function show(\App\Models\Service $service)
     {
         abort_unless($service->is_active, 404);
+
+        // Redirect to canonical URL if accessed via /services/ but belongs to a specialized campaign type
+        $seoService = app(\App\Services\SeoService::class);
+        $canonicalUrl = $seoService->getEntityUrl($service);
+        $currentUrl = request()->url();
+        if ($currentUrl !== $canonicalUrl && str_contains(request()->getPathInfo(), '/services/')) {
+            return redirect($canonicalUrl, 301);
+        }
+
         $service->load(['packages', 'addons']);
 
         $activeCoupons = \App\Models\Coupon::where('status', true)
