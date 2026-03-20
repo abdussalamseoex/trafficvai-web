@@ -27,7 +27,17 @@ class SeoManagerController extends Controller
 
     public function pages()
     {
-        $items = Page::with('seoMeta')->paginate(15);
+        // Exclude system pages from the general list to keep it clean
+        $systemSlugs = ['services', 'guest-posts', 'website-traffic', 'link-building', 'seo-campaigns', 'keyword-research', 'on-page-seo', 'technical-seo', 'local-seo', 'content-seo', 'seo-audit', 'monthly-seo', 'e-commerce-seo'];
+        $items = Page::whereNotIn('slug', $systemSlugs)->with('seoMeta')->paginate(15);
+        $type = 'Page';
+        return view('admin.seo.list', compact('items', 'type'));
+    }
+
+    public function systemPages()
+    {
+        $systemSlugs = ['services', 'guest-posts', 'website-traffic', 'link-building', 'seo-campaigns', 'keyword-research', 'on-page-seo', 'technical-seo', 'local-seo', 'content-seo', 'seo-audit', 'monthly-seo', 'e-commerce-seo'];
+        $items = Page::whereIn('slug', $systemSlugs)->with('seoMeta')->paginate(15);
         $type = 'Page';
         return view('admin.seo.list', compact('items', 'type'));
     }

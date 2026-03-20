@@ -284,6 +284,7 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
                     Route::get('/services', [\App\Http\Controllers\Admin\SeoManagerController::class , 'services'])->name('services');
                     Route::get('/posts', [\App\Http\Controllers\Admin\SeoManagerController::class , 'posts'])->name('posts');
                     Route::get('/categories', [\App\Http\Controllers\Admin\SeoManagerController::class , 'categories'])->name('categories');
+                    Route::get('/category-pages', [\App\Http\Controllers\Admin\SeoManagerController::class , 'systemPages'])->name('system-pages');
 
                 Route::get('/edit/{type}/{id}', [\App\Http\Controllers\Admin\SeoManagerController::class , 'edit'])->name('edit');
                 Route::post('/update/{type}/{id}', [\App\Http\Controllers\Admin\SeoManagerController::class , 'update'])->name('update');
