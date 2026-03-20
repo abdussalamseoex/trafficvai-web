@@ -50,7 +50,7 @@
             </div>
             @endif
             
-            <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100">
+            <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100" x-data="{ limit: 10 }">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -65,7 +65,7 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse ($sites as $site)
-                            <tr class="hover:bg-gray-50 transition duration-150">
+                            <tr x-show="{{ $loop->index }} < limit" x-cloak class="hover:bg-gray-50 transition duration-150">
                                 <td class="px-6 py-6 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="h-10 w-10 flex-shrink-0 bg-orange-100 rounded-full flex items-center justify-center">
@@ -105,7 +105,8 @@
                                     <span class="price-convert" data-base-price="{{ $site->price }}">${{ number_format($site->price) }}</span>
                                 </td>
                                 <td class="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('client.guest_posts.show', $site->id) }}" class="inline-block bg-brand text-white hover:bg-orange-600 px-8 py-2.5 rounded-xl font-bold transition duration-150 whitespace-nowrap shadow-sm">
+                                    @php $domainName = str_replace(['http://', 'https://', 'www.', '/'], '', $site->url); @endphp
+                                    <a href="{{ route('client.guest_posts.show', $domainName) }}" class="inline-block bg-brand text-white hover:bg-orange-600 px-8 py-2.5 rounded-xl font-bold transition duration-150 whitespace-nowrap shadow-sm">
                                         Buy Post
                                     </a>
                                 </td>
@@ -122,6 +123,14 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Load More Button -->
+                <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-center" x-show="limit < {{ count($sites) }}" x-cloak>
+                    <button @click="limit += 10" type="button" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition duration-150 flex items-center">
+                        Load More Sites
+                        <svg class="ml-2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
                 </div>
             </div>
             <div class="mt-8 text-center text-gray-500 text-sm">

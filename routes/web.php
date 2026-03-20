@@ -3,6 +3,15 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+Route::bind('guestPost', function ($value) {
+    if (is_numeric($value)) {
+        return \App\Models\GuestPostSite::findOrFail($value);
+    }
+    return \App\Models\GuestPostSite::where('url', 'LIKE', "%{$value}%")->get()->first(function($site) use ($value) {
+        return str_replace(['http://', 'https://', 'www.', '/'], '', $site->url) === $value;
+    }) ?? abort(404);
+});
+
 // V1.0.2 - DEFINITIVE ROUTE FIX (Closing Admin group properly)
 
 Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'index'])->name('setup.index');
