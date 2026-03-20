@@ -24,6 +24,9 @@
 <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 @endif
 
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#ffffff">
+
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{ $seo['og']['title'] }}">

@@ -2,6 +2,50 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+
+Route::get('/favicon.ico', function () {
+    $favicon = \App\Models\Setting::get('site_favicon');
+    if ($favicon) {
+        $path = str_replace('storage/', '', $favicon);
+        if (Storage::disk('public')->exists($path)) {
+            return response()->make(Storage::disk('public')->get($path), 200, [
+                'Content-Type' => Storage::disk('public')->mimeType($path),
+                'Cache-Control' => 'public, max-age=86400'
+            ]);
+        }
+    }
+    abort(404);
+});
+
+Route::get('/site.webmanifest', function () {
+    $favicon = \App\Models\Setting::get('site_favicon');
+    $iconUrl = $favicon ? Storage::disk('public')->url(str_replace('storage/', '', $favicon)) : '';
+    
+    $manifest = [
+        'name' => \App\Models\Setting::get('site_name', config('app.name')),
+        'short_name' => \App\Models\Setting::get('site_name', config('app.name')),
+        'start_url' => '/',
+        'display' => 'standalone',
+        'background_color' => '#ffffff',
+        'theme_color' => '#ffffff',
+        'icons' => [
+            [
+                'src' => $iconUrl,
+                'sizes' => '192x192',
+                'type' => 'image/png',
+                'purpose' => 'any maskable'
+            ],
+            [
+                'src' => $iconUrl,
+                'sizes' => '512x512',
+                'type' => 'image/png',
+                'purpose' => 'any maskable'
+            ]
+        ]
+    ];
+    return response()->json($manifest);
+});
 
 Route::bind('guestPost', function ($value) {
     if (is_numeric($value)) {
