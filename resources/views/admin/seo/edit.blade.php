@@ -131,7 +131,7 @@
             <div x-show="tab === 'schema'" class="space-y-6" style="display: none;">
                 <div>
                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">JSON-LD Schema Markup</label>
-                    <textarea name="schema_json" rows="12" placeholder='{ "@context": "https://schema.org", "@type": "WebPage", ... }' class="w-full bg-gray-900 border-gray-800 rounded-xl font-mono text-xs text-green-400 p-6 leading-relaxed">{{ old('schema_json', $seo->schema_json) }}</textarea>
+                    <textarea name="schema_json" rows="12" placeholder='{ "context": "https://schema.org", "type": "WebPage", ... }' class="w-full bg-gray-900 border-gray-800 rounded-xl font-mono text-xs text-green-400 p-6 leading-relaxed">{{ old('schema_json', $seo->schema_json) }}</textarea>
                     <p class="text-xs text-gray-400 mt-2 italic">Leave empty to use auto-generated schema based on content type.</p>
                 </div>
             </div>
