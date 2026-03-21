@@ -21,18 +21,10 @@ class HomeSectionController extends Controller
 
     public function update(Request $request, HomeSection $homeSection)
     {
-        // Validation logic will vary based on section key. 
-        // For now, we'll allow all keys in the content array to be updated.
-        $content = $homeSection->content;
+        $content = $homeSection->content ?? [];
 
+        // 1. Process string/array inputs
         foreach ($request->input('content', []) as $key => $value) {
-            // Handle file uploads if any (e.g., image replacement)
-            if ($request->hasFile("content.$key")) {
-                $file = $request->file("content.$key");
-                $path = $file->store('home-sections', 'public');
-                $value = $path;
-            }
-
             // If the field was an array (from JSON textarea), decode it back
             if (isset($content[$key]) && (is_array($content[$key]) || is_object($content[$key])) && is_string($value)) {
                 $decoded = json_decode($value, true);
@@ -40,8 +32,32 @@ class HomeSectionController extends Controller
                     $value = $decoded;
                 }
             }
-
             $content[$key] = $value;
+        }
+
+        // 2. Process file inputs
+        $files = $request->file('content');
+        if (is_array($files)) {
+            foreach ($files as $key => $file) {
+                if ($file instanceof \Illuminate\Http\UploadedFile) {
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = time() . '_' . \Illuminate\Support\Str::slug($originalName) . '.' . $extension;
+                    
+                    $path = $file->storeAs('uploads/media', $filename, 'public');
+                    
+                    \App\Models\Media::create([
+                        'filename' => $filename,
+                        'path' => $path,
+                        'disk' => 'public',
+                        'size' => $file->getSize(),
+                        'mime_type' => $file->getMimeType(),
+                        'title' => $originalName,
+                    ]);
+
+                    $content[$key] = 'storage/' . $path;
+                }
+            }
         }
 
         $homeSection->update([
