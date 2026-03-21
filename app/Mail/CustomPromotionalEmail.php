@@ -31,6 +31,7 @@ class CustomPromotionalEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new \Illuminate\Mail\Mailables\Address(config('mail.from.address', 'hello@trafficvai.com'), config('mail.from.name', 'TrafficVai')),
             subject: $this->subjectLine,
         );
     }
