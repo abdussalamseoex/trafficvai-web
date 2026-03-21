@@ -114,7 +114,7 @@
         document.getElementById('send-test-btn').addEventListener('click', async function() {
             tinymce.triggerSave();
             const subject = document.getElementById('subject').value;
-            const message = document.getElementById('message').value;
+            const message = tinymce.get('message') ? tinymce.get('message').getContent() : document.getElementById('message').value;
 
             if (!subject || !message) {
                 alert('Please fill subject and message first.');
@@ -130,6 +130,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({ subject, message })
@@ -139,11 +140,15 @@
                 if (response.ok) {
                     alert(data.message);
                 } else {
-                    alert('Error: ' + data.message);
+                    if (response.status === 422) {
+                         alert('Validation Error: ' + JSON.stringify(data.errors));
+                    } else {
+                         alert('Error: ' + data.message);
+                    }
                 }
             } catch (e) {
                 console.error(e);
-                alert('An error occurred while sending the test email.');
+                alert('An error occurred while sending the test email. Please check the network log.');
             } finally {
                 this.disabled = false;
                 this.innerText = originalText;

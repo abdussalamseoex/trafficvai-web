@@ -157,6 +157,10 @@ class UpdateService
             Artisan::call('view:clear');
             $output .= Artisan::output();
 
+            $output .= "\n--- Restarting Queue Workers ---\n";
+            Artisan::call('queue:restart');
+            $output .= Artisan::output();
+
             $log->update([
                 'status' => 'success',
                 'output' => $output,
@@ -216,6 +220,10 @@ class UpdateService
 
             $output .= "\n--- Refreshing Cache ---\n";
             Artisan::call('optimize:clear');
+            $output .= Artisan::output();
+
+            $output .= "\n--- Restarting Queue Workers ---\n";
+            Artisan::call('queue:restart');
             $output .= Artisan::output();
 
             $log->update([
