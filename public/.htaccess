@@ -18,6 +18,10 @@
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
+    # Remove /public/ from URL if accessed directly
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /public/([^\ ]*)
+    RewriteRule ^ https://trafficvai.com/%1 [L,R=301]
+
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
