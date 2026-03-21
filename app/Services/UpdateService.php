@@ -19,7 +19,7 @@ class UpdateService
             }
 
             // First, fetch the latest from the remote
-            $this->executeCommand('git fetch');
+            $this->executeCommand('git fetch origin');
 
             // Compare local branch with remote
             $local = $this->executeCommand('git rev-parse HEAD');

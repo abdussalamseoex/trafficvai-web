@@ -35,12 +35,22 @@
                                     Apply Update Now
                                 </button>
                             </form>
-                        @elseif(Route::has('admin.updates.sync'))
+                        @endif
+
+                        <form action="{{ route('admin.updates.apply') }}" method="POST" onsubmit="return confirm('Use this to forcefully pull the latest code from GitHub if the normal check is failing. Proceed?')">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center px-6 py-3 bg-red-50 text-red-700 font-bold rounded-xl hover:bg-red-100 transition border border-red-100" title="Click this if your updates are not showing up">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                Force Pull Latest Code
+                            </button>
+                        </form>
+
+                        @if(Route::has('admin.updates.sync'))
                             <form action="{{ route('admin.updates.sync') }}" method="POST" onsubmit="return confirm('This will refresh the database records and clear system cache. Continue?')">
                                 @csrf
                                 <button type="submit" class="inline-flex items-center px-6 py-3 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition border border-indigo-100">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                    Force Sync System
+                                    Force Sync Defaults
                                 </button>
                             </form>
                         @endif

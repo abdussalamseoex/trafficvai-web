@@ -60,6 +60,14 @@ class EmailCampaignController extends Controller
 
         $campaign->update(['status' => 'completed_queueing']);
 
+        // Spawn a background queue worker for shared hosting without Supervisor/Cron
+        $basePath = base_path();
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            pclose(popen("start /B php {$basePath}\artisan queue:work --stop-when-empty", "r"));
+        } else {
+            exec("nohup php {$basePath}/artisan queue:work --stop-when-empty > /dev/null 2>&1 &");
+        }
+
         return redirect()->route('admin.bulk-emails.index')->with('success', count($validEmails) . ' promotional emails have been queued for sending.');
     }
 
