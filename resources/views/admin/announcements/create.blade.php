@@ -1,8 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <!-- Trix Editor -->
-        <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
-        <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
+        <!-- TinyMCE Editor -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"></script>
         
         <div class="flex items-center space-x-4">
             <a href="{{ route('admin.announcements.index') }}" class="text-gray-400 hover:text-gray-600">
@@ -31,8 +30,7 @@
                         <!-- Message -->
                         <div class="mb-6">
                             <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message Content</label>
-                            <input id="message" type="hidden" name="message" value="{{ old('message') }}">
-                            <trix-editor input="message" class="trix-content bg-white border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 rounded-md xl:min-h-[300px]"></trix-editor>
+                            <textarea id="message" name="message" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('message') }}</textarea>
                             <p class="mt-1 text-xs text-gray-500">Use the rich text editor to format your announcement or email beautifully.</p>
                             @error('message') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
@@ -99,7 +97,22 @@
     </div>
 
     <script>
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '#message',
+            height: 400,
+            plugins: 'advlist autolink lists link image charmap preview anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons template',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | removeformat code',
+            menubar: true,
+            setup: function (editor) {
+                editor.on('change', function () {
+                    tinymce.triggerSave();
+                });
+            }
+        });
+
         document.getElementById('send-test-btn').addEventListener('click', async function() {
+            tinymce.triggerSave();
             const subject = document.getElementById('subject').value;
             const message = document.getElementById('message').value;
 
