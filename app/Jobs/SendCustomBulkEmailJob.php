@@ -38,6 +38,10 @@ class SendCustomBulkEmailJob implements ShouldQueue
         if (!$campaign) return;
 
         try {
+            // Anti-spam delay between emails during queue processing to prevent SMTP kicks
+            // This happens sequentially in the worker rather than delayed-dispatching
+            sleep(rand(2, 5));
+
             // Apply Dynamic DB SMTP settings before sending inside the job constraints
             app(\App\Services\NotificationService::class)->applyMailConfig();
             

@@ -51,11 +51,9 @@ class EmailCampaignController extends Controller
             'status' => 'processing',
         ]);
 
-        // Dispatch Jobs with randomized delay to prevent spam filters
-        $delaySeconds = 0;
+        // Dispatch Jobs immediately (the delay will happen inside the job's execution layer)
         foreach ($validEmails as $email) {
-            SendCustomBulkEmailJob::dispatch($email, $campaign->id)->delay(now()->addSeconds($delaySeconds));
-            $delaySeconds += rand(2, 6); // Add 2 to 6 seconds delay between each email
+            SendCustomBulkEmailJob::dispatch($email, $campaign->id);
         }
 
         $campaign->update(['status' => 'completed_queueing']);
