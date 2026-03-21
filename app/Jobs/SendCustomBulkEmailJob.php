@@ -38,6 +38,9 @@ class SendCustomBulkEmailJob implements ShouldQueue
         if (!$campaign) return;
 
         try {
+            // Apply Dynamic DB SMTP settings before sending inside the job constraints
+            app(\App\Services\NotificationService::class)->applyMailConfig();
+            
             Mail::to($this->email)->send(new CustomPromotionalEmail($campaign->subject, $campaign->message));
             
             // Increment the sent count safely tracking progress

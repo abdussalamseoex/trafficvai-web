@@ -81,6 +81,9 @@ class EmailCampaignController extends Controller
         $testEmail = auth()->user()->email;
 
         try {
+            // Apply Dynamic DB SMTP settings before sending
+            app(\App\Services\NotificationService::class)->applyMailConfig();
+
             Mail::to($testEmail)->send(new CustomPromotionalEmail($request->subject, $request->message));
             return response()->json(['message' => 'Test email sent successfully to ' . $testEmail]);
         } catch (\Exception $e) {
