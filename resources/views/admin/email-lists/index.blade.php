@@ -1,7 +1,9 @@
-@extends('admin.layouts.app')
-
-@section('content')
-<div class="space-y-6">
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Email Lists') }}
+        </h2>
+    </x-slot>
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900">Email Lists</h1>
@@ -88,5 +90,4 @@
             </div>
         @endif
     </div>
-</div>
-@endsection
+</x-app-layout>

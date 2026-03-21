@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('email_lists')) {
+            Schema::drop('email_lists');
+        }
         Schema::create('email_lists', function (Blueprint $table) {
             $table->id();
             $table->string('name');
