@@ -36,15 +36,21 @@ class CustomPromotionalEmail extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
+        $logo = \App\Models\Setting::get('site_logo');
+        $logoUrl = $logo ? asset($logo) : (config('app.url') . '/images/logo.png');
+
         return new Content(
-            view: 'emails.custom_promotion',
+            view: 'emails.v2.universal_v2',
             with: [
-                'messageBody' => $this->messageBody,
+                'title' => $this->subjectLine,
+                'message' => $this->messageBody,
+                'body' => $this->messageBody,
+                'tag' => 'SPECIAL OFFER',
+                'user_name' => 'Valued Client',
+                'logo_url' => $logoUrl,
+                'dashboard_portal_url' => url('/dashboard'),
             ]
         );
     }
