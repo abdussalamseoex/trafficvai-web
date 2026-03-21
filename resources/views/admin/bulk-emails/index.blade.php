@@ -30,11 +30,15 @@
                                         <div class="text-sm font-medium text-gray-900">{{ $campaign->subject }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ number_format($campaign->recipient_count) }}
+                                        {{ number_format($campaign->sent_count) }} / {{ number_format($campaign->recipient_count) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($campaign->status === 'completed_queueing')
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Queued</span>
+                                        @elseif($campaign->status === 'sending')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Sending...</span>
+                                        @elseif($campaign->status === 'completed')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
                                         @else
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ ucfirst($campaign->status) }}</span>
                                         @endif

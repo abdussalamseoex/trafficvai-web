@@ -39,6 +39,19 @@ class SendCustomBulkEmailJob implements ShouldQueue
 
         try {
             Mail::to($this->email)->send(new CustomPromotionalEmail($campaign->subject, $campaign->message));
+            
+            // Increment the sent count safely tracking progress
+            $campaign->increment('sent_count');
+            
+            // Check if all emails have been processed
+            if ($campaign->sent_count >= $campaign->recipient_count) {
+                $campaign->update(['status' => 'completed']);
+            } else {
+                // Ensure status shows as sending
+                if ($campaign->status === 'completed_queueing') {
+                    $campaign->update(['status' => 'sending']);
+                }
+            }
         } catch (\Exception $e) {
             Log::error('Failed to send custom promotional email to ' . $this->email . ': ' . $e->getMessage());
         }

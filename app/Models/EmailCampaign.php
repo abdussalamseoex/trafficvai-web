@@ -13,6 +13,7 @@ class EmailCampaign extends Model
         'subject',
         'message',
         'recipient_count',
+        'sent_count',
         'recipients',
         'status',
     ];

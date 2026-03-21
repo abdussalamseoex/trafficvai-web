@@ -9,3 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('invoices:send-renewal-reminders')->daily();
+
+// Ensure background jobs run continuously on typical cPanel hosting setup
+Schedule::command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
