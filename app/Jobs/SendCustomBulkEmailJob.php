@@ -53,7 +53,11 @@ class SendCustomBulkEmailJob implements ShouldQueue
                 }
             }
         } catch (\Exception $e) {
+            $errorMsg = substr('Error: ' . $e->getMessage(), 0, 250);
             Log::error('Failed to send custom promotional email to ' . $this->email . ': ' . $e->getMessage());
+            
+            // Critical fail-safe: Update the UI so the user can see exactly why the email failed
+            $campaign->update(['status' => $errorMsg]);
         }
     }
 }
