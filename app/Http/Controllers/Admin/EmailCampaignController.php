@@ -19,7 +19,8 @@ class EmailCampaignController extends Controller
 
     public function create()
     {
-        return view('admin.bulk-emails.create');
+        $emailLists = \App\Models\EmailList::orderBy('name')->get();
+        return view('admin.bulk-emails.create', compact('emailLists'));
     }
 
     public function store(Request $request)
@@ -27,11 +28,24 @@ class EmailCampaignController extends Controller
         $request->validate([
             'subject' => 'required|string|max:255',
             'message' => 'required|string',
-            'emails' => 'required|string',
+            'email_lists' => 'nullable|array',
+            'emails' => 'nullable|string',
         ]);
 
-        // Extract and validate emails
-        $rawEmails = preg_split('/[,\n\r]+/', $request->input('emails'));
+        $rawEmails = [];
+
+        // Add manually pasted emails
+        if ($request->filled('emails')) {
+            $parsed = preg_split('/[,\n\r]+/', $request->input('emails'));
+            $rawEmails = array_merge($rawEmails, $parsed);
+        }
+
+        // Add emails from selected lists
+        if ($request->has('email_lists') && is_array($request->email_lists)) {
+            $listEmails = \App\Models\EmailListContact::whereIn('email_list_id', $request->email_lists)->pluck('email')->toArray();
+            $rawEmails = array_merge($rawEmails, $listEmails);
+        }
+
         $rawEmails = array_map('trim', $rawEmails);
         $validEmails = array_filter($rawEmails, function($email) {
             return filter_var($email, FILTER_VALIDATE_EMAIL);
@@ -39,7 +53,7 @@ class EmailCampaignController extends Controller
         $validEmails = array_values(array_unique($validEmails));
 
         if (count($validEmails) === 0) {
-            return back()->withInput()->withErrors(['emails' => 'No valid email addresses were found in the list.']);
+            return back()->withInput()->withErrors(['emails' => 'No valid email addresses were found in the selected lists or input.']);
         }
 
         // Store campaign record

@@ -288,6 +288,12 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
                 Route::get('/bulk-emails/create', [\App\Http\Controllers\Admin\EmailCampaignController::class, 'create'])->name('bulk-emails.create');
                 Route::post('/bulk-emails', [\App\Http\Controllers\Admin\EmailCampaignController::class, 'store'])->name('bulk-emails.store');
                 Route::post('/bulk-emails/send-test', [\App\Http\Controllers\Admin\EmailCampaignController::class, 'sendTest'])->name('bulk-emails.send-test');
+
+                // Email Lists
+                Route::resource('/email-lists', \App\Http\Controllers\Admin\EmailListController::class)->except(['create', 'edit']);
+                Route::post('/email-lists/{emailList}/contacts', [\App\Http\Controllers\Admin\EmailListContactController::class, 'store'])->name('email-lists.contacts.store');
+                Route::delete('/email-lists/{emailList}/contacts/{contact}', [\App\Http\Controllers\Admin\EmailListContactController::class, 'destroy'])->name('email-lists.contacts.destroy');
+
                 Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class , 'index'])->name('finance.index');
                 Route::get('/communications', [\App\Http\Controllers\CommunicationController::class , 'index'])->name('communications.index');
                 // System Updates

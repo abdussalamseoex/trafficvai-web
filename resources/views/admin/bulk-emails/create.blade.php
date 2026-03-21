@@ -20,11 +20,22 @@
                     <form action="{{ route('admin.bulk-emails.store') }}" method="POST">
                         @csrf
                         
-                        <!-- List of Emails -->
+                        <!-- Saved Email Lists -->
                         <div class="mb-6">
-                            <label for="emails" class="block text-sm font-medium text-gray-700 mb-1">Custom Email List</label>
-                            <textarea id="emails" name="emails" rows="6" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="john@example.com, jane@test.com&#10;admin@site.com">{{ old('emails') }}</textarea>
-                            <p class="mt-1 text-xs text-gray-500">Paste your custom email sequence here. Separate each email by comma or a new line.</p>
+                            <label for="email_lists" class="block text-sm font-medium text-gray-700 mb-1">Select Saved Email Lists</label>
+                            <select id="email_lists" name="email_lists[]" multiple class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-32">
+                                @foreach($emailLists as $list)
+                                    <option value="{{ $list->id }}">{{ $list->name }} ({{ $list->contacts()->count() }} contacts)</option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Hold CTRL (or CMD on Mac) to select multiple lists. The system will merge all contacts automatically.</p>
+                        </div>
+
+                        <!-- Manual List of Emails -->
+                        <div class="mb-6">
+                            <label for="emails" class="block text-sm font-medium text-gray-700 mb-1">Additional Emails (Optional)</label>
+                            <textarea id="emails" name="emails" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="john@example.com, jane@test.com">{{ old('emails') }}</textarea>
+                            <p class="mt-1 text-xs text-gray-500">Paste any extra emails here. They will be merged with the selected lists above.</p>
                             @error('emails') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
 
