@@ -84,7 +84,20 @@ class EmailCampaignController extends Controller
             // Apply Dynamic DB SMTP settings before sending
             app(\App\Services\NotificationService::class)->applyMailConfig();
 
-            Mail::to($testEmail)->send(new CustomPromotionalEmail($request->subject, $request->message));
+            $logo = \App\Models\Setting::get('site_logo');
+            $logoUrl = $logo ? asset($logo) : (config('app.url') . '/images/logo.png');
+            
+            $renderedHtml = view('emails.v2.universal_v2', [
+                'title' => $request->subject,
+                'body' => $request->message,
+                'message' => $request->message,
+                'tag' => 'SPECIAL OFFER',
+                'user_name' => 'Valued Client',
+                'logo_url' => $logoUrl,
+                'dashboard_portal_url' => url('/dashboard'),
+            ])->render();
+
+            Mail::to($testEmail)->send(new \App\Mail\DynamicNotificationMail($request->subject, $renderedHtml));
             return response()->json(['message' => 'Test email sent successfully to ' . $testEmail]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to send test email: ' . $e->getMessage()], 500);
