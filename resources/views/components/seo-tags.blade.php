@@ -56,7 +56,7 @@
 @endif
 
 <!-- Google Analytics -->
-@if($seo['scripts']['ga'])
+@if($seo['scripts']['ga'] && !request()->is('admin*') && !request()->is('client*'))
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ $seo['scripts']['ga'] }}"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
