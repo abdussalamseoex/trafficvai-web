@@ -76,6 +76,11 @@ class Order extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function extensions()
+    {
+        return $this->hasMany(OrderExtension::class)->latest();
+    }
+
     /**
      * Accessor for full price (before wallet deduction)
      */

@@ -10,18 +10,25 @@ use App\Models\User;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $orders = Order::with('user', 'package.service')
-            ->withCount(['messages as unread_messages_count' => function ($query) {
-            $query->where('is_read', false)
-                ->whereHas('user', function ($q) {
-                $q->where('is_admin', false);
-            }
-            );
-        }])
-            ->latest()
-            ->get();
+        $query = Order::with('user', 'package.service')
+            ->withCount(['messages as unread_messages_count' => function ($q) {
+                $q->where('is_read', false)
+                  ->whereHas('user', function ($sub) {
+                      $sub->where('is_admin', false);
+                  });
+            }]);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
+        $orders = $query->latest()->get();
         return view('admin.orders.index', compact('orders'));
     }
 
@@ -85,5 +92,41 @@ class OrderController extends Controller
 
 
         return redirect()->route('admin.orders.show', $order)->with('success', 'Order updated successfully.');
+    }
+
+    public function extendTime(Request $request, \App\Models\Order $order)
+    {
+        $validated = $request->validate([
+            'added_days' => 'required|integer|min:1',
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        if (!$order->expected_delivery_date) {
+            return back()->with('error', 'This order does not have a delivery date set yet.');
+        }
+
+        // Add the days to the expected_delivery_date
+        $order->expected_delivery_date = $order->expected_delivery_date->addDays($validated['added_days']);
+        $order->save();
+
+        // Save Extension Log
+        \App\Models\OrderExtension::create([
+            'order_id' => $order->id,
+            'admin_id' => auth()->id(),
+            'added_days' => $validated['added_days'],
+            'reason' => $validated['reason'],
+        ]);
+
+        // Notify Client
+        $message = "Your order delivery time has been extended by {$validated['added_days']} days. Reason: {$validated['reason']}. New Delivery Date: " . $order->expected_delivery_date->format('M d, Y h:i A');
+        app(\App\Services\NotificationService::class)->send('order_status_updated', $order->user, [
+            'order_id' => $order->id,
+            'title' => 'Order Delivery Time Extended',
+            'status' => $order->status,
+            'message' => $message,
+            'link' => route('client.orders.show', $order->id)
+        ]);
+
+        return back()->with('success', 'Order delivery time extended successfully.');
     }
 }

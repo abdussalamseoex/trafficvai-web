@@ -105,6 +105,10 @@
                                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                             Expected Delivery: {{ $order->expected_delivery_date->format('M d, Y h:i A') }}
                                         </p>
+                                        <button @click="$dispatch('open-extend-modal')" type="button" class="mt-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center bg-indigo-50 px-2 py-1 rounded shadow-sm border border-indigo-100 transition">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                            Extend Delivery Time
+                                        </button>
                                     </div>
                                     <div class="mt-2 md:mt-0">
                                         <template x-if="status === 'overdue'">
@@ -129,6 +133,28 @@
                                     Client requested Express Delivery
                                 </p>
                             </div>
+                        @endif
+
+                        <!-- Extension History -->
+                        @if($order->extensions->count() > 0)
+                        <div class="mt-6 border-t border-gray-200 pt-4">
+                            <h4 class="text-sm font-bold text-gray-900 flex items-center mb-3">
+                                <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Delivery Extension History
+                            </h4>
+                            <div class="space-y-3">
+                                @foreach($order->extensions as $ext)
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 shadow-sm text-sm">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="font-bold text-indigo-700">+{{ $ext->added_days }} Day(s)</span>
+                                        <span class="text-[11px] font-medium text-gray-500">{{ $ext->created_at->format('M d, Y h:i A') }}</span>
+                                    </div>
+                                    <p class="text-gray-700 italic border-l-2 border-indigo-200 pl-2">"{{ $ext->reason }}"</p>
+                                    <p class="text-[10px] text-gray-400 mt-2 text-right uppercase tracking-wider font-bold">- Extended by {{ $ext->admin->name ?? 'Admin' }}</p>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
                         @endif
                     </div>
 
@@ -287,4 +313,38 @@
             };
         }
     </script>
+
+    <!-- Extend Delivery Time Modal -->
+    <div x-data="{ open: false }" @open-extend-modal.window="open = true" class="relative z-50">
+        <div x-show="open" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity z-40"></div>
+        <div x-show="open" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div @click.away="open = false" class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-200">
+                    <form method="POST" action="{{ route('admin.orders.extend', $order) }}">
+                        @csrf
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <h3 class="text-xl font-bold leading-6 text-gray-900 mb-4 tracking-tight border-b pb-3">Extend Delivery Time</h3>
+                            <div class="mb-5">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Days to Add</label>
+                                <input type="number" name="added_days" min="1" required class="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-lg font-mono ps-4" placeholder="e.g. 3">
+                                <p class="text-xs text-gray-500 mt-1">This will increase the current countdown timer.</p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Detailed Reason / Note</label>
+                                <textarea name="reason" required rows="4" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3" placeholder="Explain exclusively to the client why extra days are needed..."></textarea>
+                                <p class="text-xs text-indigo-600 mt-2 font-medium bg-indigo-50 py-1.5 px-3 rounded-md flex gap-2 items-center">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    This note will be automatically emailed to the client. Keep it professional.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-4 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-200">
+                            <button type="submit" class="inline-flex w-full justify-center rounded-lg border border-transparent bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow hover:bg-indigo-700 sm:ml-3 sm:w-auto transition">Confirm & Notify</button>
+                            <button @click="open = false" type="button" class="mt-3 inline-flex w-full justify-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 sm:mt-0 sm:w-auto transition">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>

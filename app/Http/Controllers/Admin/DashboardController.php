@@ -10,7 +10,7 @@ class DashboardController extends Controller
     public function index()
     {
         $totalOrders = \App\Models\Order::count();
-        $totalRevenue = \App\Models\Order::sum('total_amount');
+        $totalRevenue = \App\Models\Order::where('payment_status', 'paid')->sum('total_amount');
         $totalServices = \App\Models\Service::count();
         $totalGuestPosts = \App\Models\GuestPostSite::count();
         $recentOrders = \App\Models\Order::with(['user', 'package.service', 'guestPostSite'])

@@ -239,6 +239,7 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
                 Route::resource('/pages', \App\Http\Controllers\Admin\PageController::class);
                 Route::get('/orders/running', [\App\Http\Controllers\Admin\OrderController::class, 'running'])->name('orders.running');
                 Route::resource('/orders', \App\Http\Controllers\Admin\OrderController::class);
+                Route::post('/orders/{order}/extend', [\App\Http\Controllers\Admin\OrderController::class, 'extendTime'])->name('orders.extend');
                 Route::resource('/guest-posts', \App\Http\Controllers\Admin\GuestPostSiteController::class)->parameters(['guest-posts' => 'guestPost']);
                 Route::resource('/invoices', \App\Http\Controllers\Admin\InvoiceController::class);
                 Route::get('/invoices/{invoice}/pdf', [\App\Http\Controllers\Admin\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
