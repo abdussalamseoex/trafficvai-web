@@ -43,8 +43,15 @@ class Coupon extends Model
         // Private Coupon Check
         if ($this->is_private && $this->assigned_user_id) {
             $user = auth()->user();
-            // Skip restriction for staff/admins so they see "Active" in dashboard
-            if (!$user || (!$user->isStaff() && $this->assigned_user_id !== $user->id)) {
+            
+            // If user is staff/admin, they can always use/test the coupon
+            if ($user && $user->isStaff()) {
+                return true;
+            }
+
+            // Otherwise, check if the assigned user matches the current user
+            // Using loose comparison != to handle potential string/int mismatches
+            if (!$user || $this->assigned_user_id != $user->id) {
                 return false;
             }
         }
