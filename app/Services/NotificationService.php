@@ -12,7 +12,7 @@ class NotificationService
     /**
      * Notify Admin
      */
-    public function notifyAdmin($title, $message, $link = null, $slug = 'admin_notification', $orderId = null)
+    public function notifyAdmin($title, $message, $link = null, $slug = 'admin_notification', $orderId = null, $extraData = [])
     {
         \App\Models\NotificationHub::create([
             'user_id' => null, // null means it's for admins
@@ -28,13 +28,13 @@ class NotificationService
             ->get();
 
         foreach ($staff as $member) {
-            $this->sendEmail($slug, $member->email, [
+            $this->sendEmail($slug, $member->email, array_merge([
                 'user_name' => $member->name,
                 'title' => $title,
                 'message' => $message,
                 'link' => $link ?? url('/'),
                 'order_id' => $orderId
-            ]);
+            ], $extraData));
         }
     }
 
@@ -193,7 +193,7 @@ class NotificationService
             $vars = [
                 'logo_url' => \App\Models\Setting::get('site_logo') ? asset(\App\Models\Setting::get('site_logo')) : (config('app.url') . '/images/logo.png'),
                 'title' => $data['title'] ?? ucwords(str_replace('_', ' ', $templateSlug)),
-                'client_name' => $data['user_name'] ?? 'Client',
+                'client_name' => $data['client_name'] ?? ($data['user_name'] ?? 'Client'),
                 'user_name' => $data['user_name'] ?? 'Client', // Alias
                 'order_id' => $data['order_id'] ?? ($data['id'] ?? 'N/A'),
                 'id' => $data['order_id'] ?? ($data['id'] ?? 'N/A'), // Alias

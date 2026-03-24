@@ -7,6 +7,52 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Stat Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <!-- All Orders -->
+                <a href="{{ route('admin.orders.index') }}" class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group {{ !request('status') ? 'ring-2 ring-indigo-500' : '' }}">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">All Orders</span>
+                        <span class="text-2xl font-black text-gray-900">{{ $statusCounts['all'] }}</span>
+                    </div>
+                </a>
+
+                <!-- Awaiting Payment -->
+                <a href="{{ route('admin.orders.index', ['status' => 'pending_payment']) }}" class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group {{ request('status') == 'pending_payment' ? 'ring-2 ring-yellow-500' : '' }}">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-black text-yellow-600 uppercase tracking-widest mb-1">Awaiting Payment</span>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-black text-gray-900">{{ $statusCounts['pending_payment'] }}</span>
+                            <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Awaiting Requirements -->
+                <a href="{{ route('admin.orders.index', ['status' => 'pending_requirements']) }}" class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group {{ request('status') == 'pending_requirements' ? 'ring-2 ring-orange-500' : '' }}">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-black text-orange-600 uppercase tracking-widest mb-1">Awaiting Client</span>
+                        <span class="text-2xl font-black text-gray-900">{{ $statusCounts['pending_requirements'] }}</span>
+                    </div>
+                </a>
+
+                <!-- Processing -->
+                <a href="{{ route('admin.orders.index', ['status' => 'processing']) }}" class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group {{ request('status') == 'processing' ? 'ring-2 ring-blue-500' : '' }}">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Processing</span>
+                        <span class="text-2xl font-black text-gray-900">{{ $statusCounts['processing'] }}</span>
+                    </div>
+                </a>
+
+                <!-- Completed -->
+                <a href="{{ route('admin.orders.index', ['status' => 'completed']) }}" class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all group {{ request('status') == 'completed' ? 'ring-2 ring-green-500' : '' }}">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-black text-green-600 uppercase tracking-widest mb-1">Completed</span>
+                        <span class="text-2xl font-black text-gray-900">{{ $statusCounts['completed'] }}</span>
+                    </div>
+                </a>
+            </div>
+
             <!-- Filter Form -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">

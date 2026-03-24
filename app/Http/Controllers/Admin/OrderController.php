@@ -28,8 +28,16 @@ class OrderController extends Controller
             $query->where('payment_status', $request->payment_status);
         }
 
+        $statusCounts = [
+            'all' => Order::count(),
+            'pending_payment' => Order::where('status', 'pending_payment')->count(),
+            'pending_requirements' => Order::where('status', 'pending_requirements')->count(),
+            'processing' => Order::where('status', 'processing')->count(),
+            'completed' => Order::where('status', 'completed')->count(),
+        ];
+
         $orders = $query->latest()->get();
-        return view('admin.orders.index', compact('orders'));
+        return view('admin.orders.index', compact('orders', 'statusCounts'));
     }
 
     public function running(\Illuminate\Http\Request $request)

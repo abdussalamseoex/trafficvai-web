@@ -29,8 +29,17 @@ class OrderController extends Controller
             $query->where('payment_status', $request->payment_status);
         }
 
+        $userOrders = auth()->user()->orders();
+        $statusCounts = [
+            'all' => (clone $userOrders)->count(),
+            'pending_payment' => (clone $userOrders)->where('status', 'pending_payment')->count(),
+            'pending_requirements' => (clone $userOrders)->where('status', 'pending_requirements')->count(),
+            'processing' => (clone $userOrders)->where('status', 'processing')->count(),
+            'completed' => (clone $userOrders)->where('status', 'completed')->count(),
+        ];
+
         $orders = $query->latest()->get();
-        return view('client.orders.index', compact('orders'));
+        return view('client.orders.index', compact('orders', 'statusCounts'));
     }
 
     public function running(\Illuminate\Http\Request $request)

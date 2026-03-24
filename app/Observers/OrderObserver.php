@@ -24,7 +24,8 @@ class OrderObserver
             "A new order has been placed by {$order->user->name} Amount: {$order->total_amount}",
             route('admin.orders.show', $order),
             'admin_new_order',
-            $order->id
+            $order->id,
+            ['client_name' => $order->user->name]
         );
     }
 
@@ -82,7 +83,8 @@ class OrderObserver
                     "User {$order->user->name} has submitted payment proof for verification.",
                     route('admin.orders.show', $order),
                     'admin_payment_proof',
-                    $order->id
+                    $order->id,
+                    ['client_name' => $order->user->name]
                 );
             }
         }
