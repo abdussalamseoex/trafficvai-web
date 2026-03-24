@@ -10,19 +10,26 @@ use App\Models\Setting;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $orders = auth()->user()->orders()
+        $query = auth()->user()->orders()
             ->with(['package.service', 'guestPostSite'])
-            ->withCount(['messages as unread_messages_count' => function ($query) {
-            $query->where('is_read', false)
-                ->whereHas('user', function ($q) {
-                $q->where('is_admin', true);
-            }
-            );
-        }])
-            ->latest()
-            ->get();
+            ->withCount(['messages as unread_messages_count' => function ($q) {
+                $q->where('is_read', false)
+                  ->whereHas('user', function ($sub) {
+                      $sub->where('is_admin', true);
+                  });
+            }]);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
+        $orders = $query->latest()->get();
         return view('client.orders.index', compact('orders'));
     }
 
