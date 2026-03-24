@@ -43,7 +43,7 @@ class NotificationService
      */
     public function send($templateSlug, $user, $data = [])
     {
-        $title = ucwords(str_replace('_', ' ', $templateSlug));
+        $title = $data['title'] ?? ucwords(str_replace('_', ' ', $templateSlug));
         $message = "You have a new update event: " . $title;
 
         if (isset($data['order_id'])) {

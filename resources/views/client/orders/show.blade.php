@@ -155,6 +155,33 @@
                             </a>
                         </div>
                         @endif
+
+                        <!-- Extension History -->
+                        @if($order->extensions->count() > 0)
+                        <div class="col-span-1 md:col-span-2 mt-6 border-t border-gray-100 pt-5">
+                            <div class="bg-indigo-50/50 rounded-xl border border-indigo-100 p-5">
+                                <h4 class="text-xs font-black text-indigo-900 flex items-center mb-4 uppercase tracking-widest">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Delivery Time Updates & Admin Notes
+                                </h4>
+                                <div class="space-y-4">
+                                    @foreach($order->extensions as $ext)
+                                    <div class="bg-white border text-left border-indigo-100/50 rounded-lg p-4 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] relative overflow-hidden">
+                                        <div class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-2 pl-3 gap-2">
+                                            <span class="font-black text-indigo-700">Delivery Extended by {{ $ext->added_days }} Day(s)</span>
+                                            <span class="text-xs font-bold text-indigo-500 whitespace-nowrap bg-indigo-50 px-2.5 py-1 rounded shadow-sm border border-indigo-100/50">{{ $ext->created_at->format('M d, Y') }}</span>
+                                        </div>
+                                        <div class="pl-3">
+                                            <p class="text-sm text-gray-700 leading-relaxed italic">"{{ $ext->reason }}"</p>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                     </div>
                 </div>
             </div>
