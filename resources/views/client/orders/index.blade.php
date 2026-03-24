@@ -103,13 +103,16 @@
                                 @forelse ($orders as $order)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <div class="flex items-center">
-                                            <span>#{{ $order->id }}</span>
-                                            @if($order->unread_messages_count > 0)
-                                                <span class="ml-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse" title="New Messages from Admin">
-                                                    {{ $order->unread_messages_count }}
-                                                </span>
-                                            @endif
+                                        <div class="flex flex-col">
+                                            <div class="flex items-center">
+                                                <span>#{{ $order->id }}</span>
+                                                @if($order->unread_messages_count > 0)
+                                                    <span class="ml-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse" title="New Messages from Admin">
+                                                        {{ $order->unread_messages_count }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <span class="text-[11px] text-gray-500 mt-0.5">{{ $order->created_at->format('M d, Y') }}</span>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">

@@ -26,6 +26,10 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Order Summary</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
+                            <p class="text-sm font-medium text-gray-500">Order Date</p>
+                            <p class="text-lg text-gray-900">{{ $order->created_at->format('M d, Y') }}</p>
+                        </div>
+                        <div>
                             <p class="text-sm font-medium text-gray-500">{{ $order->package ? 'Package' : 'Target Site' }}</p>
                             <p class="text-lg text-gray-900 flex items-center">
                                 {{ $order->package ? $order->package->name : $order->guestPostSite->url }}

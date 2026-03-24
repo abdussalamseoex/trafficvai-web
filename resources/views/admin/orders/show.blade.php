@@ -26,6 +26,7 @@
                     <div class="p-6 text-gray-900 border-b">
                         <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Order Information</h3>
                         <p class="mb-2"><span class="font-semibold">Client:</span> {{ $order->user->name }} ({{ $order->user->email }})</p>
+                        <p class="mb-2"><span class="font-semibold">Order Date:</span> {{ $order->created_at->format('M d, Y h:i A') }}</p>
                         <p class="mb-2"><span class="font-semibold">Service:</span> {{ $order->package ? $order->package->service->name . ' - ' . $order->package->name : 'Guest Post Placement - ' . $order->guestPostSite->url }}</p>
                         <p class="mb-2"><span class="font-semibold">Subtotal:</span> ${{ number_format($order->subtotal_display, 2) }}</p>
                         @if($order->discount_amount > 0)
