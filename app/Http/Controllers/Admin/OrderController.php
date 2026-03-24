@@ -106,19 +106,20 @@ class OrderController extends Controller
         }
 
         // Add the days to the expected_delivery_date
-        $order->expected_delivery_date = $order->expected_delivery_date->addDays($validated['added_days']);
+        $addedDays = (int) $validated['added_days'];
+        $order->expected_delivery_date = $order->expected_delivery_date->addDays($addedDays);
         $order->save();
 
         // Save Extension Log
         \App\Models\OrderExtension::create([
             'order_id' => $order->id,
             'admin_id' => auth()->id(),
-            'added_days' => $validated['added_days'],
+            'added_days' => $addedDays,
             'reason' => $validated['reason'],
         ]);
 
         // Notify Client
-        $message = "Your order delivery time has been extended by {$validated['added_days']} days. Reason: {$validated['reason']}. New Delivery Date: " . $order->expected_delivery_date->format('M d, Y h:i A');
+        $message = "Your order delivery time has been extended by {$addedDays} days. Reason: {$validated['reason']}. New Delivery Date: " . $order->expected_delivery_date->format('M d, Y h:i A');
         app(\App\Services\NotificationService::class)->send('order_status_updated', $order->user, [
             'order_id' => $order->id,
             'title' => 'Order Delivery Time Extended',
