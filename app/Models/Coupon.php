@@ -11,6 +11,8 @@ class Coupon extends Model
         'type',
         'value',
         'is_global',
+        'is_private',
+        'assigned_user_id',
         'service_id',
         'max_uses',
         'used_count',
@@ -20,6 +22,7 @@ class Coupon extends Model
 
     protected $casts = [
         'is_global' => 'boolean',
+        'is_private' => 'boolean',
         'status' => 'boolean',
         'value' => 'decimal:2',
         'expires_at' => 'datetime',
@@ -36,6 +39,14 @@ class Coupon extends Model
     {
         if (!$this->status)
             return false;
+        
+        // Private Coupon Check
+        if ($this->is_private) {
+            if ($this->assigned_user_id && $this->assigned_user_id !== auth()->id()) {
+                return false;
+            }
+        }
+
         if ($this->max_uses !== null && $this->used_count >= $this->max_uses)
             return false;
         if ($this->expires_at !== null && $this->expires_at->isPast())

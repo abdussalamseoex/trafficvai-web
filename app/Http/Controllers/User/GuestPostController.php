@@ -86,6 +86,7 @@ class GuestPostController extends Controller
         $sites = $query->latest()->paginate(10)->withQueryString();
 
         $activeCoupons = \App\Models\Coupon::where('status', true)
+            ->where('is_private', false)
             ->where('is_global', true)
             ->where(function ($query) {
             $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
@@ -101,6 +102,7 @@ class GuestPostController extends Controller
     public function show(GuestPostSite $guestPost)
     {
         $activeCoupons = \App\Models\Coupon::where('status', true)
+            ->where('is_private', false)
             ->where('is_global', true)
             ->where(function ($query) {
             $query->whereNull('expires_at')->orWhere('expires_at', '>', now());

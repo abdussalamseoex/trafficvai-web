@@ -29,11 +29,21 @@ class WebsiteTrafficController extends Controller
     {
         abort_unless($service->is_active, 404);
         $service->load(['packages', 'addons']);
-        $gateways = \App\Services\Payments\PaymentGatewayManager::getEnabledGateways();
-        $cryptoEnabled = \App\Models\Setting::get('gateway_crypto_enabled', '0') == '1';
-        $bdEnabled = \App\Models\Setting::get('gateway_bd_enabled', '0') == '1';
+        $activeCoupons = \App\Models\Coupon::where('status', true)
+            ->where('is_private', false)
+            ->where(function ($query) use ($service) {
+            $query->where('is_global', true)
+                ->orWhere('service_id', $service->id);
+        })
+            ->where(function ($query) {
+            $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+        })
+            ->where(function ($query) {
+            $query->whereNull('max_uses')->orWhereColumn('used_count', '<', 'max_uses');
+        })
+            ->get();
 
-        return view('client.services.show', compact('service', 'gateways', 'cryptoEnabled', 'bdEnabled'));
+        return view('client.services.show', compact('service', 'gateways', 'cryptoEnabled', 'bdEnabled', 'activeCoupons'));
     }
 
     public function checkout(Request $request, \App\Models\Package $package)

@@ -13,6 +13,7 @@ class GuestPostController extends Controller
         $sites = \App\Models\GuestPostSite::where('is_active', true)->get();
         $gateways = \App\Services\Payments\PaymentGatewayManager::getEnabledGateways();
         $activeCoupons = \App\Models\Coupon::where('status', true)
+            ->where('is_private', false)
             ->where('is_global', true)
             ->where(function ($query) {
             $query->whereNull('expires_at')->orWhere('expires_at', '>', now());

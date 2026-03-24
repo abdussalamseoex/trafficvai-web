@@ -49,6 +49,7 @@ class CampaignController extends Controller
         $title = $this->getTitle($type);
 
         $activeCoupons = \App\Models\Coupon::where('status', true)
+            ->where('is_private', false)
             ->where(function ($query) use ($service) {
             $query->where('is_global', true)
                 ->orWhere('service_id', $service->id);

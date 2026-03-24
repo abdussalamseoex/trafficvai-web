@@ -54,7 +54,7 @@
                             <!-- Target/Scope -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Coupon Target Scope</label>
-                                <div class="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                                <div class="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-10 border p-4 rounded-md bg-gray-50/50">
                                     <div class="flex items-center">
                                         <input id="target_global" name="is_global" type="radio" value="1" {{ old('is_global', $coupon->is_global) == '1' ? 'checked' : '' }} class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" onclick="document.getElementById('service_selector').classList.add('hidden')">
                                         <label for="target_global" class="ml-3 block text-sm font-medium text-gray-700">
@@ -80,6 +80,33 @@
                                     @endforeach
                                 </select>
                                 @error('service_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+
+                            <!-- Visibility & Access -->
+                            <div class="md:col-span-2 border-t border-gray-100 pt-6 mt-2">
+                                <label class="block text-sm font-bold text-indigo-900 mb-3 uppercase tracking-wider">Visibility & Access Control</label>
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="is_private" name="is_private" type="checkbox" value="1" {{ old('is_private', $coupon->is_private) ? 'checked' : '' }} class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" onchange="document.getElementById('user_selector_wrapper').classList.toggle('hidden', !this.checked)">
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="is_private" class="font-medium text-gray-700">Make Private (Hidden from public lists)</label>
+                                        <p class="text-gray-500">Private coupons will not be shown in the client dashboard or pricing pages. They must be shared manually.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Assigned User Details (Hidden if not Private) -->
+                            <div id="user_selector_wrapper" class="md:col-span-2 {{ old('is_private', $coupon->is_private) ? '' : 'hidden' }}">
+                                <label for="assigned_user_id" class="block text-sm font-medium text-gray-700">Assign to Specific User (Optional)</label>
+                                <p class="text-xs text-gray-500 mb-2 font-medium">Leave unassigned for a "secret" coupon anyone can use if they have the code.</p>
+                                <select id="assigned_user_id" name="assigned_user_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <option value="">-- No specific user (Secret for all) --</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}" {{ old('assigned_user_id', $coupon->assigned_user_id) == $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
+                                    @endforeach
+                                </select>
+                                @error('assigned_user_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
 
                             <!-- Expiry Date -->
