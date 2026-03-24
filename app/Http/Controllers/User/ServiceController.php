@@ -57,11 +57,32 @@ class ServiceController extends Controller
             ->where('service_id', $package->service_id)
             ->get();
 
-        $totalAmount = $package->price + $addons->sum('price');
+        $subtotalAmount = $package->price + $addons->sum('price');
         $isEmergency = $request->input('is_emergency') == 'express';
 
         if ($isEmergency && $package->emergency_fee) {
-            $totalAmount += $package->emergency_fee;
+            $subtotalAmount += $package->emergency_fee;
+        }
+
+        $totalAmount = $subtotalAmount;
+        $discountAmount = 0;
+        $couponId = null;
+
+        if ($request->filled('coupon_code')) {
+            $coupon = \App\Models\Coupon::where('code', $request->input('coupon_code'))->first();
+            if ($coupon && $coupon->isValid()) {
+                if ($coupon->is_global || $coupon->service_id == $package->service_id) {
+                    $couponId = $coupon->id;
+                    if ($coupon->type === 'percentage') {
+                        $discountAmount = ($subtotalAmount * $coupon->value) / 100;
+                    }
+                    else {
+                        $discountAmount = $coupon->value;
+                    }
+                    $totalAmount = max(0, $subtotalAmount - $discountAmount);
+                    $coupon->increment('used_count');
+                }
+            }
         }
 
         $paymentMethod = $request->input('payment_method', 'stripe');
@@ -70,8 +91,10 @@ class ServiceController extends Controller
             'project_id' => $request->input('project_id'),
             'package_id' => $package->id,
             'status' => 'pending_payment',
-            'subtotal_amount' => $totalAmount,
+            'subtotal_amount' => $subtotalAmount,
+            'discount_amount' => $discountAmount,
             'total_amount' => $totalAmount,
+            'coupon_id' => $couponId,
             'is_emergency' => $isEmergency,
             'payment_method' => $paymentMethod,
         ]);
