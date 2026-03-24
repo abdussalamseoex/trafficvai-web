@@ -41,8 +41,10 @@ class Coupon extends Model
             return false;
         
         // Private Coupon Check
-        if ($this->is_private) {
-            if ($this->assigned_user_id && $this->assigned_user_id !== auth()->id()) {
+        if ($this->is_private && $this->assigned_user_id) {
+            $user = auth()->user();
+            // Skip restriction for staff/admins so they see "Active" in dashboard
+            if (!$user || (!$user->isStaff() && $this->assigned_user_id !== $user->id)) {
                 return false;
             }
         }
