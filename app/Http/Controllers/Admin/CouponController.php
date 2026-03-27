@@ -25,12 +25,16 @@ class CouponController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'is_private' => $request->has('is_private') ? 1 : 0,
+        ]);
+
         $request->validate([
             'code' => 'required|string|unique:coupons,code|max:50',
             'type' => 'required|in:percentage,fixed',
             'value' => 'required|numeric|min:0',
             'is_global' => 'required|boolean',
-            'is_private' => 'required|boolean',
+            'is_private' => 'boolean',
             'assigned_user_id' => 'nullable|exists:users,id',
             'service_id' => 'nullable|exists:services,id',
             'max_uses' => 'nullable|integer|min:1',
@@ -63,12 +67,16 @@ class CouponController extends Controller
 
     public function update(Request $request, Coupon $coupon)
     {
+        $request->merge([
+            'is_private' => $request->has('is_private') ? 1 : 0,
+        ]);
+
         $request->validate([
             'code' => 'required|string|max:50|unique:coupons,code,' . $coupon->id,
             'type' => 'required|in:percentage,fixed',
             'value' => 'required|numeric|min:0',
             'is_global' => 'required|boolean',
-            'is_private' => 'required|boolean',
+            'is_private' => 'boolean',
             'assigned_user_id' => 'nullable|exists:users,id',
             'service_id' => 'nullable|exists:services,id',
             'max_uses' => 'nullable|integer|min:1',
