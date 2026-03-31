@@ -1,7 +1,7 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.store('currency', {
-            current: localStorage.getItem('selected_currency') || 'USD',
+            current: localStorage.getItem('selected_currency') || 'BDT',
             rates: {
                 USD: { symbol: '$', rate: 1 },
                 BDT: { symbol: '৳', rate: 120 },

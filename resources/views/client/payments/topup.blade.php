@@ -68,11 +68,11 @@
                             <div class="mt-4">
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <span class="text-gray-400 font-bold" x-text="$store.currency.rates[$store.currency.current].symbol">$</span>
+                                        <span class="text-gray-400 font-bold" x-text="$store.currency.rates[$store.currency.current].symbol">৳</span>
                                     </div>
                                     <input type="number" name="amount" x-model="amount" min="5" step="0.01" class="block w-full pl-8 pr-12 py-4 border-gray-200 rounded-2xl focus:ring-indigo-600 focus:border-indigo-600 text-xl font-black text-gray-900" placeholder="Custom Amount">
                                     <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                        <span class="text-[10px] font-bold text-gray-300 uppercase tracking-widest" x-text="$store.currency.current">USD</span>
+                                        <span class="text-[10px] font-bold text-gray-300 uppercase tracking-widest" x-text="$store.currency.current">BDT</span>
                                     </div>
                                 </div>
                                 <p class="mt-2 text-[10px] text-gray-400 font-medium">Minimum top-up amount: <span class="price-convert" data-base-price="5">$5.00</span></p>

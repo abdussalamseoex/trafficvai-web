@@ -15,7 +15,7 @@
                 <!-- Currency Switcher (Desktop) -->
                 <div class="relative" x-data="{ currencyDropdownOpen: false }" @keydown.escape="currencyDropdownOpen = false" @click.away="currencyDropdownOpen = false">
                     <button @click="currencyDropdownOpen = !currencyDropdownOpen" type="button" class="flex items-center gap-x-1 px-3 py-2 rounded-lg text-sm font-semibold text-blue-100 hover:text-white hover:bg-white/10 transition outline-none" :aria-expanded="currencyDropdownOpen">
-                        <span x-text="$store.currency ? $store.currency.current : 'USD'">USD</span>
+                        <span x-text="$store.currency ? $store.currency.current : 'BDT'">BDT</span>
                         <svg class="h-4 w-4 transition-transform duration-200" :class="{ 'rotate-180 text-white': currencyDropdownOpen, 'text-blue-200': !currencyDropdownOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                         </svg>
@@ -31,8 +31,8 @@
                          x-transition:leave-end="opacity-0 translate-y-2" 
                          class="absolute right-0 z-50 mt-2 w-32 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" x-cloak style="display: none;">
                         <div class="py-1">
-                            <button @click="$store.currency ? $store.currency.setCurrency('USD') : null; currencyDropdownOpen = false" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 font-medium">🇺🇸 USD ($)</button>
                             <button @click="$store.currency ? $store.currency.setCurrency('BDT') : null; currencyDropdownOpen = false" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 font-medium">🇧🇩 BDT (৳)</button>
+                            <button @click="$store.currency ? $store.currency.setCurrency('USD') : null; currencyDropdownOpen = false" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 font-medium">🇺🇸 USD ($)</button>
                             <button @click="$store.currency ? $store.currency.setCurrency('EUR') : null; currencyDropdownOpen = false" class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 font-medium">🇪🇺 EUR (€)</button>
                         </div>
                     </div>
@@ -198,9 +198,9 @@
             <!-- Currency Switcher (Mobile) -->
             <div class="px-4 py-3 bg-blue-800/50 rounded-lg flex items-center justify-between mb-2">
                 <span class="text-blue-200 text-sm font-semibold">Currency</span>
-                <select @change="$store.currency ? $store.currency.setCurrency($event.target.value) : null" :value="$store.currency ? $store.currency.current : 'USD'" class="bg-blue-900 border-none text-white text-sm font-bold rounded focus:ring-0 py-1 pl-2 pr-8 cursor-pointer">
-                    <option value="USD">USD ($)</option>
+                <select @change="$store.currency ? $store.currency.setCurrency($event.target.value) : null" :value="$store.currency ? $store.currency.current : 'BDT'" class="bg-blue-900 border-none text-white text-sm font-bold rounded focus:ring-0 py-1 pl-2 pr-8 cursor-pointer">
                     <option value="BDT">BDT (৳)</option>
+                    <option value="USD">USD ($)</option>
                     <option value="EUR">EUR (€)</option>
                 </select>
             </div>
