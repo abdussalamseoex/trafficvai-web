@@ -112,6 +112,15 @@
                     .catch(() => { this.isChecking = false; this.couponError = true; });
                 },
 
+                calculateDiscountValue(type, value) {
+                    let subtotal = this.getSubtotal();
+                    if(type === 'percentage') {
+                        this.discountAmount = (subtotal * parseFloat(value)) / 100;
+                    } else {
+                        this.discountAmount = Math.min(subtotal, parseFloat(value));
+                    }
+                },
+
                 getPackageDiscountText(price) {
                     if(!this.couponApplied) return '';
                     let dAmount = this.getPackageDiscountAmount(price);
