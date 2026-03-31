@@ -145,9 +145,9 @@
                     let dAmount = this.getPackageDiscountAmount(price);
                     if(dAmount <= 0) return '';
                     if(this.currentCouponType === 'percentage') {
-                        return `Save $${dAmount.toFixed(2)} (${this.currentCouponValue}%)`;
+                        return `Save ${Alpine.store('currency').format(dAmount)} (${this.currentCouponValue}%)`;
                     } else {
-                        return `Save $${dAmount.toFixed(2)}`;
+                        return `Save ${Alpine.store('currency').format(dAmount)}`;
                     }
                 },
 
@@ -379,14 +379,14 @@
                                 <p class="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Total Project Investment</p>
                                 
                                 <div x-show="couponApplied && discountAmount > 0" style="display: none;" class="mb-2 flex items-center justify-center lg:justify-start gap-3">
-                                    <span class="text-gray-500 line-through text-lg font-medium">$<span x-text="getSubtotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
-                                    <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full text-xs font-bold">Save $<span x-text="discountAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                    <span class="text-gray-500 line-through text-lg font-medium" x-text="$store.currency.format(getSubtotal())"></span>
+                                    <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full text-xs font-bold" x-text="'Save ' + $store.currency.format(discountAmount)"></span>
                                 </div>
 
                                 <div class="flex items-center justify-center lg:justify-start gap-4">
-                                    <span class="text-6xl font-black text-white leading-tight tracking-tighter">$<span x-text="getTotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                    <span class="text-6xl font-black text-white leading-tight tracking-tighter" x-text="$store.currency.format(getTotal())"></span>
                                     <div x-show="useWallet && getWalletDeduction() > 0" style="display: none;" class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-xl">
-                                        <p class="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">From Wallet: <span class="text-white">-$<span x-text="getWalletDeduction().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span></p>
+                                        <p class="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">From Wallet: <span class="text-white" x-text="'-' + $store.currency.format(getWalletDeduction())"></span></p>
                                     </div>
                                 </div>
                             </div>
@@ -427,7 +427,7 @@
                                     <div class="relative">
                                         <select name="is_emergency" id="is_emergency_1" x-model="selectedDelivery" class="block w-full rounded-2xl border-gray-700 bg-gray-900/50 text-white shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm py-4 pl-4 transition-all appearance-none cursor-pointer">
                                             <option value="standard" x-text="'Standard' + (getPackageDeliveryDays(selectedPackageId) ? ` (${getPackageDeliveryDays(selectedPackageId)} Days)` : '')"></option>
-                                            <option value="express" x-show="getPackageExpressFee(selectedPackageId) > 0 || getPackageExpressDays(selectedPackageId)" x-text="'Express' + (getPackageExpressDays(selectedPackageId) ? ` (${getPackageExpressDays(selectedPackageId)} Days)` : '') + (getPackageExpressFee(selectedPackageId) > 0 ? ` (+$${getPackageExpressFee(selectedPackageId)})` : '')"></option>
+                                            <option value="express" x-show="getPackageExpressFee(selectedPackageId) > 0 || getPackageExpressDays(selectedPackageId)" x-text="'Express' + (getPackageExpressDays(selectedPackageId) ? ` (${getPackageExpressDays(selectedPackageId)} Days)` : '') + (getPackageExpressFee(selectedPackageId) > 0 ? ` (+` + $store.currency.format(getPackageExpressFee(selectedPackageId)) + `)` : '')"></option>
                                         </select>
                                         <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -566,14 +566,14 @@
                                 <p class="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Final Investment</p>
                                 
                                 <div x-show="couponApplied && discountAmount > 0" style="display: none;" class="mb-1 flex items-center justify-center lg:justify-start gap-2">
-                                    <span class="text-gray-400 line-through text-sm font-medium">$<span x-text="getSubtotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
-                                    <span class="bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-full text-[10px] font-bold">Save $<span x-text="discountAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                    <span class="text-gray-400 line-through text-sm font-medium" x-text="$store.currency.format(getSubtotal())"></span>
+                                    <span class="bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-full text-[10px] font-bold" x-text="'Save ' + $store.currency.format(discountAmount)"></span>
                                 </div>
 
                                 <div class="flex items-center justify-center lg:justify-start gap-3">
-                                    <span class="text-5xl font-black text-gray-900 leading-none">$<span x-text="getTotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                    <span class="text-5xl font-black text-gray-900 leading-none" x-text="$store.currency.format(getTotal())"></span>
                                     <div x-show="useWallet && getWalletDeduction() > 0" style="display: none;" class="bg-indigo-50 text-indigo-600 border border-indigo-100 px-2 py-1 rounded-lg">
-                                        <p class="text-[9px] font-bold uppercase tracking-widest whitespace-nowrap">From Balance: <span class="text-gray-900">-$<span x-text="getWalletDeduction().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span></p>
+                                        <p class="text-[9px] font-bold uppercase tracking-widest whitespace-nowrap">From Balance: <span class="text-gray-900" x-text="'-' + $store.currency.format(getWalletDeduction())"></span></p>
                                     </div>
                                 </div>
                             </div>
@@ -611,7 +611,7 @@
                                     <div class="relative">
                                         <select name="is_emergency" id="is_emergency_2" x-model="selectedDelivery" class="block w-full rounded-xl border-gray-200 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-xs py-3 pl-3 transition-all appearance-none cursor-pointer">
                                             <option value="standard" x-text="'Standard' + (getPackageDeliveryDays(selectedPackageId) ? ` (${getPackageDeliveryDays(selectedPackageId)}d)` : '')"></option>
-                                            <option value="express" x-show="getPackageExpressFee(selectedPackageId) > 0 || getPackageExpressDays(selectedPackageId)" x-text="'Express' + (getPackageExpressDays(selectedPackageId) ? ` (${getPackageExpressDays(selectedPackageId)}d)` : '') + (getPackageExpressFee(selectedPackageId) > 0 ? ` (+$${getPackageExpressFee(selectedPackageId)})` : '')"></option>
+                                            <option value="express" x-show="getPackageExpressFee(selectedPackageId) > 0 || getPackageExpressDays(selectedPackageId)" x-text="'Express' + (getPackageExpressDays(selectedPackageId) ? ` (${getPackageExpressDays(selectedPackageId)}d)` : '') + (getPackageExpressFee(selectedPackageId) > 0 ? ` (+` + $store.currency.format(getPackageExpressFee(selectedPackageId)) + `)` : '')"></option>
                                         </select>
                                         <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-400">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>

@@ -330,7 +330,7 @@
                                                 <span class="block text-base font-bold" :class="{ 'text-orange-900': selectedDelivery == '1', 'text-gray-900': selectedDelivery != '1' }">Express Delivery</span>
                                                 <span class="block text-sm text-gray-500 mt-1">Jump the queue. Target delivery in ~{{ $guestPost->express_delivery_time_days ?? ceil($guestPost->delivery_time_days / 2) }} Days.</span>
                                             </div>
-                                            <span class="ml-4 text-xl font-black text-brand mt-0.5">+${{ number_format($guestPost->express_delivery_price ?? 50) }}</span>
+                                            <span class="ml-4 text-xl font-black text-brand mt-0.5">+<span class="price-convert" data-base-price="{{ $guestPost->express_delivery_price ?? 50 }}">${{ number_format($guestPost->express_delivery_price ?? 50) }}</span></span>
                                         </div>
                                     </label>
                                 </div>
@@ -451,20 +451,20 @@
                                         <div class="mt-4 pt-4 border-t border-gray-100 space-y-3">
                                             <div class="flex justify-between items-center text-xs font-bold text-gray-500 uppercase tracking-widest">
                                                 <span>Subtotal</span>
-                                                <span class="text-gray-900">$<span x-text="getSubtotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                                <span class="text-gray-900" x-text="$store.currency.format(getSubtotal())"></span>
                                             </div>
                                             <div x-show="couponApplied" x-cloak class="flex justify-between items-center text-xs font-bold text-blue-600 uppercase tracking-widest">
                                                 <span>Coupon Discount</span>
-                                                <span>- $<span x-text="getDiscountValue().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                                <span x-text="'- ' + $store.currency.format(getDiscountValue())"></span>
                                             </div>
                                             <div x-show="useWallet && getWalletDeduction() > 0" x-cloak class="flex justify-between items-center text-xs font-bold text-orange-500 uppercase tracking-widest">
                                                 <span>Wallet Paid</span>
-                                                <span>- $<span x-text="getWalletDeduction().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                                                <span x-text="'- ' + $store.currency.format(getWalletDeduction())"></span>
                                             </div>
                                             <div class="flex items-center justify-between pt-3 border-t border-dashed border-gray-200">
                                                 <span class="text-sm font-black text-gray-900 uppercase">Final Total</span>
                                                 <div class="text-right">
-                                                    <div class="text-2xl font-black text-brand">$<span x-text="getTotal().toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></div>
+                                                    <div class="text-2xl font-black text-brand" x-text="$store.currency.format(getTotal())"></div>
                                                 </div>
                                             </div>
                                         </div>
