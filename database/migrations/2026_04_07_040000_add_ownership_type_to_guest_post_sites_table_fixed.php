@@ -14,7 +14,7 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('guest_post_sites', 'ownership_type')) {
             Schema::table('guest_post_sites', function (Blueprint $table) {
-                $table->string('ownership_type')->default('Contributor')->after('price_link_insertion');
+                $table->string('ownership_type')->default('Owner')->after('price_link_insertion');
             });
         }
         
@@ -25,7 +25,7 @@ return new class extends Migration
                 'delivery_time_days' => 5,
                 'price_creation_placement' => 7,
                 'express_delivery_time_days' => null,
-                'express_delivery_price' => 50.00,
+                'express_delivery_price' => 0.00,
                 'ownership_type' => 'Contributor'
             ]);
         } catch (\Exception $e) {

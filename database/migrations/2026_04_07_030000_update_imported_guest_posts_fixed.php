@@ -1178,7 +1178,7 @@ return new class extends Migration
                     'delivery_time_days' => $row['delivery_time_days'],
                     'price_creation_placement' => $row['price_creation_placement'],
                     'express_delivery_time_days' => null,
-                    'express_delivery_price' => 50.00
+                    'express_delivery_price' => 0.00
                 ]);
             }
         }
@@ -2347,7 +2347,7 @@ return new class extends Migration
                     'delivery_time_days' => $row['delivery_time_days'],
                     'price_creation_placement' => $row['price_creation_placement'],
                     'express_delivery_time_days' => null,
-                    'express_delivery_price' => 50.00
+                    'express_delivery_price' => 0.00
                 ]);
             }
         }
@@ -3516,7 +3516,7 @@ return new class extends Migration
                     'delivery_time_days' => $row['delivery_time_days'],
                     'price_creation_placement' => $row['price_creation_placement'],
                     'express_delivery_time_days' => null,
-                    'express_delivery_price' => 50.00
+                    'express_delivery_price' => 0.00
                 ]);
             }
         }
@@ -4489,7 +4489,7 @@ return new class extends Migration
     }
 ]', true);
         foreach($data as $row) {
-            $row['express_delivery_price'] = 50.00;
+            $row['express_delivery_price'] = 0.00;
             $exists = DB::table('guest_post_sites')->where('url', $row['url'])->first();
             if (!$exists) {
                 DB::table('guest_post_sites')->insert($row);
@@ -4502,7 +4502,7 @@ return new class extends Migration
                     'delivery_time_days' => $row['delivery_time_days'],
                     'price_creation_placement' => $row['price_creation_placement'],
                     'express_delivery_time_days' => null,
-                    'express_delivery_price' => 50.00
+                    'express_delivery_price' => 0.00
                 ]);
             }
         }

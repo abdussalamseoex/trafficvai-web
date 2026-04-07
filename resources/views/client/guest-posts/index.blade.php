@@ -226,6 +226,7 @@
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Domain Rating (DR)</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Monthly Traffic</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Price</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ownership Type</th>
                                 <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
@@ -280,6 +281,11 @@
                                 </td>
                                 <td class="px-6 py-6 whitespace-nowrap text-lg font-bold text-gray-900">
                                     <span class="price-convert" data-base-price="{{ $site->price }}">${{ number_format($site->price) }}</span>
+                                </td>
+                                <td class="px-6 py-6 whitespace-nowrap">
+                                    <span class="px-3 py-1 inline-flex text-xs font-bold rounded-full {{ $site->ownership_type === 'Owner' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                        {{ $site->ownership_type ?? 'Contributor' }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
                                     @php $domainName = str_replace(['http://', 'https://', 'www.', '/'], '', $site->url); @endphp
