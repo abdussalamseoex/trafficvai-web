@@ -1178,7 +1178,7 @@ return new class extends Migration
                     'delivery_time_days' => $row['delivery_time_days'],
                     'price_creation_placement' => $row['price_creation_placement'],
                     'express_delivery_time_days' => null,
-                    'express_delivery_price' => null
+                    'express_delivery_price' => 50.00
                 ]);
             }
         }
@@ -2347,7 +2347,7 @@ return new class extends Migration
                     'delivery_time_days' => $row['delivery_time_days'],
                     'price_creation_placement' => $row['price_creation_placement'],
                     'express_delivery_time_days' => null,
-                    'express_delivery_price' => null
+                    'express_delivery_price' => 50.00
                 ]);
             }
         }
@@ -3516,7 +3516,7 @@ return new class extends Migration
                     'delivery_time_days' => $row['delivery_time_days'],
                     'price_creation_placement' => $row['price_creation_placement'],
                     'express_delivery_time_days' => null,
-                    'express_delivery_price' => null
+                    'express_delivery_price' => 50.00
                 ]);
             }
         }
