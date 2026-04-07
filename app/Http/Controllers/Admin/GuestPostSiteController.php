@@ -114,20 +114,18 @@ class GuestPostSiteController extends Controller
         return redirect()->route('admin.guest-posts.index')->with('success', 'Guest Post Site created successfully.');
     }
 
-    public function show(string $id)
+    public function show(\App\Models\GuestPostSite $guestPost)
     {
     // Not used
     }
 
-    public function edit(string $id)
+    public function edit(\App\Models\GuestPostSite $guestPost)
     {
-        $site = \App\Models\GuestPostSite::findOrFail($id);
-        return view('admin.guest_posts.edit', ['guestPost' => $site]);
+        return view('admin.guest_posts.edit', ['guestPost' => $guestPost]);
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, \App\Models\GuestPostSite $guestPost)
     {
-        $site = \App\Models\GuestPostSite::findOrFail($id);
         $validated = $request->validate([
             'url' => 'required|url',
             'niche' => 'required|array|min:1',
@@ -153,14 +151,13 @@ class GuestPostSiteController extends Controller
             'spam_score' => 'nullable|integer|min:0|max:100'
         ]);
 
-        $site->update($validated);
+        $guestPost->update($validated);
         return redirect()->route('admin.guest-posts.index')->with('success', 'Guest Post Site updated successfully.');
     }
 
-    public function destroy(string $id)
+    public function destroy(\App\Models\GuestPostSite $guestPost)
     {
-        $site = \App\Models\GuestPostSite::findOrFail($id);
-        $site->delete();
+        $guestPost->delete();
         return redirect()->route('admin.guest-posts.index')->with('success', 'Guest Post Site deleted successfully.');
     }
 }
