@@ -7,6 +7,68 @@ use Illuminate\Http\Request;
 
 class GuestPostSiteController extends Controller
 {
+    public function import(Request $request)
+    {
+        $request->validate([
+            'import_file' => 'required|mimes:csv,txt|max:10240'
+        ]);
+
+        $file = $request->file('import_file');
+        
+        $handle = fopen($file->getRealPath(), 'r');
+        $header = fgetcsv($handle);
+        if(!$header) {
+            return redirect()->back()->with('error', 'Invalid CSV file format.');
+        }
+
+        $header = array_map('strtolower', $header);
+        $header = array_map('trim', $header);
+        $header = array_map(function($h) {
+            return str_replace([' ', '-'], '_', $h);
+        }, $header);
+
+        $successCount = 0;
+        
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($header) !== count($row)) {
+                continue;
+            }
+            $data = array_combine($header, $row);
+            
+            if(!isset($data['url']) || empty($data['url'])) continue;
+            
+            $niche = isset($data['niche']) && !empty($data['niche'])
+                ? array_map('trim', explode(',', $data['niche'])) 
+                : ['General'];
+            
+            \App\Models\GuestPostSite::updateOrCreate(
+                ['url' => $data['url']],
+                [
+                    'niche' => $niche,
+                    'da' => isset($data['da']) && is_numeric($data['da']) ? (int)$data['da'] : null,
+                    'dr' => isset($data['dr']) && is_numeric($data['dr']) ? (int)$data['dr'] : null,
+                    'traffic' => isset($data['traffic']) && is_numeric($data['traffic']) ? (int)$data['traffic'] : null,
+                    'price' => isset($data['price']) && is_numeric($data['price']) ? (float)$data['price'] : 0.00,
+                    'is_active' => isset($data['is_active']) ? filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN) : true,
+                    'link_type' => !empty($data['link_type']) ? $data['link_type'] : 'DoFollow',
+                    'max_links_allowed' => isset($data['max_links_allowed']) && is_numeric($data['max_links_allowed']) ? (int)$data['max_links_allowed'] : 1,
+                    'is_sponsored' => isset($data['is_sponsored']) ? filter_var($data['is_sponsored'], FILTER_VALIDATE_BOOLEAN) : false,
+                    'language' => !empty($data['language']) ? $data['language'] : 'English',
+                    'service_type' => !empty($data['service_type']) ? $data['service_type'] : 'Guest Post',
+                    'spam_score' => isset($data['spam_score']) && is_numeric($data['spam_score']) ? (int)$data['spam_score'] : null,
+                    'price_creation_placement' => isset($data['price_creation_placement']) && is_numeric($data['price_creation_placement']) ? (float)$data['price_creation_placement'] : null,
+                    'price_link_insertion' => isset($data['price_link_insertion']) && is_numeric($data['price_link_insertion']) ? (float)$data['price_link_insertion'] : null,
+                    'delivery_time_days' => isset($data['delivery_time_days']) && is_numeric($data['delivery_time_days']) ? (int)$data['delivery_time_days'] : null,
+                ]
+            );
+            $successCount++;
+        }
+        
+        fclose($handle);
+
+        return redirect()->back()->with('success', "Successfully imported {$successCount} sites.");
+    }
+
     /**
      * Display a listing of the resource.
      */

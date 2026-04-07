@@ -4,9 +4,17 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Manage Guest Post Inventory') }}
             </h2>
-            <a href="{{ route('admin.guest-posts.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                Add New Site
-            </a>
+            <div class="flex gap-2">
+                <button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'import-sites-modal')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Import CSV
+                </button>
+                <a href="{{ route('admin.guest-posts.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                    Add New Site
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -87,4 +95,42 @@
             </div>
         </div>
     </div>
+    <x-modal name="import-sites-modal" maxWidth="md" focusable>
+        <form method="post" action="{{ route('admin.guest-posts.import') }}" class="p-6" enctype="multipart/form-data">
+            @csrf
+
+            <h2 class="text-lg font-medium text-gray-900 mb-2">
+                Import Guest Post Sites
+            </h2>
+
+            <p class="text-sm text-gray-600 mb-4">
+                Upload a CSV file containing your guest post sites data. 
+                <strong>Required columns:</strong> url.
+                <br>
+                <strong>Optional columns:</strong> niche, da, dr, traffic, price, is_active, link_type, max_links_allowed, is_sponsored, language, service_type, spam_score, price_creation_placement, price_link_insertion, delivery_time_days.
+            </p>
+
+            <div class="mt-4">
+                <x-input-label for="import_file" value="CSV File" />
+                <input type="file" id="import_file" name="import_file" class="mt-1 block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-emerald-50 file:text-emerald-700
+                    hover:file:bg-emerald-100 border border-gray-300 rounded p-1
+                " accept=".csv, .txt" required autofocus>
+                <x-input-error class="mt-2" :messages="$errors->get('import_file')" />
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    Cancel
+                </x-secondary-button>
+
+                <x-primary-button class="ml-3 bg-emerald-600 hover:bg-emerald-700">
+                    Import Sites
+                </x-primary-button>
+            </div>
+        </form>
+    </x-modal>
 </x-app-layout>
