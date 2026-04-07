@@ -50,6 +50,10 @@ for(let i=1; i<lines.length; i++) {
         service_type: 'Guest Post',
         word_count: wordCount ? parseInt(wordCount) : null,
         description: 'High-quality guest post placement with fast delivery. Supports All Categories.',
+        delivery_time_days: 5,
+        price_creation_placement: 7,
+        express_delivery_time_days: null,
+        express_delivery_price: null,
         created_at: '2026-04-07 00:00:00',
         updated_at: '2026-04-07 00:00:00'
     });
@@ -100,7 +104,11 @@ chunks.forEach(chunk => {
                     'price' => $row['price'],
                     'price_link_insertion' => $row['price_link_insertion'],
                     'niche' => $row['niche'],
-                    'description' => $row['description']
+                    'description' => $row['description'],
+                    'delivery_time_days' => $row['delivery_time_days'],
+                    'price_creation_placement' => $row['price_creation_placement'],
+                    'express_delivery_time_days' => null,
+                    'express_delivery_price' => null
                 ]);
             }
         }
@@ -119,5 +127,5 @@ migrationCode += `    }
 };
 `;
 
-fs.writeFileSync('C:/Users/User/Downloads/TrafficVai/database/migrations/2026_04_07_000000_import_guest_posts_from_excel.php', migrationCode);
+fs.writeFileSync('C:/Users/User/Downloads/TrafficVai/database/migrations/2026_04_07_010000_update_imported_guest_posts.php', migrationCode);
 console.log('Migration generated successfully.');

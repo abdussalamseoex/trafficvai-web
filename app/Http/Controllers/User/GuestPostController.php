@@ -70,6 +70,10 @@ class GuestPostController extends Controller
             $query->where('spam_score', '<=', $request->max_spam_score);
         }
 
+        if ($request->filled('ownership_type') && $request->ownership_type !== 'All') {
+            $query->where('ownership_type', $request->ownership_type);
+        }
+
         // Keyword Search (URL, Niche, or Description)
         if ($request->filled('q')) {
             $keyword = $request->q;

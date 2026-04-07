@@ -131,6 +131,16 @@
                                 <x-input-error :messages="$errors->get('service_type')" class="mt-2" />
                             </div>
 
+                            <!-- Ownership Type -->
+                            <div>
+                                <x-input-label for="ownership_type" :value="__('Ownership Type / Role')" />
+                                <select id="ownership_type" name="ownership_type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="Owner" {{ old('ownership_type', $guestPost->ownership_type ?? 'Owner') == 'Owner' ? 'selected' : '' }}>Owner</option>
+                                    <option value="Contributor" {{ old('ownership_type', $guestPost->ownership_type ?? 'Owner') == 'Contributor' ? 'selected' : '' }}>Contributor</option>
+                                </select>
+                                <x-input-error :messages="$errors->get('ownership_type')" class="mt-2" />
+                            </div>
+
                             <!-- Spam Score -->
                             <div>
                                 <x-input-label for="spam_score" :value="__('Spam Score (%)')" />

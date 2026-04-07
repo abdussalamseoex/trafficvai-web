@@ -191,6 +191,16 @@
                                 <option value="Press Release" {{ request('service_type') == 'Press Release' ? 'selected' : '' }}>Press Release</option>
                             </select>
                         </div>
+
+                        <!-- Ownership Type -->
+                        <div>
+                            <label for="ownership_type" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Ownership Type</label>
+                            <select name="ownership_type" id="ownership_type" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
+                                <option value="All" {{ request('ownership_type') == 'All' ? 'selected' : '' }}>All</option>
+                                <option value="Owner" {{ request('ownership_type') == 'Owner' ? 'selected' : '' }}>Owner</option>
+                                <option value="Contributor" {{ request('ownership_type') == 'Contributor' ? 'selected' : '' }}>Contributor</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Actions -->
