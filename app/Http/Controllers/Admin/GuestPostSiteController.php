@@ -164,4 +164,14 @@ class GuestPostSiteController extends Controller
         $guestPost->delete();
         return redirect()->route('admin.guest-posts.index')->with('success', 'Guest Post Site deleted successfully.');
     }
+
+    public function toggleFeature(\App\Models\GuestPostSite $guestPost)
+    {
+        $guestPost->update([
+            'is_featured' => !$guestPost->is_featured
+        ]);
+
+        $status = $guestPost->is_featured ? 'featured' : 'unfeatured';
+        return redirect()->back()->with('success', "Site uniquely {$status} successfully.");
+    }
 }

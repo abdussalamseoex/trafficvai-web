@@ -241,6 +241,7 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
                 Route::resource('/orders', \App\Http\Controllers\Admin\OrderController::class);
                 Route::post('/orders/{order}/extend', [\App\Http\Controllers\Admin\OrderController::class, 'extendTime'])->name('orders.extend');
                 Route::post('/guest-posts/import', [\App\Http\Controllers\Admin\GuestPostSiteController::class, 'import'])->name('guest-posts.import');
+                Route::post('/guest-posts/{guestPost}/toggle-feature', [\App\Http\Controllers\Admin\GuestPostSiteController::class, 'toggleFeature'])->name('guest-posts.toggle-feature');
                 Route::resource('/guest-posts', \App\Http\Controllers\Admin\GuestPostSiteController::class)->parameters(['guest-posts' => 'guestPost']);
                 Route::resource('/invoices', \App\Http\Controllers\Admin\InvoiceController::class);
                 Route::get('/invoices/{invoice}/pdf', [\App\Http\Controllers\Admin\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
