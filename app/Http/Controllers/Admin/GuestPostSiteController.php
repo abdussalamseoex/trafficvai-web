@@ -108,7 +108,8 @@ class GuestPostSiteController extends Controller
             'language' => 'required|string|max:50',
             'service_type' => 'required|string|max:50',
             'spam_score' => 'nullable|integer|min:0|max:100',
-            'ownership_type' => 'required|in:Owner,Contributor'
+            'ownership_type' => 'required|in:Owner,Contributor',
+            'is_featured' => 'boolean'
         ]);
 
         \App\Models\GuestPostSite::create($validated);
@@ -150,7 +151,8 @@ class GuestPostSiteController extends Controller
             'language' => 'required|string|max:50',
             'service_type' => 'required|string|max:50',
             'spam_score' => 'nullable|integer|min:0|max:100',
-            'ownership_type' => 'required|in:Owner,Contributor'
+            'ownership_type' => 'required|in:Owner,Contributor',
+            'is_featured' => 'boolean'
         ]);
 
         $guestPost->update($validated);

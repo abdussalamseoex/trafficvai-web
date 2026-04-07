@@ -87,7 +87,7 @@ class GuestPostController extends Controller
             });
         }
 
-        $sites = $query->latest()->paginate(10)->withQueryString();
+        $sites = $query->orderByDesc('is_featured')->latest()->paginate(10)->withQueryString();
 
         $activeCoupons = \App\Models\Coupon::where('status', true)
             ->where('is_private', false)

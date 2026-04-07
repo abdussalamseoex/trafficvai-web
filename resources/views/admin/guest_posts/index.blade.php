@@ -71,6 +71,11 @@
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $site->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                             {{ $site->is_active ? 'Active' : 'Inactive' }}
                                         </span>
+                                        @if($site->is_featured)
+                                        <span class="px-2 mt-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                                            Featured
+                                        </span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ route('admin.guest-posts.edit', $site) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>

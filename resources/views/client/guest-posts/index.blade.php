@@ -194,7 +194,7 @@
 
                         <!-- Ownership Type -->
                         <div>
-                            <label for="ownership_type" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Ownership Type</label>
+                            <label for="ownership_type" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Role</label>
                             <select name="ownership_type" id="ownership_type" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
                                 <option value="All" {{ request('ownership_type') == 'All' ? 'selected' : '' }}>All</option>
                                 <option value="Owner" {{ request('ownership_type') == 'Owner' ? 'selected' : '' }}>Owner</option>
@@ -222,11 +222,11 @@
                             <tr>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"></th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Website URL</th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Domain Authority (DA)</th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Domain Rating (DR)</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">DA</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">DR</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Monthly Traffic</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Price</th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ownership Type</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Role</th>
                                 <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
@@ -250,7 +250,15 @@
                                             <span class="text-indigo-600 font-bold uppercase">{{ substr(str_replace(['http://', 'https://', 'www.'], '', $site->url), 0, 1) }}</span>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900">{{ str_replace(['http://', 'https://'], '', $site->url) }}</div>
+                                            <div class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                                {{ str_replace(['http://', 'https://'], '', $site->url) }}
+                                                @if($site->is_featured)
+                                                    <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700 border border-amber-200" title="Featured Publisher">
+                                                        <svg class="w-3 h-3 mr-1 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                        Featured
+                                                    </span>
+                                                @endif
+                                            </div>
                                             <div class="text-[10px] text-indigo-700 font-bold mt-1.5 flex flex-wrap gap-1">
                                                 @if(is_array($site->niche))
                                                     @foreach(array_slice($site->niche, 0, 3) as $n)

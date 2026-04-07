@@ -213,6 +213,15 @@
                             <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
                         </div>
 
+                        <!-- Is Featured -->
+                        <div class="block mt-4">
+                            <label for="is_featured" class="inline-flex items-center">
+                                <input id="is_featured" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }}>
+                                <span class="ms-2 text-sm font-bold text-amber-600">{{ __('Feature this site (shows at the top of client dashboard)') }}</span>
+                            </label>
+                            <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
+                        </div>
+
                         <div class="flex items-center justify-end mt-4">
                             <a href="{{ route('admin.guest-posts.index') }}" class="text-gray-600 hover:underline mr-4">Cancel</a>
                             <x-primary-button>
