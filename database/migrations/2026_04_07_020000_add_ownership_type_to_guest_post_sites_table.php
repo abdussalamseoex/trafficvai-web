@@ -25,7 +25,7 @@ return new class extends Migration
                 'delivery_time_days' => 5,
                 'price_creation_placement' => 7,
                 'express_delivery_time_days' => null,
-                'express_delivery_price' => null,
+                'express_delivery_price' => 50.00,
                 'ownership_type' => 'Contributor'
             ]);
         } catch (\Exception $e) {
