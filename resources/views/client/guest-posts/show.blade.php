@@ -215,7 +215,7 @@
                                     let total = this.basePrice;
                                     if (this.selectedService === 'creation_placement') total = this.creationPrice;
                                     if (this.selectedService === 'link_insertion') total = this.insertionPrice;
-                                    if (this.selectedDelivery === '1') total += {{ $guestPost->express_delivery_price ?? 50 }};
+                                    if (this.selectedDelivery === '1') total += {{ floatval($guestPost->express_delivery_price ?? 0) }};
                                     return total;
                                 },
 
@@ -322,6 +322,7 @@
                                         </div>
                                     </label>
 
+                                    @if($guestPost->express_delivery_price && floatval($guestPost->express_delivery_price) > 0)
                                     <label class="relative block cursor-pointer rounded-xl border-2 p-4 shadow-sm focus:outline-none transition-all duration-200" 
                                            :class="{ 'border-brand ring-1 ring-brand bg-orange-50/30': selectedDelivery == '1', 'border-gray-200 hover:border-gray-300 bg-white': selectedDelivery != '1' }">
                                         <input type="radio" name="is_emergency" value="1" class="sr-only" x-model="selectedDelivery">
@@ -330,9 +331,10 @@
                                                 <span class="block text-base font-bold" :class="{ 'text-orange-900': selectedDelivery == '1', 'text-gray-900': selectedDelivery != '1' }">Express Delivery</span>
                                                 <span class="block text-sm text-gray-500 mt-1">Jump the queue. Target delivery in ~{{ $guestPost->express_delivery_time_days ?? ceil($guestPost->delivery_time_days / 2) }} Days.</span>
                                             </div>
-                                            <span class="ml-4 text-xl font-black text-brand mt-0.5">+<span class="price-convert" data-base-price="{{ $guestPost->express_delivery_price ?? 50 }}">${{ number_format($guestPost->express_delivery_price ?? 50) }}</span></span>
+                                            <span class="ml-4 text-xl font-black text-brand mt-0.5">+<span class="price-convert" data-base-price="{{ $guestPost->express_delivery_price }}">${{ number_format($guestPost->express_delivery_price) }}</span></span>
                                         </div>
                                     </label>
+                                    @endif
                                 </div>
 
                                 <!-- Coupon Section -->
