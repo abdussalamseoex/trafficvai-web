@@ -72,9 +72,30 @@ class GuestPostSiteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sites = \App\Models\GuestPostSite::latest()->get();
+        $query = \App\Models\GuestPostSite::query();
+
+        if ($request->filled('search')) {
+            $query->where('url', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('niche') && $request->niche !== 'All') {
+            $query->whereJsonContains('niche', $request->niche);
+        }
+
+        if ($request->filled('ownership_type') && $request->ownership_type !== 'All') {
+            $query->where('ownership_type', $request->ownership_type);
+        }
+
+        if ($request->filled('is_featured') && $request->is_featured !== 'All') {
+            $query->where('is_featured', $request->is_featured);
+        }
+
+        $perPage = $request->input('per_page', 20);
+
+        $sites = $query->latest()->paginate($perPage)->withQueryString();
+
         return view('admin.guest_posts.index', compact('sites'));
     }
 

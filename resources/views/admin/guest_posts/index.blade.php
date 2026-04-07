@@ -27,8 +27,59 @@
             </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-4 border-b border-gray-200 bg-gray-50/50">
+                    <form method="GET" action="{{ route('admin.guest-posts.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <!-- Search -->
+                        <div>
+                            <label for="search" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Search URL</label>
+                            <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by domain..." class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
+                        </div>
+
+                        <!-- Per Page -->
+                        <div>
+                            <label for="per_page" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Items Per Page</label>
+                            <select name="per_page" id="per_page" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
+                                <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10 Sites</option>
+                                <option value="20" {{ request('per_page', 20) == '20' ? 'selected' : '' }}>20 Sites</option>
+                                <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 Sites</option>
+                                <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100 Sites</option>
+                            </select>
+                        </div>
+
+                        <!-- Ownership Type -->
+                        <div>
+                            <label for="ownership_type" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Role / Type</label>
+                            <select name="ownership_type" id="ownership_type" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
+                                <option value="All" {{ request('ownership_type') == 'All' ? 'selected' : '' }}>All</option>
+                                <option value="Owner" {{ request('ownership_type') == 'Owner' ? 'selected' : '' }}>Owner</option>
+                                <option value="Contributor" {{ request('ownership_type') == 'Contributor' ? 'selected' : '' }}>Contributor</option>
+                            </select>
+                        </div>
+
+                        <!-- Is Featured -->
+                        <div>
+                            <label for="is_featured" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Featured Status</label>
+                            <select name="is_featured" id="is_featured" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
+                                <option value="All" {{ request('is_featured') == 'All' ? 'selected' : '' }}>All</option>
+                                <option value="1" {{ request('is_featured') == '1' ? 'selected' : '' }}>Featured Only</option>
+                                <option value="0" {{ request('is_featured') == '0' ? 'selected' : '' }}>Non-Featured Only</option>
+                            </select>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-end gap-2">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-4 rounded-lg transition duration-150 text-sm flex-1">
+                                Filter
+                            </button>
+                            <a href="{{ route('admin.guest-posts.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1.5 px-4 rounded-lg transition duration-150 text-sm flex-none text-center">
+                                Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="p-6 text-gray-900 border-t border-gray-100">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -104,6 +155,12 @@
                             </tbody>
                         </table>
                     </div>
+                    
+                    @if($sites->hasPages())
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        {{ $sites->links() }}
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
