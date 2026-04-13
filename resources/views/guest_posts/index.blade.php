@@ -50,6 +50,170 @@
             </div>
             @endif
             
+            <!-- Filters -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 mt-4">
+                <form action="{{ route('guest_posts.index') }}" method="GET">
+                    
+                    <div class="mb-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
+                        <!-- Keyword Search -->
+                        <div class="lg:col-span-4">
+                            <label for="q" class="block text-xs font-semibold text-orange-600 uppercase tracking-wider mb-2 flex items-center">
+                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                Search Website / Keyword
+                            </label>
+                            <input type="text" name="q" id="q" value="{{ request('q') }}" placeholder="Enter website URL, niche, or keyword..." class="w-full text-sm rounded-xl border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-2.5 px-4 bg-orange-50/30">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <!-- Row 1 -->
+                        <!-- Moz DA -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Moz DA</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="number" name="min_da" placeholder="From" value="{{ request('min_da', 1) }}" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <span class="text-gray-400 text-xs">To</span>
+                                <input type="number" name="max_da" placeholder="To" value="{{ request('max_da', 100) }}" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+                        <div>
+                            <label for="category" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Categories</label>
+                            <select name="category" id="category" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <option value="All" {{ request('category') == 'All' ? 'selected' : '' }}>All Categories</option>
+                                @php
+                                    $categories = [
+                                        'Adult', 'App', 'Art', 'Astrology', 'Automotive', 'Beauty', 'Betting & Gambling', 'Biography', 'Blog', 'Business', 'Casino', 'CBD', 'Crypto', 'Dental', 'Digital Marketing', 'Education', 'Electronics', 'Entertainment', 'Event', 'Family & Parenting', 'Fashion', 'Finance', 'Food', 'Furniture', 'Game', 'Garden', 'General', 'Green Environment & Agriculture', 'Hair loss', 'Health & Fitness', 'Home Improvement', 'Industry & Manufacturing', 'Jewellery', 'Job & Career', 'Law & Legal', 'Lifestyle', 'Logistics', 'Magazine', 'News & Media', 'Pet & Animal', 'Photography', 'Poetry', 'Real Estate', 'Saas', 'Service', 'Shopping', 'Social Media', 'Software', 'Spa & Massage', 'Sport', 'Technology', 'Trading', 'Transportation', 'Travel', 'Visa', 'Web & Technology', 'Wedding'
+                                    ];
+                                @endphp
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Website Language -->
+                        <div class="lg:col-span-2">
+                            <label for="language" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Website Language</label>
+                            <select name="language" id="language" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3 max-w-xs">
+                                <option value="All" {{ request('language') == 'All' ? 'selected' : '' }}>All</option>
+                                <option value="English" {{ request('language') == 'English' ? 'selected' : '' }}>English</option>
+                                <option value="Spanish" {{ request('language') == 'Spanish' ? 'selected' : '' }}>Spanish</option>
+                                <option value="French" {{ request('language') == 'French' ? 'selected' : '' }}>French</option>
+                                <option value="German" {{ request('language') == 'German' ? 'selected' : '' }}>German</option>
+                            </select>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <!-- Ahrefs DR -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Ahrefs DR</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="number" name="min_dr" placeholder="From" value="{{ request('min_dr', 1) }}" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <span class="text-gray-400 text-xs">To</span>
+                                <input type="number" name="max_dr" placeholder="To" value="{{ request('max_dr', 100) }}" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                            </div>
+                        </div>
+
+                        <!-- Link Type -->
+                        <div>
+                            <label for="link_type" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Link Type</label>
+                            <select name="link_type" id="link_type" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <option value="All" {{ request('link_type') == 'All' ? 'selected' : '' }}>All</option>
+                                <option value="DoFollow" {{ request('link_type') == 'DoFollow' ? 'selected' : '' }}>DoFollow</option>
+                                <option value="NoFollow" {{ request('link_type') == 'NoFollow' ? 'selected' : '' }}>NoFollow</option>
+                            </select>
+                        </div>
+
+                        <!-- Max Links Allow -->
+                        <div>
+                            <label for="max_links_allowed" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Max Links Allow</label>
+                            <input type="number" name="max_links_allowed" id="max_links_allowed" value="{{ request('max_links_allowed', 1) }}" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3" min="1">
+                        </div>
+
+                        <!-- Marked As Sponsored -->
+                        <div>
+                            <label for="is_sponsored" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Marked As Sponsored</label>
+                            <select name="is_sponsored" id="is_sponsored" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <option value="All" {{ request('is_sponsored') == 'All' ? 'selected' : '' }}>All</option>
+                                <option value="Yes" {{ request('is_sponsored') == 'Yes' ? 'selected' : '' }}>Yes</option>
+                                <option value="No" {{ request('is_sponsored') == 'No' ? 'selected' : '' }}>No</option>
+                            </select>
+                        </div>
+
+                        <!-- Row 3 -->
+                        <!-- Price -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Price</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="number" name="min_price" placeholder="From" value="{{ request('min_price', 1) }}" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <span class="text-gray-400 text-xs">To</span>
+                                <input type="number" name="max_price" placeholder="To" value="{{ request('max_price', 100000) }}" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                            </div>
+                        </div>
+
+                        <!-- Monthly Traffic -->
+                        <div>
+                            <label for="min_traffic" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 text-orange-600 flex items-center">
+                                Monthly Traffic 
+                                <svg class="w-3.5 h-3.5 ml-1 text-orange-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            </label>
+                            <select name="min_traffic" id="min_traffic" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <option value="1" {{ request('min_traffic') == '1' ? 'selected' : '' }}>All</option>
+                                <option value="1000" {{ request('min_traffic') == '1000' ? 'selected' : '' }}>1,000+</option>
+                                <option value="10000" {{ request('min_traffic') == '10000' ? 'selected' : '' }}>10,000+</option>
+                                <option value="100000" {{ request('min_traffic') == '100000' ? 'selected' : '' }}>100,000+</option>
+                            </select>
+                        </div>
+
+                        <!-- Moz Spam Score -->
+                        <div>
+                            <label for="max_spam_score" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 text-orange-600 flex items-center">
+                                Moz Spam Score 
+                                <svg class="w-3.5 h-3.5 ml-1 text-orange-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            </label>
+                            <select name="max_spam_score" id="max_spam_score" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <option value="" {{ request('max_spam_score') == '' ? 'selected' : '' }}>All</option>
+                                <option value="5" {{ request('max_spam_score') == '5' ? 'selected' : '' }}>&lt;= 5%</option>
+                                <option value="10" {{ request('max_spam_score') == '10' ? 'selected' : '' }}>&lt;= 10%</option>
+                                <option value="30" {{ request('max_spam_score') == '30' ? 'selected' : '' }}>&lt;= 30%</option>
+                            </select>
+                        </div>
+
+                        <!-- Service Type -->
+                        <div>
+                            <label for="service_type" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Service Type</label>
+                            <select name="service_type" id="service_type" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3 border border-orange-300 bg-orange-50">
+                                <option value="All" {{ request('service_type') == 'All' ? 'selected' : '' }}>All</option>
+                                <option value="Guest Post" {{ request('service_type') == 'Guest Post' ? 'selected' : '' }}>Guest Post</option>
+                                <option value="Link Insertion" {{ request('service_type') == 'Link Insertion' ? 'selected' : '' }}>Link Insertion</option>
+                                <option value="Press Release" {{ request('service_type') == 'Press Release' ? 'selected' : '' }}>Press Release</option>
+                            </select>
+                        </div>
+
+                        <!-- Ownership Type -->
+                        <div>
+                            <label for="ownership_type" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Role</label>
+                            <select name="ownership_type" id="ownership_type" class="w-full text-sm rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 py-1.5 px-3">
+                                <option value="All" {{ request('ownership_type') == 'All' ? 'selected' : '' }}>All</option>
+                                <option value="Owner" {{ request('ownership_type') == 'Owner' ? 'selected' : '' }}>Owner</option>
+                                <option value="Contributor" {{ request('ownership_type') == 'Contributor' ? 'selected' : '' }}>Contributor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-3 pt-4 border-t border-gray-100 mt-4">
+                        <button type="submit" class="bg-brand hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition duration-150 text-sm">
+                            Apply Filters
+                        </button>
+                        <a href="{{ route('guest_posts.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-6 rounded-lg transition duration-150 text-sm">
+                            Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
             <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100" x-data="{ limit: 10 }">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
