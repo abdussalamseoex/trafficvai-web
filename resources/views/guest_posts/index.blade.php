@@ -232,8 +232,24 @@
                             <tr x-show="{{ $loop->index }} < limit" x-cloak class="hover:bg-gray-50 transition duration-150">
                                 <td class="px-6 py-6 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="h-10 w-10 flex-shrink-0 bg-orange-100 rounded-full flex items-center justify-center">
-                                            <span class="text-brand font-bold uppercase">{{ substr(str_replace(['http://', 'https://', 'www.'], '', $site->url), 0, 1) }}</span>
+                                        <div class="h-10 w-10 flex-shrink-0 bg-orange-100 rounded-full flex items-center justify-center overflow-hidden relative">
+                                            @php
+                                                $domain = str_replace(['http://', 'https://', 'www.'], '', $site->url);
+                                                $domain = explode('/', $domain)[0];
+                                                $firstLetter = substr($domain, 0, 1);
+                                            @endphp
+                                            <!-- Fallback Letter (Shown by default) -->
+                                            <span class="text-brand font-bold uppercase fallback-letter">
+                                                {{ $firstLetter }}
+                                            </span>
+                                            <!-- Favicon (Hides the letter and shows itself once loaded successfully) -->
+                                            <img src="https://www.google.com/s2/favicons?domain={{ $domain }}&sz=32" 
+                                                 alt="{{ $domain }}" 
+                                                 class="h-5 w-5 object-contain absolute hidden transition-opacity duration-200"
+                                                 loading="lazy"
+                                                 onload="this.classList.remove('hidden'); this.previousElementSibling.classList.add('hidden');"
+                                                 onerror="this.remove();"
+                                            />
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-bold text-gray-900">{{ str_replace(['http://', 'https://'], '', $site->url) }}</div>
