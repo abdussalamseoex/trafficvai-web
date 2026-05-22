@@ -259,10 +259,9 @@
                                             <!-- Favicon (Hides the letter and shows itself once loaded successfully) -->
                                             <img src="https://www.google.com/s2/favicons?domain={{ $domain }}&sz=32" 
                                                  alt="{{ $domain }}" 
-                                                 class="h-5 w-5 object-contain absolute hidden transition-opacity duration-200"
-                                                 loading="lazy"
-                                                 onload="this.classList.remove('hidden'); this.previousElementSibling.classList.add('hidden');"
-                                                 onerror="this.remove();"
+                                                 class="h-5 w-5 object-contain absolute opacity-0 transition-opacity duration-200"
+                                                 onload="this.classList.remove('opacity-0'); this.previousElementSibling.classList.add('hidden');"
+                                                 onerror="if(this.src.indexOf('google.com') !== -1) { this.src = 'https://icons.duckduckgo.com/ip3/' + this.alt + '.ico'; } else { this.remove(); }"
                                             />
                                         </div>
                                         <div class="ml-4">
