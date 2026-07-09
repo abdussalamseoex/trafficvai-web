@@ -34,6 +34,7 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-500 bg-gray-50">
+                                <th class="p-5">#</th>
                                 <th class="p-5">Order ID</th>
                                 <th class="p-5">Target URL</th>
                                 <th class="p-5">Type</th>
@@ -46,6 +47,7 @@
                         <tbody class="divide-y divide-gray-100 text-sm">
                             @foreach($campaigns as $camp)
                                 <tr class="hover:bg-gray-50 transition">
+                                    <td class="p-5 font-bold text-gray-500">{{ $campaigns->firstItem() + $loop->index }}</td>
                                     <td class="p-5 font-bold text-gray-900">{{ $camp->external_order_id }}</td>
                                     <td class="p-5 text-gray-600 max-w-xs truncate">{{ $camp->url }}</td>
                                     <td class="p-5 capitalize font-medium">
@@ -69,16 +71,22 @@
                                     </td>
                                     <td class="p-5 text-right">
                                         <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ route('client.traffic_campaign.edit', $camp) }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition border border-gray-200" title="Edit Campaign Limits">
+                                            <form action="{{ route('client.traffic_campaign.toggle', $camp) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-xl {{ $camp->status === 'active' ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200' }} font-bold text-xs transition" title="Toggle Pause/Resume">
+                                                    {{ $camp->status === 'active' ? '⏸ Pause' : '▶ Resume' }}
+                                                </button>
+                                            </form>
+                                            <a href="{{ route('client.traffic_campaign.edit', $camp) }}" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition border border-gray-200" title="Edit Campaign Limits">
                                                 Edit
                                             </a>
-                                            <a href="{{ route('client.traffic_campaign.monitor', $camp) }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold text-xs transition border border-orange-200">
-                                                Live Dashboard
+                                            <a href="{{ route('client.traffic_campaign.monitor', $camp) }}" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold text-xs transition border border-orange-200">
+                                                Live Dash
                                             </a>
                                             <form action="{{ route('client.traffic_campaign.destroy', $camp) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold text-xs transition" title="Delete Campaign">
+                                                <button type="submit" class="inline-flex items-center px-2.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold text-xs transition" title="Delete Campaign">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
                                             </form>

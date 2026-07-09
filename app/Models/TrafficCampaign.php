@@ -78,4 +78,26 @@ class TrafficCampaign extends Model
     {
         return $this->expires_at && $this->expires_at->isPast();
     }
+
+    /**
+     * Professional route key for URLs (e.g., TV-89763 instead of DB ID)
+     */
+    public function getRouteKey()
+    {
+        if (!empty($this->external_order_id)) {
+            return ltrim($this->external_order_id, '#');
+        }
+        return $this->getKey();
+    }
+
+    /**
+     * Resolve route binding supporting Order ID slug (TV-89763 or #TV-89763) or fallback to ID
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('external_order_id', $value)
+            ->orWhere('external_order_id', '#' . ltrim($value, '#'))
+            ->orWhere('id', $value)
+            ->firstOrFail();
+    }
 }

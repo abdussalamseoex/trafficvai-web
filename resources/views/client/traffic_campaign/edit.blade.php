@@ -61,13 +61,13 @@
                     <div class="lg:col-span-7 space-y-6">
                         <!-- Tab Header -->
                         <div class="p-1.5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 flex gap-2 shadow-sm">
-                            <button type="button" onclick="switchTab('direct')" id="tabBtnDirect" disabled
-                                class="pointer-events-none opacity-50 flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'direct' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25' : 'text-gray-700 dark:text-gray-400 hover:text-black dark:hover:text-white' }}">
+                            <button type="button" onclick="switchTab('direct')" id="tabBtnDirect" 
+                                class="flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'direct' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25' : 'text-gray-900 dark:text-gray-300 hover:text-orange-600 dark:hover:text-white' }}">
                                 <span>🌐</span>
                                 <span>Direct Traffic (GOAT Package)</span>
                             </button>
-                            <button type="button" onclick="switchTab('search')" id="tabBtnSearch" disabled
-                                class="pointer-events-none opacity-50 flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'search' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25' : 'text-gray-700 dark:text-gray-400 hover:text-black dark:hover:text-white' }}">
+                            <button type="button" onclick="switchTab('search')" id="tabBtnSearch" 
+                                class="flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'search' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25' : 'text-gray-900 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white' }}">
                                 <span>🔍</span>
                                 <span>Google Search (Click Booster)</span>
                             </button>
@@ -276,11 +276,14 @@
                                     </div>
 
                                     <!-- MANDATORY RANKING REQUIREMENT NOTICE -->
-                                    <div class="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
+                                    <div class="mt-4 p-4.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
                                         <span class="text-xl">⚠️</span>
-                                        <div class="text-xs text-amber-800 dark:text-amber-300 space-y-1">
-                                            <p class="font-extrabold text-amber-900 dark:text-amber-200 uppercase tracking-wider">Mandatory Google Ranking Requirement</p>
-                                            <p>Your target website URL <strong class="text-amber-700 dark:text-white">MUST BE RANKED</strong> on Google search within the selected scan range (e.g. Top 10 Pages / Top 100 Results) for every targeted keyword. If the URL is not found within the scan limit, traffic cannot be delivered.</p>
+                                        <div class="text-xs text-amber-900 dark:text-amber-200 space-y-1.5 leading-relaxed font-medium">
+                                            <p class="font-extrabold text-amber-950 dark:text-amber-100 uppercase tracking-wider">Mandatory Google Ranking Requirement & Policy</p>
+                                            <p>Your target website URL <strong class="text-amber-700 dark:text-white font-extrabold">MUST BE RANKED</strong> within the selected scan range (e.g. Top 10 Pages / Top 100 Results) for every targeted keyword.</p>
+                                            <p class="font-bold text-red-600 dark:text-red-400">
+                                                IMPORTANT NOTE: If your URL is unranked within the scan limit, search crawl attempts will still consume traffic points. Points deducted for unranked keywords cannot be refunded or credited back, and the platform is not responsible for unranked attempts. Please verify keyword ranking before launching!
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -443,29 +446,44 @@
                                         @php
                                             $selectedCountries = explode(',', $campaign->target_country ?? '');
                                             $selectedCountries = array_map('trim', $selectedCountries);
-                                            $fallbackList = ['Worldwide', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Netherlands', 'Singapore', 'India', 'Bangladesh', 'Brazil', 'Japan', 'Spain', 'Italy', 'Switzerland', 'Sweden', 'Poland', 'Mexico', 'South Korea', 'Turkey', 'United Arab Emirates', 'Saudi Arabia', 'South Africa', 'Indonesia', 'Malaysia', 'Vietnam', 'Thailand', 'Philippines', 'Pakistan', 'Egypt', 'Nigeria', 'Argentina', 'Colombia', 'Chile', 'New Zealand'];
+                                            $fallbackList = ['Worldwide', 'United States (US)', 'United Kingdom (GB)', 'Canada (CA)', 'Australia (AU)', 'Germany (DE)', 'France (FR)', 'Netherlands (NL)', 'Singapore (SG)', 'India (IN)', 'Bangladesh (BD)', 'Brazil (BR)', 'Japan (JP)', 'Spain (ES)', 'Italy (IT)', 'Switzerland (CH)', 'Sweden (SE)', 'Poland (PL)', 'Mexico (MX)', 'South Korea (KR)', 'Turkey (TR)', 'United Arab Emirates (AE)', 'Saudi Arabia (SA)', 'South Africa (ZA)', 'Indonesia (ID)', 'Malaysia (MY)', 'Vietnam (VN)', 'Thailand (TH)', 'Philippines (PH)', 'Pakistan (PK)', 'Egypt (EG)', 'Nigeria (NG)', 'Argentina (AR)', 'Colombia (CO)', 'Chile (CL)', 'New Zealand (NZ)'];
+                                            $countryNamesMap = [
+                                                'US' => 'United States (US)', 'GB' => 'United Kingdom (GB)', 'UK' => 'United Kingdom (GB)',
+                                                'CA' => 'Canada (CA)', 'AU' => 'Australia (AU)', 'DE' => 'Germany (DE)', 'FR' => 'France (FR)',
+                                                'NL' => 'Netherlands (NL)', 'SG' => 'Singapore (SG)', 'IN' => 'India (IN)', 'BD' => 'Bangladesh (BD)',
+                                                'BR' => 'Brazil (BR)', 'JP' => 'Japan (JP)', 'ES' => 'Spain (ES)', 'IT' => 'Italy (IT)',
+                                                'CH' => 'Switzerland (CH)', 'SE' => 'Sweden (SE)', 'PL' => 'Poland (PL)', 'MX' => 'Mexico (MX)',
+                                                'KR' => 'South Korea (KR)', 'TR' => 'Turkey (TR)', 'AE' => 'United Arab Emirates (AE)',
+                                                'SA' => 'Saudi Arabia (SA)', 'ZA' => 'South Africa (ZA)', 'ID' => 'Indonesia (ID)',
+                                                'MY' => 'Malaysia (MY)', 'VN' => 'Vietnam (VN)', 'TH' => 'Thailand (TH)', 'PH' => 'Philippines (PH)',
+                                                'PK' => 'Pakistan (PK)', 'EG' => 'Egypt (EG)', 'NG' => 'Nigeria (NG)', 'AR' => 'Argentina (AR)',
+                                                'CO' => 'Colombia (CO)', 'CL' => 'Chile (CL)', 'NZ' => 'New Zealand (NZ)'
+                                            ];
                                             $countryItems = [];
                                             if (!empty($availableCountries) && is_array($availableCountries)) {
-                                                $countryItems[] = ['name' => 'Worldwide', 'count' => null];
+                                                $countryItems[] = ['name' => 'Worldwide', 'display' => 'Worldwide (All Countries)', 'count' => null];
                                                 foreach ($availableCountries as $ac) {
                                                     $name = is_array($ac) ? ($ac['country'] ?? '') : $ac;
                                                     $cnt = is_array($ac) ? ($ac['count'] ?? null) : null;
                                                     if ($name && strtolower($name) !== 'worldwide') {
-                                                        $countryItems[] = ['name' => $name, 'count' => $cnt];
+                                                        $countryItems[] = ['name' => $name, 'display' => $countryNamesMap[$name] ?? $name, 'count' => $cnt];
                                                     }
                                                 }
                                             } else {
                                                 foreach ($fallbackList as $fc) {
-                                                    $countryItems[] = ['name' => $fc, 'count' => null];
+                                                    $countryItems[] = ['name' => $fc, 'display' => $fc, 'count' => null];
                                                 }
                                             }
                                         @endphp
                                         @foreach($countryItems as $cItem)
-                                            @php $countryName = $cItem['name']; @endphp
+                                            @php 
+                                                $countryName = $cItem['name']; 
+                                                $displayName = $cItem['display'];
+                                            @endphp
                                             <label class="flex items-center justify-between gap-2 p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-900 cursor-pointer transition">
                                                 <div class="flex items-center gap-2">
                                                     <input type="checkbox" name="target_country[]" value="{{ $countryName }}" {{ in_array($countryName, $selectedCountries) ? 'checked' : '' }} class="rounded border-gray-300 text-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-800 w-4 h-4">
-                                                    <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $countryName }}</span>
+                                                    <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $displayName }}</span>
                                                 </div>
                                                 @if($cItem['count'] !== null)
                                                     <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 font-bold">{{ $cItem['count'] }}</span>

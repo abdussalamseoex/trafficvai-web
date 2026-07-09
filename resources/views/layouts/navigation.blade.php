@@ -16,7 +16,19 @@
         </div>
 
         <!-- Right side User Menu -->
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-3 sm:space-x-4">
+            @if(!auth()->user()->is_admin)
+                @php
+                    $ptsBalance = (int) auth()->user()->traffic_points;
+                    $mainUsdBalance = (float) (auth()->user()->wallet ? auth()->user()->wallet->balance : 0.0);
+                    $totalAvailablePointsHeader = $ptsBalance + (int) floor($mainUsdBalance * 1000);
+                @endphp
+                <a href="{{ route('client.traffic_campaign.topup') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 hover:border-orange-500/60 text-orange-600 font-extrabold text-xs transition shadow-sm" title="Available Traffic Points">
+                    <span>⚡</span>
+                    <span>{{ number_format($totalAvailablePointsHeader) }} Pts</span>
+                </a>
+            @endif
+
             <!-- Notifications Dropdown -->
             @php
                 $unreadCount = \App\Models\NotificationHub::where(function($q) {
