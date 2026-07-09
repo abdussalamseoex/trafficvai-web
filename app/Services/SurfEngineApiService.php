@@ -84,6 +84,12 @@ class SurfEngineApiService
 
             return [
                 'success' => false,
+                'error' => 'Status request failed: ' . $response->status()
+            ];
+        } catch (\Exception $e) {
+            Log::error('SurfEngineApiService getCampaignStatus Exception: ' . $e->getMessage());
+            return [
+                'success' => false,
                 'error' => 'Connection error: ' . $e->getMessage()
             ];
         }
