@@ -169,10 +169,19 @@ class TrafficCampaignController extends Controller
         // Generate external order ID
         $externalOrderId = '#TV-' . rand(10000, 99999);
 
-        // Parse keywords array if provided
+        // Parse keywords array if provided (from dynamic percentage inputs or textarea)
         $keywordsArray = [];
-        if (!empty($validated['keywords'])) {
-            // Split by line or comma
+        $keywordTexts = $request->input('keyword_texts', []);
+        $keywordPercents = $request->input('keyword_percents', []);
+        if (is_array($keywordTexts) && count($keywordTexts) > 0) {
+            foreach ($keywordTexts as $index => $kw) {
+                $trimmed = trim($kw);
+                if ($trimmed !== '') {
+                    $pct = isset($keywordPercents[$index]) ? intval($keywordPercents[$index]) : 100;
+                    $keywordsArray[] = $trimmed . ' (' . $pct . '%)';
+                }
+            }
+        } elseif (!empty($validated['keywords'])) {
             $lines = preg_split('/[\r\n,]+/', $validated['keywords']);
             foreach ($lines as $line) {
                 $trimmed = trim($line);
@@ -181,6 +190,8 @@ class TrafficCampaignController extends Controller
                 }
             }
         }
+
+        $deviceVal = $validated['device_type'] ?? 'All';
 
         // Create local campaign with 30 days validity per requirement
         $campaign = TrafficCampaign::create([
@@ -197,11 +208,11 @@ class TrafficCampaignController extends Controller
             'sub_page_duration' => $subPageDuration,
             'behavior_scroll' => $behaviorScroll,
             'behavior_click' => $behaviorClick,
-            'device_type' => strtolower($validated['device_type']),
+            'device_type' => $deviceVal,
             'target_country' => $validated['target_country'],
             'search_engine' => $validated['search_engine'] ?? 'google',
             'keywords' => !empty($keywordsArray) ? $keywordsArray : ['website traffic'],
-            'max_page' => (int) ($validated['max_page'] ?? 1),
+            'max_page' => (int) ($validated['max_page'] ?? 10),
             'captcha_mode' => $captchaMode,
             'traffic_source' => $trafficSource,
             'custom_referrers' => $customReferrers,
@@ -227,10 +238,15 @@ class TrafficCampaignController extends Controller
             'behavior_scroll' => $campaign->behavior_scroll,
             'behavior_click' => $campaign->behavior_click,
             'device_type' => $campaign->device_type,
+            'device' => $campaign->device_type,
+            'devices' => $campaign->device_type,
             'target_country' => $campaign->target_country,
+            'country' => $campaign->target_country,
             'search_engine' => $campaign->search_engine,
-            'keywords' => json_encode($campaign->keywords),
+            'keywords' => $campaign->keywords,
+            'keywords_json' => json_encode($campaign->keywords),
             'max_page' => $campaign->max_page,
+            'search_pages_to_scan' => $campaign->max_page,
             'captcha_mode' => $campaign->captcha_mode,
             'traffic_source' => $campaign->traffic_source,
             'custom_referrers' => $campaign->custom_referrers,

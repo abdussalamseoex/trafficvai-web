@@ -194,12 +194,69 @@
                                     </div>
                                 </div>
 
-                                <!-- TARGET KEYWORDS WITH PERCENTAGE -->
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Keywords with % Allocation</label>
-                                    <textarea name="keywords" id="keywords" rows="3" placeholder="seo tools 70%&#10;link building agency 30%"
-                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 focus:border-brand transition font-medium">{{ old('keywords') }}</textarea>
-                                    <p class="text-xs text-gray-500 mt-1.5">Enter one keyword per line with percentage (e.g. <code class="text-orange-500 font-bold">seo agency 80%</code>).</p>
+                                <!-- DYNAMIC KEYWORDS & PERCENTAGE SPLIT BUILDER -->
+                                <div class="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-800">
+                                    <div class="flex items-center justify-between">
+                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">Search Keywords & Traffic Split (%)</label>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">Total Split:</span>
+                                            <span id="keywordTotalPercentBadge" class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">100%</span>
+                                        </div>
+                                    </div>
+
+                                    <div id="keywordsListContainer" class="space-y-2.5">
+                                        <!-- Initial Keyword Row -->
+                                        <div class="keyword-row flex items-center gap-2">
+                                            <input type="text" name="keyword_texts[]" placeholder="Enter keyword (e.g. best seo agency)"
+                                                class="flex-1 bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-white font-medium focus:border-orange-500">
+                                            <div class="relative w-24 sm:w-28">
+                                                <input type="number" name="keyword_percents[]" value="100" min="1" max="100"
+                                                    oninput="updateKeywordPercents()"
+                                                    class="keyword-percent-input w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-white font-bold text-center focus:border-orange-500">
+                                                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">%</span>
+                                            </div>
+                                            <button type="button" onclick="removeKeywordRow(this)"
+                                                class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-1">
+                                        <button type="button" onclick="addKeywordRow()"
+                                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 font-extrabold text-xs transition border border-orange-500/30">
+                                            <span>+ Add Another Keyword</span>
+                                        </button>
+                                        <span class="text-[11px] text-gray-500 dark:text-gray-400">Total allocation across keywords must equal 100%</span>
+                                    </div>
+                                </div>
+
+                                <!-- MAX SEARCH PAGES TO SCAN -->
+                                <div class="pt-4 border-t border-gray-200 dark:border-gray-800">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                                        <div>
+                                            <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">Max Search Pages to Scan</label>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">How deep should our engine scan Google results?</p>
+                                        </div>
+                                        <div>
+                                            <select name="max_page" id="maxPageSelect"
+                                                class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white font-bold focus:border-orange-500">
+                                                <option value="1">Top 1 Page (Top 10 Google Results)</option>
+                                                <option value="3">Top 3 Pages (Top 30 Google Results)</option>
+                                                <option value="5">Top 5 Pages (Top 50 Google Results)</option>
+                                                <option value="10" selected>Top 10 Pages (Top 100 Results - Recommended)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- MANDATORY RANKING REQUIREMENT NOTICE -->
+                                    <div class="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
+                                        <span class="text-xl">⚠️</span>
+                                        <div class="text-xs text-amber-300 space-y-1">
+                                            <p class="font-extrabold text-amber-200 uppercase tracking-wider">Mandatory Google Ranking Requirement</p>
+                                            <p>Your target website URL <strong class="text-white">MUST BE RANKED</strong> on Google search within the selected scan range (e.g. Top 10 Pages / Top 100 Results) for every targeted keyword. If the URL is not found within the scan limit, traffic cannot be delivered.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -289,14 +346,22 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Sub-Page Stay Duration (Per Page)</label>
-                                        <div class="grid grid-cols-3 gap-2">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Sub-Page Stay Duration (Per Page)</label>
+                                            <span class="text-[10px] text-orange-500 font-bold">Preset or Custom Sec</span>
+                                        </div>
+                                        <div class="grid grid-cols-4 gap-2">
                                             @foreach([10, 20, 30] as $spd)
                                                 <div onclick="selectSubPageDuration({{ $spd }})" id="subPageDurCard{{ $spd }}"
                                                     class="cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs {{ $spd == 20 ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200' }}">
-                                                    {{ $spd }}s / page
+                                                    {{ $spd }}s
                                                 </div>
                                             @endforeach
+                                            <div>
+                                                <input type="number" id="customSubPageDurationInput" placeholder="Custom s" min="5" max="300"
+                                                    oninput="setCustomSubPageDuration(this.value)"
+                                                    class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-2 py-2 text-center text-gray-900 dark:text-white font-bold text-xs focus:border-orange-500 transition">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -321,8 +386,8 @@
                                     <select name="device_type" id="deviceType" 
                                         class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                         <option value="All">All Devices (Desktop + Mobile)</option>
-                                        <option value="desktop">Desktop Only</option>
-                                        <option value="mobile">Mobile Only</option>
+                                        <option value="Desktop">Desktop Only</option>
+                                        <option value="Mobile">Mobile Only</option>
                                     </select>
                                 </div>
 
@@ -378,19 +443,19 @@
                             <!-- Breakdown List -->
                             <div class="py-6 space-y-4 border-b border-gray-200 dark:border-gray-800">
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">ট্রাফিকের ধরন (Service Mode)</span>
-                                    <span class="font-bold text-gray-900 dark:text-white" id="calcModeText">১. ডিরেক্ট ট্রাফিক (Direct)</span>
+                                    <span class="text-gray-600 dark:text-gray-400">Service Mode</span>
+                                    <span class="font-bold text-gray-900 dark:text-white" id="calcModeText">1. Direct Traffic</span>
                                 </div>
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">টার্গেট ভিজিট সংখ্যা</span>
+                                    <span class="text-gray-600 dark:text-gray-400">Target Visits</span>
                                     <span class="font-bold text-gray-900 dark:text-white" id="calcVisitsText">1,000 Visits</span>
                                 </div>
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">মোট ডিউরেশন / ভিজিট</span>
+                                    <span class="text-gray-600 dark:text-gray-400">Total Duration / Visit</span>
                                     <span class="font-bold text-gray-900 dark:text-white" id="calcDurationText">60 Seconds</span>
                                 </div>
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">প্রতি ভিজিটে খরচ (Rate per Visit)</span>
+                                    <span class="text-gray-600 dark:text-gray-400">Rate per Visit</span>
                                     <span class="font-black text-orange-600 dark:text-orange-400" id="calcPointsPerVisitText">1.00 Pts</span>
                                 </div>
                             </div>
@@ -398,58 +463,58 @@
                             <!-- TOTAL SUMMARY -->
                             <div class="py-6">
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-base font-bold text-gray-700 dark:text-gray-300">মোট আনুমানিক পয়েন্ট খরচ</span>
+                                    <span class="text-base font-bold text-gray-700 dark:text-gray-300">Estimated Total Cost</span>
                                     <span class="text-3xl font-black text-orange-600 dark:text-orange-400" id="calcTotalPointsText">1,000</span>
                                 </div>
                                 <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                                    <span>আপনার বিদ্যমান ট্রাফিক পয়েন্ট:</span>
+                                    <span>Your Available Traffic Points:</span>
                                     <span class="font-bold text-gray-900 dark:text-white">{{ number_format($balance, 0) }} Points</span>
                                 </div>
                                 <div class="p-3 mt-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-bold">
-                                    ⚡ Pay-As-You-Go Mode: ডেলিভারি হওয়া ভিজিট অনুযায়ী পয়েন্ট কাটবে।
+                                    ⚡ Pay-As-You-Go Mode: Points are deducted incrementally as visits are delivered.
                                 </div>
                             </div>
 
                             <!-- OFFICIAL RATE CHART REFERENCE TABLE -->
                             <div class="pt-2 pb-6 border-b border-gray-200 dark:border-gray-800">
                                 <div class="text-xs font-extrabold uppercase text-gray-500 dark:text-gray-400 mb-3 flex items-center justify-between">
-                                    <span>📊 ট্রাফিক রেট চার্ট (Per Visit Rate Table)</span>
-                                    <span class="text-[10px] text-orange-500 font-bold">Total Duration Formula</span>
+                                    <span>📊 Official Rate Chart (Per Visit)</span>
+                                    <span class="text-[10px] text-orange-500 font-bold">Active Mode Highlighted</span>
                                 </div>
                                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50">
                                     <table class="w-full text-left text-xs border-collapse">
                                         <thead>
                                             <tr class="border-b border-gray-200 dark:border-gray-800 text-[11px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-950/80">
-                                                <th class="p-2.5 font-bold">ট্রাফিকের ধরন</th>
-                                                <th class="p-2.5 font-bold text-center">৬০ সেকেন্ড</th>
-                                                <th class="p-2.5 font-bold text-center">৯০ সেকেন্ড</th>
-                                                <th class="p-2.5 font-bold text-center">১২০ সেকেন্ড</th>
+                                                <th class="p-2.5 font-bold">Service Mode</th>
+                                                <th class="p-2.5 font-bold text-center">60s</th>
+                                                <th class="p-2.5 font-bold text-center">90s</th>
+                                                <th class="p-2.5 font-bold text-center">120s</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-200 dark:divide-gray-800/60 text-gray-700 dark:text-gray-300">
-                                            <tr>
-                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">১. ডিরেক্ট ট্রাফিক</td>
-                                                <td class="p-2.5 text-center font-bold text-orange-500">১.০ পয়েন্ট</td>
-                                                <td class="p-2.5 text-center font-bold">১.৫ পয়েন্ট</td>
-                                                <td class="p-2.5 text-center font-bold">২.০ পয়েন্ট</td>
+                                            <tr id="rateRowDirect" class="transition">
+                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">1. Direct Traffic</td>
+                                                <td class="p-2.5 text-center font-bold text-orange-500">1.0 Pt</td>
+                                                <td class="p-2.5 text-center font-bold">1.5 Pts</td>
+                                                <td class="p-2.5 text-center font-bold">2.0 Pts</td>
                                             </tr>
-                                            <tr>
-                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">২. সার্চ (⚡ Normal)</td>
-                                                <td class="p-2.5 text-center font-bold text-orange-500">২০.০ পয়েন্ট</td>
-                                                <td class="p-2.5 text-center font-bold">৩০.০ পয়েন্ট</td>
-                                                <td class="p-2.5 text-center font-bold">৪০.০ পয়েন্ট</td>
+                                            <tr id="rateRowSearchNormal" class="transition">
+                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">2. Search (⚡ Normal)</td>
+                                                <td class="p-2.5 text-center font-bold text-orange-500">20.0 Pts</td>
+                                                <td class="p-2.5 text-center font-bold">30.0 Pts</td>
+                                                <td class="p-2.5 text-center font-bold">40.0 Pts</td>
                                             </tr>
-                                            <tr>
-                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">৩. সার্চ (💎 Premium)</td>
-                                                <td class="p-2.5 text-center font-bold text-orange-500">৩০.০ পয়েন্ট</td>
-                                                <td class="p-2.5 text-center font-bold">৪৫.০ পয়েন্ট</td>
-                                                <td class="p-2.5 text-center font-bold">৬০.০ পয়েন্ট</td>
+                                            <tr id="rateRowSearchPremium" class="transition">
+                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">3. Search (💎 Premium)</td>
+                                                <td class="p-2.5 text-center font-bold text-orange-500">30.0 Pts</td>
+                                                <td class="p-2.5 text-center font-bold">45.0 Pts</td>
+                                                <td class="p-2.5 text-center font-bold">60.0 Pts</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2 text-center">
-                                    সূত্র: <span class="text-gray-900 dark:text-white font-bold">Total Duration</span> = Main Duration + (Sub-pages × Sub-page Duration)
+                                    Formula: <span class="text-gray-900 dark:text-white font-bold">Total Duration</span> = Main Duration + (Sub-pages × Sub-page Duration)
                                 </p>
                             </div>
 
@@ -653,6 +718,54 @@
             triggerRecalculate();
         }
 
+        function addKeywordRow() {
+            const container = document.getElementById('keywordsListContainer');
+            if (!container) return;
+            const row = document.createElement('div');
+            row.className = 'keyword-row flex items-center gap-2';
+            row.innerHTML = `
+                <input type="text" name="keyword_texts[]" placeholder="Enter keyword (e.g. best seo agency)"
+                    class="flex-1 bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-white font-medium focus:border-orange-500">
+                <div class="relative w-24 sm:w-28">
+                    <input type="number" name="keyword_percents[]" value="100" min="1" max="100"
+                        oninput="updateKeywordPercents()"
+                        class="keyword-percent-input w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-white font-bold text-center focus:border-orange-500">
+                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">%</span>
+                </div>
+                <button type="button" onclick="removeKeywordRow(this)"
+                    class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition">
+                    🗑️
+                </button>
+            `;
+            container.appendChild(row);
+            updateKeywordPercents();
+        }
+
+        function removeKeywordRow(btn) {
+            const container = document.getElementById('keywordsListContainer');
+            if (container && container.children.length > 1) {
+                btn.closest('.keyword-row').remove();
+                updateKeywordPercents();
+            }
+        }
+
+        function updateKeywordPercents() {
+            const inputs = document.querySelectorAll('.keyword-percent-input');
+            let total = 0;
+            inputs.forEach(inp => {
+                total += parseInt(inp.value) || 0;
+            });
+            const badge = document.getElementById('keywordTotalPercentBadge');
+            if (badge) {
+                badge.innerText = total + '%';
+                if (total === 100) {
+                    badge.className = 'px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                } else {
+                    badge.className = 'px-2.5 py-1 rounded-lg text-xs font-black bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                }
+            }
+        }
+
         function triggerRecalculate() {
             const typeInput = document.getElementById('campaignTypeInput').value;
             const totalVisits = parseInt(document.getElementById('totalVisits').value) || 0;
@@ -667,18 +780,23 @@
             const totalSeconds = durationSec + (subPageVisits * subPageDur);
             
             let baseRate60s = 1.0;
-            let modeLabel = '১. ডিরেক্ট ট্রাফিক (Direct)';
+            let modeLabel = '1. Direct Traffic';
+            let activeRowId = 'rateRowDirect';
+
             if (typeInput === 'search') {
                 if (captchaMode === 'premium') {
                     baseRate60s = 30.0;
-                    modeLabel = '৩. সার্চ ট্রাফিক - প্রিমিয়াম (💎 Premium)';
+                    modeLabel = '3. Search Traffic (Premium)';
+                    activeRowId = 'rateRowSearchPremium';
                 } else {
                     baseRate60s = 20.0;
-                    modeLabel = '২. সার্চ ট্রাফিক - নরমাল (⚡ Normal)';
+                    modeLabel = '2. Search Traffic (Normal)';
+                    activeRowId = 'rateRowSearchNormal';
                 }
             } else {
                 baseRate60s = 1.0;
-                modeLabel = '১. ডিরেক্ট ট্রাফিক (Direct)';
+                modeLabel = '1. Direct Traffic';
+                activeRowId = 'rateRowDirect';
             }
 
             const pointsPerVisit = baseRate60s * (totalSeconds / 60.0);
@@ -698,10 +816,23 @@
 
             const totalElem = document.getElementById('calcTotalPointsText');
             if (totalElem) totalElem.innerText = totalPoints.toLocaleString();
+
+            // Highlight Active Mode Row in Rate Chart
+            ['rateRowDirect', 'rateRowSearchNormal', 'rateRowSearchPremium'].forEach(rowId => {
+                const el = document.getElementById(rowId);
+                if (el) {
+                    if (rowId === activeRowId) {
+                        el.className = 'bg-orange-500/15 dark:bg-orange-500/20 font-extrabold border-l-4 border-orange-500 transition';
+                    } else {
+                        el.className = 'opacity-50 transition';
+                    }
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             triggerRecalculate();
+            updateKeywordPercents();
 
             ['totalVisits', 'durationInput', 'subPageVisitsInput', 'subPageDurationInput', 'hourlyLimit', 'dailyLimit'].forEach(id => {
                 const el = document.getElementById(id);
