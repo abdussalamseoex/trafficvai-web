@@ -100,33 +100,23 @@ class SurfEngineApiService
      */
     public function deleteCampaign(string $orderId): array
     {
-        $urls = [
-            "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/delete",
-            "{$this->baseUrl}/api/v1/external/campaign/action",
-        ];
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$orderId}";
 
-        $results = [];
-        foreach ($urls as $url) {
-            try {
-                $response = Http::withHeaders([
-                    'x-api-key' => $this->apiKey,
-                    'Accept' => 'application/json',
-                ])->timeout(10)->post($url, [
-                    'external_order_id' => $orderId,
-                    'order_id' => $orderId,
-                    'action' => 'delete',
-                ]);
+        try {
+            $response = Http::withHeaders([
+                'x-api-key' => $this->apiKey,
+                'Accept' => 'application/json',
+            ])->timeout(10)->delete($url);
 
-                if ($response->successful()) {
-                    return ['success' => true, 'data' => $response->json()];
-                }
-                $results[] = $response->status();
-            } catch (\Exception $e) {
-                Log::warning('SurfEngineApiService deleteCampaign Exception: ' . $e->getMessage());
+            if ($response->successful()) {
+                return ['success' => true, 'data' => $response->json()];
             }
+            
+            return ['success' => false, 'error' => 'Delete sync failed: ' . $response->status()];
+        } catch (\Exception $e) {
+            Log::warning('SurfEngineApiService deleteCampaign Exception: ' . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
         }
-
-        return ['success' => false, 'error' => 'Delete sync attempted: ' . implode(', ', $results)];
     }
 
     /**
@@ -134,7 +124,7 @@ class SurfEngineApiService
      */
     public function updateCampaignStatus(string $orderId, string $status): array
     {
-        $url = "{$this->baseUrl}/api/v1/external/campaign/action";
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/action";
 
         $actionMap = [
             'active' => 'resume',
@@ -146,11 +136,8 @@ class SurfEngineApiService
             $response = Http::withHeaders([
                 'x-api-key' => $this->apiKey,
                 'Accept' => 'application/json',
-            ])->timeout(10)->post($url, [
-                'external_order_id' => $orderId,
-                'order_id' => $orderId,
-                'action' => $action,
-                'status' => $status,
+            ])->timeout(10)->put($url, [
+                'action' => $action
             ]);
 
             return [
@@ -168,31 +155,23 @@ class SurfEngineApiService
      */
     public function updateCampaign(string $orderId, array $payload): array
     {
-        $urls = [
-            "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/update",
-            "{$this->baseUrl}/api/v1/external/campaign/update"
-        ];
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/action";
 
-        $payload['external_order_id'] = $orderId;
-        $payload['order_id'] = $orderId;
+        $payload['action'] = 'update';
 
-        $results = [];
-        foreach ($urls as $url) {
-            try {
-                $response = Http::withHeaders([
-                    'x-api-key' => $this->apiKey,
-                    'Accept' => 'application/json',
-                ])->timeout(10)->post($url, $payload);
+        try {
+            $response = Http::withHeaders([
+                'x-api-key' => $this->apiKey,
+                'Accept' => 'application/json',
+            ])->timeout(10)->put($url, $payload);
 
-                if ($response->successful()) {
-                    return ['success' => true, 'data' => $response->json()];
-                }
-                $results[] = $response->status();
-            } catch (\Exception $e) {
-                Log::warning('SurfEngineApiService updateCampaign Exception: ' . $e->getMessage());
+            if ($response->successful()) {
+                return ['success' => true, 'data' => $response->json()];
             }
+            return ['success' => false, 'error' => 'Update sync failed: ' . $response->status()];
+        } catch (\Exception $e) {
+            Log::warning('SurfEngineApiService updateCampaign Exception: ' . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
         }
-
-        return ['success' => false, 'error' => 'Update sync attempted: ' . implode(', ', $results)];
     }
 }

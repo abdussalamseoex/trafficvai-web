@@ -85,21 +85,14 @@ class TrafficCampaignController extends Controller
     /**
      * Calculate points server-side based on exact master prompt formula
      */
-    public static function calculateRequiredPoints(
-        string $campaignType,
-        int $duration,
-        int $subPageVisits,
-        int $subPageDuration,
-        int $totalLimit,
-        string $captchaMode
-    ): int {
-        $totalSeconds = $duration + ($subPageVisits * $subPageDuration);
-        $baseRate60s = 1.0; // default direct
-        if ($campaignType === 'search') {
-            $baseRate60s = ($captchaMode === 'premium') ? 30.0 : 20.0;
-        } else {
-            $baseRate60s = 1.0;
+    private static function calculateRequiredPoints($campaignType, $duration, $subPageVisits, $subPageDuration, $totalLimit, $captchaMode)
+    {
+        $baseRate60s = 20.0;
+        if ($campaignType === 'search' && $captchaMode === 'premium') {
+            $baseRate60s = 30.0;
         }
+
+        $totalSeconds = $duration + ($subPageVisits * $subPageDuration);
         $pointsPerVisit = $baseRate60s * ($totalSeconds / 60.0);
         return (int) ceil($pointsPerVisit * $totalLimit);
     }
@@ -155,16 +148,16 @@ class TrafficCampaignController extends Controller
         );
 
         $user = auth()->user();
-        $ptsBalance = (int) $user->traffic_points;
-        $mainUsdBalance = (float) ($user->wallet ? $user->wallet->balance : 0.0);
 
-        // Pay-As-You-Go check: Ensure user has at least 500 points available to launch any campaign
-        $totalAvailablePoints = $ptsBalance + ($mainUsdBalance * 1000);
-        if ($totalAvailablePoints < 500) {
+        // Check if user has enough traffic points
+        if ($user->traffic_points < $requiredPoints) {
             return back()->withInput()->withErrors([
-                'balance' => "Insufficient Traffic Points! You have " . number_format($ptsBalance) . " Points available. Please top up at least 1,000 Points ($1.00 USD) to start running campaigns."
+                'balance' => "Insufficient Traffic Points! This campaign requires " . number_format($requiredPoints) . " Points, but you only have " . number_format($user->traffic_points) . " Points."
             ]);
         }
+
+        // Deduct points BEFORE firing POST request to Core Server
+        $user->decrement('traffic_points', $requiredPoints);
 
         // Generate external order ID
         $externalOrderId = '#TV-' . rand(10000, 99999);
@@ -178,7 +171,7 @@ class TrafficCampaignController extends Controller
                 $trimmed = trim($kw);
                 if ($trimmed !== '') {
                     $pct = isset($keywordPercents[$index]) ? intval($keywordPercents[$index]) : 100;
-                    $keywordsArray[] = $trimmed . ' (' . $pct . '%)';
+                    $keywordsArray[] = ['kw' => $trimmed, 'weight' => $pct];
                 }
             }
         } elseif (!empty($validated['keywords'])) {
@@ -186,7 +179,7 @@ class TrafficCampaignController extends Controller
             foreach ($lines as $line) {
                 $trimmed = trim($line);
                 if ($trimmed !== '') {
-                    $keywordsArray[] = $trimmed;
+                    $keywordsArray[] = ['kw' => $trimmed, 'weight' => 100];
                 }
             }
         }
@@ -211,48 +204,55 @@ class TrafficCampaignController extends Controller
             'device_type' => $deviceVal,
             'target_country' => is_array($validated['target_country']) ? implode(', ', $validated['target_country']) : ($validated['target_country'] ?? 'Worldwide'),
             'search_engine' => $validated['search_engine'] ?? 'google',
-            'keywords' => !empty($keywordsArray) ? $keywordsArray : ['website traffic'],
+            'keywords' => !empty($keywordsArray) ? $keywordsArray : [['kw' => 'website traffic', 'weight' => 100]],
             'max_page' => (int) ($validated['max_page'] ?? 10),
             'captcha_mode' => $captchaMode,
             'traffic_source' => $trafficSource,
             'custom_referrers' => $customReferrers,
-            'points_deducted' => 0,
+            'points_deducted' => $requiredPoints,
             'hits_delivered' => 0,
             'status' => 'active',
             'expires_at' => now()->addDays(30), // 30 days validity
         ]);
 
-        // Construct API Payload matching Core Automation Engine specification
+        // Calculate Link Click Type string for API Payload
+        $linkClickType = 'None';
+        if ($behaviorScroll === 'enabled' && $behaviorClick === 'enabled') {
+            $linkClickType = 'Both';
+        } elseif ($behaviorScroll === 'enabled') {
+            $linkClickType = 'Scroll';
+        } elseif ($behaviorClick === 'enabled') {
+            $linkClickType = 'Click';
+        }
+
+        // Parse custom referrers for Direct Traffic
+        $finalSourceType = $campaign->traffic_source;
+        if (!empty($campaign->custom_referrers)) {
+            $referrers = array_map('trim', explode("\n", $campaign->custom_referrers));
+            $finalSourceType = implode(', ', array_filter($referrers));
+        }
+
+        // Construct API Payload strictly matching Core Automation Engine V2 specification
         $apiPayload = [
-            'external_order_id' => $externalOrderId,
             'client_name' => $user->name,
+            'external_order_id' => $externalOrderId,
             'url' => $campaign->url,
-            'campaign_type' => $campaign->campaign_type,
+            'campaign_type' => strtolower($campaign->campaign_type),
+            'source_type' => $finalSourceType,
+            'search_engine' => $campaign->search_engine,
+            'captcha_mode' => $campaign->captcha_mode,
+            'keywords' => $campaign->keywords,
+            'max_page' => $campaign->max_page,
+            'duration' => $campaign->duration,
+            'scroll_enabled' => $campaign->behavior_scroll === 'enabled' ? 1 : 0,
+            'link_click_type' => $linkClickType,
+            'sub_page_visits' => $campaign->sub_page_visits,
+            'sub_page_duration' => $campaign->sub_page_duration,
+            'device_type' => $campaign->device_type,
+            'target_country' => $campaign->target_country,
             'total_limit' => $campaign->total_limit,
             'hourly_limit' => $campaign->hourly_limit,
             'daily_limit' => $campaign->daily_limit,
-            'duration' => $campaign->duration,
-            'sub_page_toggle' => $campaign->sub_page_toggle,
-            'sub_page_visits' => $campaign->sub_page_visits,
-            'sub_page_duration' => $campaign->sub_page_duration,
-            'behavior_scroll' => $campaign->behavior_scroll,
-            'behavior_click' => $campaign->behavior_click,
-            'device_type' => $campaign->device_type,
-            'device' => $campaign->device_type,
-            'devices' => $campaign->device_type,
-            'target_country' => $campaign->target_country,
-            'country' => $campaign->target_country,
-            'search_engine' => $campaign->search_engine,
-            'keywords' => $campaign->keywords,
-            'keywords_json' => json_encode($campaign->keywords),
-            'max_page' => $campaign->max_page,
-            'search_pages_to_scan' => $campaign->max_page,
-            'captcha_mode' => $campaign->captcha_mode,
-            'traffic_source' => $campaign->traffic_source,
-            'traffic_sources' => explode(',', $campaign->traffic_source ?? ''),
-            'social_media' => $campaign->traffic_source,
-            'custom_referrers' => $campaign->custom_referrers,
-            'referrers' => !empty($campaign->custom_referrers) ? array_map('trim', explode("\n", $campaign->custom_referrers)) : [],
         ];
 
         // Call Core Engine API
@@ -354,8 +354,34 @@ class TrafficCampaignController extends Controller
             }
         }
 
+        $newTotalLimit = (int) $validated['total_limit'];
+        $oldTotalLimit = (int) $campaign->total_limit;
+        
+        if ($newTotalLimit > $oldTotalLimit) {
+            $limitDiff = $newTotalLimit - $oldTotalLimit;
+            
+            $pointsForDiff = self::calculateRequiredPoints(
+                $campaign->campaign_type,
+                $campaign->duration,
+                $campaign->sub_page_visits,
+                $campaign->sub_page_duration,
+                $limitDiff,
+                $campaign->captcha_mode
+            );
+            
+            $user = auth()->user();
+            if ($user->traffic_points < $pointsForDiff) {
+                return back()->withInput()->withErrors([
+                    'balance' => "Insufficient Traffic Points to increase campaign limit! You need " . number_format($pointsForDiff) . " additional Points, but you only have " . number_format($user->traffic_points) . " Points."
+                ]);
+            }
+            
+            $user->decrement('traffic_points', $pointsForDiff);
+            $campaign->points_deducted += $pointsForDiff;
+        }
+
         $campaign->update([
-            'total_limit' => $validated['total_limit'],
+            'total_limit' => $newTotalLimit,
             'hourly_limit' => $validated['hourly_limit'],
             'daily_limit' => $validated['daily_limit'] ?? 1000,
             'duration' => $validated['duration'] ?? $campaign->duration,
@@ -367,29 +393,15 @@ class TrafficCampaignController extends Controller
             'keywords' => $keywordsArray,
             'traffic_source' => $validated['traffic_source'] ?? $campaign->traffic_source,
             'custom_referrers' => $validated['custom_referrers'] ?? $campaign->custom_referrers,
+            'points_deducted' => $campaign->points_deducted,
         ]);
 
-        // Sync with Core Engine
+        // Sync with Core Engine (V2 Spec only requires limits for update action)
         $payload = [
+            'action' => 'update',
             'total_limit' => $campaign->total_limit,
             'hourly_limit' => $campaign->hourly_limit,
             'daily_limit' => $campaign->daily_limit,
-            'duration' => $campaign->duration,
-            'target_country' => $campaign->target_country,
-            'country' => $campaign->target_country,
-            'device_type' => $campaign->device_type,
-            'device' => $campaign->device_type,
-            'devices' => $campaign->device_type,
-            'sub_page_toggle' => $campaign->sub_page_toggle,
-            'sub_page_visits' => $campaign->sub_page_visits,
-            'search_engine' => $campaign->search_engine,
-            'keywords' => $campaign->keywords,
-            'keywords_json' => json_encode($campaign->keywords),
-            'traffic_source' => $campaign->traffic_source,
-            'traffic_sources' => explode(',', $campaign->traffic_source ?? ''),
-            'social_media' => $campaign->traffic_source,
-            'custom_referrers' => $campaign->custom_referrers,
-            'referrers' => !empty($campaign->custom_referrers) ? array_map('trim', explode("\n", $campaign->custom_referrers)) : [],
         ];
         
         try {
