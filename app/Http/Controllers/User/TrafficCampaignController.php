@@ -315,7 +315,7 @@ class TrafficCampaignController extends Controller
         return view('client.traffic_campaign.index', compact('campaigns'));
     }
 
-    public function edit(TrafficCampaign $campaign)
+    public function edit(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
         abort_if(!$this->canAccessCampaign($campaign), 403);
 
@@ -325,7 +325,15 @@ class TrafficCampaignController extends Controller
         $balance = $ptsBalance + ($usdWallet * 1000);
         $activeTab = $campaign->campaign_type;
 
-        return view('client.traffic_campaign.edit', compact('campaign', 'balance', 'activeTab'));
+        $availableCountries = [];
+        try {
+            $countryRes = $apiService->getAvailableCountries();
+            if ($countryRes['success'] ?? false) {
+                $availableCountries = $countryRes['data']['countries'] ?? [];
+            }
+        } catch (\Throwable $e) {}
+
+        return view('client.traffic_campaign.edit', compact('campaign', 'balance', 'activeTab', 'availableCountries'));
     }
 
     /**
@@ -354,6 +362,7 @@ class TrafficCampaignController extends Controller
 
         $keywordTexts = $request->input('keyword_texts', []);
         $keywordPercents = $request->input('keyword_percents', []);
+        $keywordsArray = $campaign->keywords;
         
         if (is_array($keywordTexts) && count($keywordTexts) > 0) {
             $keywordsArray = [];
@@ -361,7 +370,7 @@ class TrafficCampaignController extends Controller
                 $trimmed = trim($kw);
                 if ($trimmed !== '') {
                     $pct = isset($keywordPercents[$index]) ? intval($keywordPercents[$index]) : 100;
-                    $keywordsArray[] = $trimmed . ' (' . $pct . '%)';
+                    $keywordsArray[] = ['kw' => $trimmed, 'weight' => $pct];
                 }
             }
         } elseif (!empty($validated['keywords'])) {
@@ -370,7 +379,7 @@ class TrafficCampaignController extends Controller
             foreach ($lines as $line) {
                 $trimmed = trim($line);
                 if ($trimmed !== '') {
-                    $keywordsArray[] = $trimmed;
+                    $keywordsArray[] = ['kw' => $trimmed, 'weight' => 100];
                 }
             }
         }
@@ -424,25 +433,41 @@ class TrafficCampaignController extends Controller
             'target_country' => isset($validated['target_country']) && is_array($validated['target_country']) ? implode(', ', $validated['target_country']) : ($validated['target_country'] ?? $campaign->target_country),
             'device_type' => $validated['device_type'] ?? $campaign->device_type,
             'sub_page_visits' => $subPageVisits,
+            'sub_page_duration' => (int) $request->input('sub_page_duration', $campaign->sub_page_duration),
             'sub_page_toggle' => $subPageToggle,
             'search_engine' => $validated['search_engine'] ?? $campaign->search_engine,
             'keywords' => $keywordsArray,
             'traffic_source' => $validated['traffic_source'] ?? $campaign->traffic_source,
             'custom_referrers' => $validated['custom_referrers'] ?? $campaign->custom_referrers,
+            'behavior_scroll' => $request->input('behavior_scroll', $campaign->behavior_scroll),
+            'behavior_click' => $request->input('behavior_click', $campaign->behavior_click),
             'points_deducted' => $campaign->points_deducted,
         ]);
 
         // Sync with Core Engine (V3 Spec supports updating all fields)
         $payload = [
             'action' => 'update',
-            'total_limit' => $campaign->total_limit,
-            'hourly_limit' => $campaign->hourly_limit,
-            'daily_limit' => $campaign->daily_limit,
-            'target_country' => $campaign->target_country,
-            'keywords' => $campaign->keywords,
-            'duration' => $campaign->duration,
+            'external_order_id' => $campaign->external_order_id,
             'url' => $campaign->url,
+            'campaign_type' => $campaign->campaign_type,
+            'source_type' => $campaign->traffic_source ?: 'Direct URL',
+            'traffic_source' => $campaign->traffic_source ?: 'Direct URL',
+            'referrers' => $campaign->traffic_source ?: 'Direct URL',
+            'search_engine' => $campaign->search_engine,
+            'keywords' => $campaign->keywords,
+            'max_page' => $campaign->max_page,
+            'duration' => (int) $campaign->duration,
+            'visit_duration' => (int) $campaign->duration,
+            'scroll_enabled' => $campaign->behavior_scroll === 'enabled' ? 1 : 0,
+            'link_click_type' => $campaign->behavior_click === 'enabled' ? 'Click' : 'None',
+            'sub_page_visits' => (int) $campaign->sub_page_visits,
+            'sub_page_duration' => (int) $campaign->sub_page_duration,
             'device_type' => $campaign->device_type,
+            'target_country' => $campaign->target_country ?: 'Worldwide',
+            'country' => $campaign->target_country ?: 'Worldwide',
+            'total_limit' => (int) $campaign->total_limit,
+            'hourly_limit' => (int) $campaign->hourly_limit,
+            'daily_limit' => (int) $campaign->daily_limit,
         ];
         
         try {

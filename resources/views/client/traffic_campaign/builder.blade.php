@@ -394,10 +394,34 @@
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Country (Select Multiple)</label>
                                     <div class="grid grid-cols-2 gap-2 h-36 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl">
-                                        @foreach(['Worldwide', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'India', 'Bangladesh'] as $country)
-                                            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-900 cursor-pointer transition">
-                                                <input type="checkbox" name="target_country[]" value="{{ $country }}" {{ $country === 'Worldwide' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-800 w-4 h-4">
-                                                <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $country }}</span>
+                                        @php
+                                            $fallbackList = ['Worldwide', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Netherlands', 'Singapore', 'India', 'Bangladesh', 'Brazil', 'Japan', 'Spain', 'Italy', 'Switzerland', 'Sweden', 'Poland', 'Mexico', 'South Korea', 'Turkey', 'United Arab Emirates', 'Saudi Arabia', 'South Africa', 'Indonesia', 'Malaysia', 'Vietnam', 'Thailand', 'Philippines', 'Pakistan', 'Egypt', 'Nigeria', 'Argentina', 'Colombia', 'Chile', 'New Zealand'];
+                                            $countryItems = [];
+                                            if (!empty($availableCountries) && is_array($availableCountries)) {
+                                                $countryItems[] = ['name' => 'Worldwide', 'count' => null];
+                                                foreach ($availableCountries as $ac) {
+                                                    $name = is_array($ac) ? ($ac['country'] ?? '') : $ac;
+                                                    $cnt = is_array($ac) ? ($ac['count'] ?? null) : null;
+                                                    if ($name && strtolower($name) !== 'worldwide') {
+                                                        $countryItems[] = ['name' => $name, 'count' => $cnt];
+                                                    }
+                                                }
+                                            } else {
+                                                foreach ($fallbackList as $fc) {
+                                                    $countryItems[] = ['name' => $fc, 'count' => null];
+                                                }
+                                            }
+                                        @endphp
+                                        @foreach($countryItems as $cItem)
+                                            @php $countryName = $cItem['name']; @endphp
+                                            <label class="flex items-center justify-between gap-2 p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-900 cursor-pointer transition">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="checkbox" name="target_country[]" value="{{ $countryName }}" {{ $countryName === 'Worldwide' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-800 w-4 h-4">
+                                                    <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $countryName }}</span>
+                                                </div>
+                                                @if($cItem['count'] !== null)
+                                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 font-bold">{{ $cItem['count'] }}</span>
+                                                @endif
                                             </label>
                                         @endforeach
                                     </div>
