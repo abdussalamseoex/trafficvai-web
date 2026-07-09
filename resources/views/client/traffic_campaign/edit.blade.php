@@ -409,16 +409,26 @@
                                 </div>
                             </div>
 
-                            <!-- DEVICE & TARGET COUNTRY -->
+                            <!-- DEVICE, DISTRIBUTION SPEED & TARGET COUNTRY -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Device Targeting</label>
-                                    <select name="device_type" id="deviceType" 
-                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                        <option value="All" {{ strtolower($campaign->device_type) == 'all' ? 'selected' : '' }}>All Devices (Desktop + Mobile)</option>
-                                        <option value="Desktop" {{ strtolower($campaign->device_type) == 'desktop' ? 'selected' : '' }}>Desktop Only</option>
-                                        <option value="Mobile" {{ strtolower($campaign->device_type) == 'mobile' ? 'selected' : '' }}>Mobile Only</option>
-                                    </select>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Device Targeting</label>
+                                        <select name="device_type" id="deviceType" 
+                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                            <option value="random" {{ in_array(strtolower($campaign->device_type), ['all', 'random', 'all devices', '']) ? 'selected' : '' }}>All Devices (Desktop + Mobile)</option>
+                                            <option value="desktop" {{ strtolower($campaign->device_type) == 'desktop' ? 'selected' : '' }}>Desktop Only</option>
+                                            <option value="mobile" {{ strtolower($campaign->device_type) == 'mobile' ? 'selected' : '' }}>Mobile Only</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Visit Distribution Speed</label>
+                                        <select name="distribution_type" id="distributionType" 
+                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                            <option value="spread" {{ ($campaign->distribution_type ?? 'spread') === 'spread' ? 'selected' : '' }}>Spread out evenly (24 Hours)</option>
+                                            <option value="asap" {{ ($campaign->distribution_type ?? '') === 'asap' ? 'selected' : '' }}>Deliver As Fast As Possible (ASAP)</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div>

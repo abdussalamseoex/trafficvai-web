@@ -48,6 +48,9 @@ class TrafficCampaignController extends Controller
                     if (!Schema::hasColumn('traffic_campaigns', 'link_click_type')) {
                         $table->string('link_click_type')->default('Both');
                     }
+                    if (!Schema::hasColumn('traffic_campaigns', 'distribution_type')) {
+                        $table->string('distribution_type')->default('spread');
+                    }
                 });
             }
             if (!Schema::hasTable('traffic_point_logs')) {
@@ -125,7 +128,8 @@ class TrafficCampaignController extends Controller
             'sub_page_duration' => 'nullable|integer|min:0|max:300',
             'behavior_scroll' => 'nullable|string',
             'behavior_click' => 'nullable|string',
-            'device_type' => 'required|in:desktop,mobile,All',
+            'device_type' => 'required|in:desktop,mobile,All,random,Desktop,Mobile,ALL,RANDOM',
+            'distribution_type' => 'nullable|in:spread,asap',
             'target_country' => 'nullable',
             'search_engine' => 'nullable|in:google,bing,yahoo',
             'keywords' => 'nullable|string',
@@ -213,6 +217,7 @@ class TrafficCampaignController extends Controller
             'behavior_scroll' => $behaviorScroll,
             'behavior_click' => $behaviorClick,
             'link_click_type' => $linkClickType,
+            'distribution_type' => $request->input('distribution_type', 'spread'),
             'device_type' => $deviceVal,
             'target_country' => is_array($validated['target_country']) ? implode(', ', $validated['target_country']) : ($validated['target_country'] ?? 'Worldwide'),
             'search_engine' => $validated['search_engine'] ?? 'google',
@@ -237,7 +242,13 @@ class TrafficCampaignController extends Controller
             $finalSourceType = implode(', ', array_filter($referrers));
         }
 
-        // Construct API Payload strictly matching Core Automation Engine V2/V3 specification
+        // V4 Device Targeting Normalization
+        $apiDeviceType = strtolower(trim($campaign->device_type ?? 'All'));
+        if ($apiDeviceType === 'all' || $apiDeviceType === 'all devices' || $apiDeviceType === '') {
+            $apiDeviceType = 'random';
+        }
+
+        // Construct API Payload strictly matching Core Automation Engine V4 specification
         $apiPayload = [
             'client_name' => $user->name,
             'external_order_id' => $externalOrderId,
@@ -259,9 +270,11 @@ class TrafficCampaignController extends Controller
             'internal_click_type' => $linkClickType,
             'sub_page_visits' => (int) $campaign->sub_page_visits,
             'sub_page_duration' => (int) $campaign->sub_page_duration,
-            'device_type' => $campaign->device_type,
-            'device' => $campaign->device_type,
-            'device_targeting' => $campaign->device_type,
+            'device_type' => $apiDeviceType,
+            'device' => $apiDeviceType,
+            'devices' => $apiDeviceType,
+            'distribution_type' => $campaign->distribution_type ?: 'spread',
+            'visit_distribution' => $campaign->distribution_type ?: 'spread',
             'target_country' => $campaign->target_country ?: 'Worldwide',
             'country' => $campaign->target_country ?: 'Worldwide',
             'total_limit' => (int) $campaign->total_limit,
@@ -342,7 +355,8 @@ class TrafficCampaignController extends Controller
             'daily_limit' => 'nullable|integer|min:1',
             'duration' => 'nullable|integer|min:10|max:600',
             'target_country' => 'nullable',
-            'device_type' => 'nullable|in:All,desktop,mobile',
+            'device_type' => 'nullable|in:All,desktop,mobile,random,Desktop,Mobile,ALL,RANDOM',
+            'distribution_type' => 'nullable|in:spread,asap',
             'sub_page_visits' => 'nullable|integer|min:0|max:10',
             'search_engine' => 'nullable|string',
             'keywords' => 'nullable|string',
@@ -410,10 +424,17 @@ class TrafficCampaignController extends Controller
             'behavior_scroll' => $request->input('behavior_scroll', $campaign->behavior_scroll),
             'behavior_click' => $request->input('behavior_click', $campaign->behavior_click),
             'link_click_type' => $request->input('link_click_type', $campaign->link_click_type ?: 'Both'),
+            'distribution_type' => $request->input('distribution_type', $campaign->distribution_type ?: 'spread'),
             'points_deducted' => $campaign->points_deducted,
         ]);
 
-        // Sync with Core Engine (V3 Spec supports updating all fields)
+        // V4 Device Targeting Normalization
+        $apiDeviceType = strtolower(trim($campaign->device_type ?? 'All'));
+        if ($apiDeviceType === 'all' || $apiDeviceType === 'all devices' || $apiDeviceType === '') {
+            $apiDeviceType = 'random';
+        }
+
+        // Sync with Core Engine (V4 Spec supports updating all fields)
         $payload = [
             'action' => 'update',
             'external_order_id' => $campaign->external_order_id,
@@ -434,9 +455,11 @@ class TrafficCampaignController extends Controller
             'internal_click_type' => $campaign->link_click_type ?: 'Both',
             'sub_page_visits' => (int) $campaign->sub_page_visits,
             'sub_page_duration' => (int) $campaign->sub_page_duration,
-            'device_type' => $campaign->device_type,
-            'device' => $campaign->device_type,
-            'device_targeting' => $campaign->device_type,
+            'device_type' => $apiDeviceType,
+            'device' => $apiDeviceType,
+            'devices' => $apiDeviceType,
+            'distribution_type' => $campaign->distribution_type ?: 'spread',
+            'visit_distribution' => $campaign->distribution_type ?: 'spread',
             'target_country' => $campaign->target_country ?: 'Worldwide',
             'country' => $campaign->target_country ?: 'Worldwide',
             'total_limit' => (int) $campaign->total_limit,

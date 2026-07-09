@@ -389,16 +389,26 @@
                                 </div>
                             </div>
 
-                            <!-- DEVICE & TARGET COUNTRY -->
+                            <!-- DEVICE, DISTRIBUTION SPEED & TARGET COUNTRY -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Device Targeting</label>
-                                    <select name="device_type" id="deviceType" 
-                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                        <option value="All">All Devices (Desktop + Mobile)</option>
-                                        <option value="Desktop">Desktop Only</option>
-                                        <option value="Mobile">Mobile Only</option>
-                                    </select>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Device Targeting</label>
+                                        <select name="device_type" id="deviceType" 
+                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                            <option value="random">All Devices (Desktop + Mobile)</option>
+                                            <option value="desktop">Desktop Only</option>
+                                            <option value="mobile">Mobile Only</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Visit Distribution Speed</label>
+                                        <select name="distribution_type" id="distributionType" 
+                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                            <option value="spread" selected>Spread out evenly (24 Hours)</option>
+                                            <option value="asap">Deliver As Fast As Possible (ASAP)</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div>
