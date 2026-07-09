@@ -202,6 +202,9 @@ class TrafficCampaignController extends Controller
         $deviceVal = $validated['device_type'] ?? 'All';
 
         // Create local campaign with 30 days validity per requirement
+        $linkClickType = $request->input('link_click_type', 'Both');
+        $distributionType = $request->input('distribution_type', 'spread');
+
         $campaign = TrafficCampaign::create([
             'user_id' => $user->id,
             'external_order_id' => $externalOrderId,
@@ -217,7 +220,7 @@ class TrafficCampaignController extends Controller
             'behavior_scroll' => $behaviorScroll,
             'behavior_click' => $behaviorClick,
             'link_click_type' => $linkClickType,
-            'distribution_type' => $request->input('distribution_type', 'spread'),
+            'distribution_type' => $distributionType,
             'device_type' => $deviceVal,
             'target_country' => is_array($validated['target_country']) ? implode(', ', $validated['target_country']) : ($validated['target_country'] ?? 'Worldwide'),
             'search_engine' => $validated['search_engine'] ?? 'google',
@@ -231,9 +234,6 @@ class TrafficCampaignController extends Controller
             'status' => 'active',
             'expires_at' => now()->addDays(30), // 30 days validity
         ]);
-
-        // Calculate Link Click Type string for API Payload
-        $linkClickType = $request->input('link_click_type', 'Both');
 
         // Parse custom referrers for Direct Traffic
         $finalSourceType = $campaign->traffic_source;

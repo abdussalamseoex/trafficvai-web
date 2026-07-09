@@ -33,6 +33,8 @@ class TrafficCampaign extends Model
         'sub_page_toggle',
         'behavior_scroll',
         'behavior_click',
+        'link_click_type',
+        'distribution_type',
         'points_deducted',
         'hits_delivered',
         'status',

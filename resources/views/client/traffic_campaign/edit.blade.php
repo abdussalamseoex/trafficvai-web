@@ -389,9 +389,9 @@
                                         <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Link Click Type</label>
                                         <select name="link_click_type" id="linkClickTypeSelect"
                                             class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2.5 text-gray-900 dark:text-white font-bold text-xs focus:border-orange-500 transition">
-                                            <option value="Both" {{ ($campaign->link_click_type ?? 'Both') === 'Both' ? 'selected' : '' }}>Both (Internal & External)</option>
-                                            <option value="Internal" {{ ($campaign->link_click_type ?? '') === 'Internal' ? 'selected' : '' }}>Internal Links Only</option>
-                                            <option value="External" {{ ($campaign->link_click_type ?? '') === 'External' ? 'selected' : '' }}>External Links Only</option>
+                                            <option value="Both" {{ strtolower($campaign->link_click_type ?? 'both') === 'both' ? 'selected' : '' }}>Both (Internal & External)</option>
+                                            <option value="Internal" {{ strtolower($campaign->link_click_type ?? '') === 'internal' ? 'selected' : '' }}>Internal Links Only</option>
+                                            <option value="External" {{ strtolower($campaign->link_click_type ?? '') === 'external' ? 'selected' : '' }}>External Links Only</option>
                                         </select>
                                     </div>
                                 </div>
@@ -425,8 +425,8 @@
                                         <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Visit Distribution Speed</label>
                                         <select name="distribution_type" id="distributionType" 
                                             class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                            <option value="spread" {{ ($campaign->distribution_type ?? 'spread') === 'spread' ? 'selected' : '' }}>Spread out evenly (24 Hours)</option>
-                                            <option value="asap" {{ ($campaign->distribution_type ?? '') === 'asap' ? 'selected' : '' }}>Deliver As Fast As Possible (ASAP)</option>
+                                            <option value="spread" {{ strtolower($campaign->distribution_type ?? 'spread') === 'spread' ? 'selected' : '' }}>Spread out evenly (24 Hours)</option>
+                                            <option value="asap" {{ strtolower($campaign->distribution_type ?? '') === 'asap' ? 'selected' : '' }}>Deliver As Fast As Possible (ASAP)</option>
                                         </select>
                                     </div>
                                 </div>
