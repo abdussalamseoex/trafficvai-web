@@ -171,8 +171,26 @@ class SurfEngineApiService
     public function deleteCampaign(string $orderId): array
     {
         $encodedId = urlencode($orderId);
-        $url = "{$this->baseUrl}/api/v1/external/campaign/{$encodedId}";
 
+        // 1. Send V4 action=delete payload via PUT /action endpoint
+        $actionUrl = "{$this->baseUrl}/api/v1/external/campaign/{$encodedId}/action";
+        try {
+            $putResponse = Http::withHeaders([
+                'x-api-key' => $this->apiKey,
+                'Accept' => 'application/json',
+            ])->timeout(10)->put($actionUrl, [
+                'action' => 'delete',
+            ]);
+
+            if ($putResponse->successful()) {
+                return ['success' => true, 'data' => $putResponse->json()];
+            }
+        } catch (\Throwable $e) {
+            Log::warning('SurfEngineApiService deleteCampaign PUT action Exception: ' . $e->getMessage());
+        }
+
+        // 2. Fallback to DELETE endpoint per V4 specification
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$encodedId}";
         try {
             $response = Http::withHeaders([
                 'x-api-key' => $this->apiKey,
