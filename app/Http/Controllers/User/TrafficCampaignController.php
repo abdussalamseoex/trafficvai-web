@@ -294,13 +294,17 @@ class TrafficCampaignController extends Controller
         return view('client.traffic_campaign.index', compact('campaigns'));
     }
 
-    /**
-     * Show edit limits form
-     */
     public function edit(TrafficCampaign $campaign)
     {
         abort_if(!$this->canAccessCampaign($campaign), 403);
-        return view('client.traffic_campaign.edit', compact('campaign'));
+
+        $user = auth()->user();
+        $ptsBalance = (int) $user->traffic_points;
+        $usdWallet = (float) ($user->wallet ? $user->wallet->balance : 0.0);
+        $balance = $ptsBalance + ($usdWallet * 1000);
+        $activeTab = $campaign->campaign_type;
+
+        return view('client.traffic_campaign.edit', compact('campaign', 'balance', 'activeTab'));
     }
 
     /**
@@ -327,8 +331,19 @@ class TrafficCampaignController extends Controller
         $subPageVisits = (int) ($validated['sub_page_visits'] ?? $campaign->sub_page_visits);
         $subPageToggle = $subPageVisits > 0;
 
-        $keywordsArray = $campaign->keywords;
-        if (!empty($validated['keywords'])) {
+        $keywordTexts = $request->input('keyword_texts', []);
+        $keywordPercents = $request->input('keyword_percents', []);
+        
+        if (is_array($keywordTexts) && count($keywordTexts) > 0) {
+            $keywordsArray = [];
+            foreach ($keywordTexts as $index => $kw) {
+                $trimmed = trim($kw);
+                if ($trimmed !== '') {
+                    $pct = isset($keywordPercents[$index]) ? intval($keywordPercents[$index]) : 100;
+                    $keywordsArray[] = $trimmed . ' (' . $pct . '%)';
+                }
+            }
+        } elseif (!empty($validated['keywords'])) {
             $lines = preg_split('/[\r\n,]+/', $validated['keywords']);
             $keywordsArray = [];
             foreach ($lines as $line) {
