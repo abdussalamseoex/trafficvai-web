@@ -102,6 +102,25 @@
                 </div>
             </div>
 
+            <!-- INSTANT ANALYTICS IFRAME EMBED SYSTEM (Core Server Ready Widget) -->
+            <div class="mb-8 relative w-full rounded-3xl overflow-hidden bg-gray-900 shadow-2xl border border-gray-800">
+                <div class="p-4 border-b border-gray-800 flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase text-orange-400">Live Core Engine Analytics Feed</span>
+                    <span class="text-xs text-gray-500">{{ $campaign->external_order_id }}</span>
+                </div>
+                @php
+                    $apiKey = config('services.surf_engine.key', env('SURF_ENGINE_API_KEY', 'TV_CORE_API_KEY'));
+                    $analyticsEmbedUrl = "https://surf.abguestpost.net/embed/analytics.html?apikey=" . urlencode($apiKey) . "&order_id=" . urlencode($campaign->external_order_id);
+                @endphp
+                <iframe 
+                    src="{{ $analyticsEmbedUrl }}" 
+                    width="100%" 
+                    height="720px" 
+                    style="border:none; border-radius:16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-height: 720px;"
+                    allowfullscreen>
+                </iframe>
+            </div>
+
             <!-- Configuration Summary Table -->
             <div class="p-8 rounded-3xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/80">
                 <h3 class="text-lg font-bold text-white mb-6">Campaign Technical Specification</h3>
