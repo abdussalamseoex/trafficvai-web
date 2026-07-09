@@ -13,7 +13,7 @@ class SurfEngineApiService
     public function __construct()
     {
         $this->baseUrl = rtrim(config('services.surf_engine.url', env('SURF_ENGINE_BASE_URL', 'https://surf.abguestpost.net')), '/');
-        $this->apiKey = config('services.surf_engine.key', env('SURF_ENGINE_API_KEY', ''));
+        $this->apiKey = config('services.surf_engine.key', env('SURF_ENGINE_API_KEY', 'tv_live_eaae33f4453a00dde2e727e55741d7c6'));
     }
 
     /**

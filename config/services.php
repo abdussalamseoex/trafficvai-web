@@ -37,7 +37,7 @@ return [
 
     'surf_engine' => [
         'url' => env('SURF_ENGINE_BASE_URL', 'https://surf.abguestpost.net'),
-        'key' => env('SURF_ENGINE_API_KEY', ''),
+        'key' => env('SURF_ENGINE_API_KEY', 'tv_live_eaae33f4453a00dde2e727e55741d7c6'),
     ],
 
 ];
