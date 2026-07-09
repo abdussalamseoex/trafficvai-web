@@ -398,16 +398,15 @@
                             <!-- TOTAL SUMMARY -->
                             <div class="py-6">
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-base font-bold text-gray-700 dark:text-gray-300">Total Required Points</span>
+                                    <span class="text-base font-bold text-gray-700 dark:text-gray-300">Estimated Total Cost</span>
                                     <span class="text-3xl font-black text-orange-600 dark:text-orange-400" id="calcTotalPointsText">20,000</span>
                                 </div>
                                 <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
                                     <span>Your Available Traffic Points:</span>
                                     <span class="font-bold text-gray-900 dark:text-white">{{ number_format($balance, 0) }} Points</span>
                                 </div>
-                                <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-bold">
-                                    <span>Smart Auto-Convert:</span>
-                                    <span>Uses Points first, shortage from USD balance</span>
+                                <div class="p-3 mt-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-bold">
+                                    ⚡ Pay-As-You-Go Mode: Points are deducted incrementally as visits are delivered. Launch unlimited campaigns with 30-Day validity!
                                 </div>
                             </div>
 

@@ -22,6 +22,9 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
+                    <a href="{{ route('client.traffic_campaign.history') }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-200 font-bold text-sm transition">
+                        📜 Points Ledger
+                    </a>
                     <a href="{{ route('client.traffic_campaign.index') }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-200 font-bold text-sm transition">
                         All Campaigns
                     </a>
@@ -44,6 +47,22 @@
                     {{ session('success') }}
                 </div>
             @endif
+
+            @php
+                $userPoints = (int) ($campaign->user ? $campaign->user->traffic_points : auth()->user()->traffic_points);
+            @endphp
+            <div id="suspendedAlertBanner" class="{{ $userPoints <= 0 ? '' : 'hidden' }} p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 rounded-xl bg-amber-500/20 text-amber-400 font-bold">⚠️</span>
+                    <div>
+                        <h4 class="text-base font-black text-amber-400">Insufficient Traffic Points — Delivery Suspended</h4>
+                        <p class="text-xs text-gray-300 mt-0.5">Your campaign remains active, but traffic delivery is paused until your Traffic Points balance is replenished.</p>
+                    </div>
+                </div>
+                <a href="{{ route('client.traffic_campaign.topup') }}" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-xs shadow-md hover:opacity-90 transition whitespace-nowrap">
+                    Top Up Points to Auto-Resume →
+                </a>
+            </div>
 
             <!-- Top Grid Cards (High Contrast & Clear Hierarchy) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -398,6 +417,14 @@
                         if (barElem) barElem.style.width = data.percentage + '%';
                         if (statusBadge && data.status) {
                             statusBadge.innerText = data.status;
+                        }
+                        const alertBanner = document.getElementById('suspendedAlertBanner');
+                        if (alertBanner) {
+                            if (data.delivery_suspended) {
+                                alertBanner.classList.remove('hidden');
+                            } else {
+                                alertBanner.classList.add('hidden');
+                            }
                         }
                     })
                     .catch(e => console.log('Syncing next cycle...'));

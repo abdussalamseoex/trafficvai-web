@@ -154,32 +154,12 @@ class TrafficCampaignController extends Controller
         $ptsBalance = (int) $user->traffic_points;
         $mainUsdBalance = (float) ($user->wallet ? $user->wallet->balance : 0.0);
 
-        $pointsUsed = 0;
-        $usdUsed = 0.00;
-
-        // Smart balance check: use available traffic points first, auto-convert shortage from USD balance ($1/1000 Pts)
-        if ($ptsBalance >= $requiredPoints) {
-            $pointsUsed = $requiredPoints;
-            $user->decrement('traffic_points', $requiredPoints);
-        } else {
-            $shortagePts = $requiredPoints - $ptsBalance;
-            $neededUsd = round($shortagePts / 1000.0, 2);
-
-            if ($mainUsdBalance < $neededUsd) {
-                return back()->withInput()->withErrors([
-                    'balance' => "Insufficient balance to launch! Required: " . number_format($requiredPoints) . " Pts. Available Points: " . number_format($ptsBalance) . " Pts. Shortage: " . number_format($shortagePts) . " Pts (~$" . number_format($neededUsd, 2) . " USD). Your Main Account balance is $" . number_format($mainUsdBalance, 2) . " USD. Please top up funds or buy points first."
-                ]);
-            }
-
-            $pointsUsed = $ptsBalance;
-            $usdUsed = $neededUsd;
-
-            if ($ptsBalance > 0) {
-                $user->decrement('traffic_points', $ptsBalance);
-            }
-            if ($user->wallet) {
-                $user->wallet->decrement('balance', $neededUsd);
-            }
+        // Pay-As-You-Go check: Ensure user has at least 500 points available to launch any campaign
+        $totalAvailablePoints = $ptsBalance + ($mainUsdBalance * 1000);
+        if ($totalAvailablePoints < 500) {
+            return back()->withInput()->withErrors([
+                'balance' => "Insufficient Traffic Points! You have " . number_format($ptsBalance) . " Points available. Please top up at least 1,000 Points ($1.00 USD) to start running campaigns."
+            ]);
         }
 
         // Generate external order ID
@@ -221,7 +201,7 @@ class TrafficCampaignController extends Controller
             'captcha_mode' => $captchaMode,
             'traffic_source' => $trafficSource,
             'custom_referrers' => $customReferrers,
-            'points_deducted' => $requiredPoints,
+            'points_deducted' => 0,
             'hits_delivered' => 0,
             'status' => 'active',
             'expires_at' => now()->addDays(30), // 30 days validity
@@ -267,18 +247,16 @@ class TrafficCampaignController extends Controller
             TrafficPointLog::create([
                 'user_id' => $user->id,
                 'type' => 'usage',
-                'points' => -$requiredPoints,
-                'cost_usd' => $usdUsed,
-                'description' => "Launched Campaign {$externalOrderId} ({$campaignType})",
+                'points' => 0,
+                'cost_usd' => 0,
+                'description' => "Created Pay-As-You-Go Campaign {$externalOrderId} ({$campaignType}) - Estimated: " . number_format($requiredPoints) . " Pts",
                 'status' => 'completed',
             ]);
         } catch (\Throwable $e) {
             Log::warning("Could not create traffic log: " . $e->getMessage());
         }
 
-        $msg = "Traffic Campaign launched successfully! Used " . number_format($pointsUsed) . " Traffic Points"
-             . ($usdUsed > 0 ? " + $" . number_format($usdUsed, 2) . " USD from Main Account" : "")
-             . ". Monitoring live delivery below.";
+        $msg = "Traffic Campaign launched successfully! Pay-As-You-Go mode active: points will be deducted incrementally as visits are delivered.";
 
         return redirect()->route('client.traffic_campaign.monitor', $campaign)
             ->with('success', $msg);
@@ -328,13 +306,37 @@ class TrafficCampaignController extends Controller
     {
         abort_if(!$this->canAccessCampaign($campaign), 403);
 
+        $user = $campaign->user;
+        $userPoints = (int) ($user ? $user->traffic_points : 0);
+
         // Fetch live status from surf.abguestpost.net
         $statusResponse = $apiService->getCampaignStatus($campaign->external_order_id);
 
         if ($statusResponse['success'] ?? false) {
             $data = $statusResponse['data'];
             if (isset($data['hits_delivered'])) {
-                $campaign->hits_delivered = (int) $data['hits_delivered'];
+                $newHits = (int) $data['hits_delivered'];
+                $deltaHits = max(0, $newHits - (int) $campaign->hits_delivered);
+
+                if ($deltaHits > 0 && $user && $userPoints > 0) {
+                    $deduct = min($userPoints, $deltaHits);
+                    $user->decrement('traffic_points', $deduct);
+                    $campaign->increment('points_deducted', $deduct);
+
+                    // Record incremental usage log
+                    try {
+                        TrafficPointLog::create([
+                            'user_id' => $user->id,
+                            'type' => 'usage',
+                            'points' => -$deduct,
+                            'cost_usd' => 0,
+                            'description' => "Pay-As-You-Go Delivery: {$deduct} hits delivered for {$campaign->external_order_id}",
+                            'status' => 'completed',
+                        ]);
+                    } catch (\Throwable $e) {}
+                }
+
+                $campaign->hits_delivered = $newHits;
             }
             if (isset($data['status'])) {
                 $campaign->status = strtolower($data['status']);
@@ -342,12 +344,16 @@ class TrafficCampaignController extends Controller
             $campaign->save();
         }
 
+        $userPointsAfter = (int) ($user ? $user->fresh()->traffic_points : 0);
+        $deliverySuspended = ($userPointsAfter <= 0);
+
         return response()->json([
             'hits_delivered' => $campaign->hits_delivered,
             'total_limit' => $campaign->total_limit,
             'percentage' => $campaign->delivery_percentage,
             'status' => ucfirst($campaign->status),
             'expires_at' => $campaign->expires_at ? $campaign->expires_at->format('M d, Y') : 'N/A',
+            'delivery_suspended' => $deliverySuspended,
         ]);
     }
 
@@ -459,5 +465,19 @@ class TrafficCampaignController extends Controller
         }
 
         return back()->with('success', "Successfully purchased " . number_format($points) . " Traffic Points for $" . number_format($costUsd, 2) . " USD! Your new Traffic Points balance is " . number_format($user->fresh()->traffic_points) . " Pts (Valid for 30 Days).");
+    }
+
+    /**
+     * Dedicated 30-Day Point Ledger & History Table Page
+     */
+    public function history()
+    {
+        self::ensureTrafficSchema();
+
+        $user = auth()->user();
+        $logs = TrafficPointLog::where('user_id', $user->id)->latest()->paginate(25);
+        $pointsBalance = (int) $user->traffic_points;
+
+        return view('client.traffic_campaign.history', compact('logs', 'pointsBalance'));
     }
 }
