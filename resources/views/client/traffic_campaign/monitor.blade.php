@@ -294,26 +294,24 @@
         const totalDeliveredHits = {{ (int) $campaign->hits_delivered }};
         const hourlySpeedLimit = {{ (int) $campaign->hourly_limit }};
 
-        function initDeliveryChart() {
+        async function initDeliveryChart(viewMode = '24h') {
             const ctx = document.getElementById('deliveryAnalyticsChart');
             if (!ctx) return;
 
-            const labelsHourly = [
-                '00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00',
-                '14:00', '16:00', '18:00', '20:00', '22:00', 'Now'
-            ];
+            let labels = ['0:00', '4:00', '8:00', '12:00', '16:00', '20:00'];
+            let hitData = [0, 0, 0, 0, 0, 0];
 
-            // Distribute hits realistically across 12 buckets
-            let remaining = totalDeliveredHits;
-            const dataHourly = [];
-            for (let i = 0; i < 13; i++) {
-                if (i === 12) {
-                    dataHourly.push(remaining);
-                } else {
-                    let bucket = Math.round(Math.min(remaining, Math.max(0, (totalDeliveredHits / 12) * (0.7 + Math.random() * 0.6))));
-                    dataHourly.push(bucket);
-                    remaining = Math.max(0, remaining - bucket);
+            try {
+                const res = await fetch(`{{ route('traffic_campaign.live_graph', $campaign->id) }}?view=${viewMode}`);
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.labels && json.data) {
+                        labels = json.labels;
+                        hitData = json.data;
+                    }
                 }
+            } catch (e) {
+                console.warn('Could not fetch graph data, using fallback');
             }
 
             const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 280);
@@ -325,10 +323,10 @@
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labelsHourly,
+                    labels: labels,
                     datasets: [{
                         label: 'Traffic Hits Delivered',
-                        data: dataHourly,
+                        data: hitData,
                         borderColor: '#f97316',
                         borderWidth: 3,
                         backgroundColor: gradient,
@@ -377,25 +375,11 @@
             if (mode === 'daily') {
                 btnD.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-orange-500 text-white transition';
                 btnH.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-gray-400 hover:text-white transition';
-
-                // Render 14-Day Daily Bar Trend
-                if (myChart) {
-                    myChart.config.type = 'bar';
-                    myChart.data.labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today'];
-                    let dailyData = [];
-                    let rem = totalDeliveredHits;
-                    for(let d=0; d<7; d++) {
-                        let chunk = Math.round(rem / (7 - d));
-                        dailyData.push(chunk);
-                        rem = Math.max(0, rem - chunk);
-                    }
-                    myChart.data.datasets[0].data = dailyData;
-                    myChart.update();
-                }
+                initDeliveryChart('7d');
             } else {
                 btnH.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-orange-500 text-white transition';
                 btnD.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-gray-400 hover:text-white transition';
-                initDeliveryChart();
+                initDeliveryChart('24h');
             }
         }
 

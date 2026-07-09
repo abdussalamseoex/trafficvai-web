@@ -424,12 +424,17 @@ class TrafficCampaignController extends Controller
             'points_deducted' => $campaign->points_deducted,
         ]);
 
-        // Sync with Core Engine (V2 Spec only requires limits for update action)
+        // Sync with Core Engine (V3 Spec supports updating all fields)
         $payload = [
             'action' => 'update',
             'total_limit' => $campaign->total_limit,
             'hourly_limit' => $campaign->hourly_limit,
             'daily_limit' => $campaign->daily_limit,
+            'target_country' => $campaign->target_country,
+            'keywords' => $campaign->keywords,
+            'duration' => $campaign->duration,
+            'url' => $campaign->url,
+            'device_type' => $campaign->device_type,
         ];
         
         try {
@@ -525,6 +530,27 @@ class TrafficCampaignController extends Controller
             'status' => ucfirst($campaign->status),
             'expires_at' => $campaign->expires_at ? $campaign->expires_at->format('M d, Y') : 'N/A',
             'delivery_suspended' => $deliverySuspended,
+        ]);
+    }
+
+    /**
+     * Fetch live chart data for the Monitoring Page
+     */
+    public function liveGraph(Request $request, TrafficCampaign $campaign, SurfEngineApiService $apiService)
+    {
+        abort_if(!$this->canAccessCampaign($campaign), 403);
+
+        $view = $request->get('view', '24h');
+        $graphResponse = $apiService->getCampaignGraph($campaign->external_order_id, $view);
+
+        if ($graphResponse['success'] ?? false) {
+            return response()->json($graphResponse['data']);
+        }
+
+        return response()->json([
+            'success' => false,
+            'labels' => ['0:00', '4:00', '8:00', '12:00', '16:00', '20:00'],
+            'data' => [0, 0, 0, 0, 0, 0]
         ]);
     }
 

@@ -394,6 +394,7 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             Route::put('/traffic-campaign/{campaign}', [\App\Http\Controllers\User\TrafficCampaignController::class, 'update'])->name('traffic_campaign.update');
             Route::get('/traffic-campaign/{campaign}/monitor', [\App\Http\Controllers\User\TrafficCampaignController::class, 'monitor'])->name('traffic_campaign.monitor');
             Route::get('/traffic-campaign/{campaign}/live-status', [\App\Http\Controllers\User\TrafficCampaignController::class, 'liveStatus'])->name('traffic_campaign.live_status');
+            Route::get('/traffic-campaign/{campaign}/live-graph', [\App\Http\Controllers\User\TrafficCampaignController::class, 'liveGraph'])->name('traffic_campaign.live_graph');
             Route::post('/traffic-campaign/{campaign}/toggle', [\App\Http\Controllers\User\TrafficCampaignController::class, 'toggleStatus'])->name('traffic_campaign.toggle');
             Route::delete('/traffic-campaign/{campaign}', [\App\Http\Controllers\User\TrafficCampaignController::class, 'destroy'])->name('traffic_campaign.destroy');
             Route::get('/traffic-campaign/topup', [\App\Http\Controllers\User\TrafficCampaignController::class, 'topup'])->name('traffic_campaign.topup');

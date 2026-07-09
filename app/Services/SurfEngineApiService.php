@@ -67,7 +67,8 @@ class SurfEngineApiService
      */
     public function getCampaignStatus(string $orderId): array
     {
-        $url = "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/status";
+        $encodedId = urlencode($orderId);
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$encodedId}/status";
 
         try {
             $response = Http::withHeaders([
@@ -96,11 +97,48 @@ class SurfEngineApiService
     }
 
     /**
+     * Fetch live graph data from Core Automation Engine
+     */
+    public function getCampaignGraph(string $orderId, string $view = '24h'): array
+    {
+        $encodedId = urlencode($orderId);
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$encodedId}/graph";
+
+        try {
+            $response = Http::withHeaders([
+                'x-api-key' => $this->apiKey,
+                'Accept' => 'application/json',
+            ])->timeout(10)->get($url, [
+                'view' => $view
+            ]);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'Graph request failed: ' . $response->status()
+            ];
+        } catch (\Exception $e) {
+            Log::error('SurfEngineApiService getCampaignGraph Exception: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Connection error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Stop and Delete campaign on Core Automation Engine
      */
     public function deleteCampaign(string $orderId): array
     {
-        $url = "{$this->baseUrl}/api/v1/external/campaign/{$orderId}";
+        $encodedId = urlencode($orderId);
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$encodedId}";
 
         try {
             $response = Http::withHeaders([
@@ -124,7 +162,8 @@ class SurfEngineApiService
      */
     public function updateCampaignStatus(string $orderId, string $status): array
     {
-        $url = "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/action";
+        $encodedId = urlencode($orderId);
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$encodedId}/action";
 
         $actionMap = [
             'active' => 'resume',
@@ -155,7 +194,8 @@ class SurfEngineApiService
      */
     public function updateCampaign(string $orderId, array $payload): array
     {
-        $url = "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/action";
+        $encodedId = urlencode($orderId);
+        $url = "{$this->baseUrl}/api/v1/external/campaign/{$encodedId}/action";
 
         $payload['action'] = 'update';
 
