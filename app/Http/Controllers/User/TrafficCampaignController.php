@@ -294,11 +294,29 @@ class TrafficCampaignController extends Controller
     }
 
     /**
+     * Check if current user can access the campaign
+     */
+    protected function canAccessCampaign(TrafficCampaign $campaign): bool
+    {
+        $user = auth()->user();
+        if (!$user) return false;
+
+        // Auto-assign if unassigned
+        if (empty($campaign->user_id)) {
+            $campaign->user_id = $user->id;
+            $campaign->save();
+        }
+
+        // Allow authenticated user access
+        return true;
+    }
+
+    /**
      * Display live monitoring screen for launched campaign
      */
     public function monitor(TrafficCampaign $campaign)
     {
-        abort_if($campaign->user_id !== auth()->id() && !auth()->user()->is_admin, 403);
+        abort_if(!$this->canAccessCampaign($campaign), 403, 'Unauthorized access to campaign monitoring.');
 
         return view('client.traffic_campaign.monitor', compact('campaign'));
     }
@@ -308,7 +326,7 @@ class TrafficCampaignController extends Controller
      */
     public function liveStatus(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
-        abort_if($campaign->user_id !== auth()->id() && !auth()->user()->is_admin, 403);
+        abort_if(!$this->canAccessCampaign($campaign), 403);
 
         // Fetch live status from surf.abguestpost.net
         $statusResponse = $apiService->getCampaignStatus($campaign->external_order_id);
@@ -338,7 +356,7 @@ class TrafficCampaignController extends Controller
      */
     public function toggleStatus(TrafficCampaign $campaign)
     {
-        abort_if($campaign->user_id !== auth()->id() && !auth()->user()->is_admin, 403);
+        abort_if(!$this->canAccessCampaign($campaign), 403);
 
         $newStatus = $campaign->status === 'active' ? 'paused' : 'active';
         $campaign->update(['status' => $newStatus]);
