@@ -94,8 +94,12 @@ class TrafficCampaignController extends Controller
         string $captchaMode
     ): int {
         $totalSeconds = $duration + ($subPageVisits * $subPageDuration);
-        $isSearchPremium = ($campaignType === 'search' && $captchaMode === 'premium');
-        $baseRate60s = $isSearchPremium ? 30.0 : 20.0;
+        $baseRate60s = 1.0; // default direct
+        if ($campaignType === 'search') {
+            $baseRate60s = ($captchaMode === 'premium') ? 30.0 : 20.0;
+        } else {
+            $baseRate60s = 1.0;
+        }
         $pointsPerVisit = $baseRate60s * ($totalSeconds / 60.0);
         return (int) ceil($pointsPerVisit * $totalLimit);
     }

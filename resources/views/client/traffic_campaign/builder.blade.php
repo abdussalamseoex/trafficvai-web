@@ -378,36 +378,79 @@
                             <!-- Breakdown List -->
                             <div class="py-6 space-y-4 border-b border-gray-200 dark:border-gray-800">
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">Campaign Mode</span>
-                                    <span class="font-bold text-gray-900 dark:text-white" id="calcModeText">Direct (Base 20 Pts/60s)</span>
+                                    <span class="text-gray-600 dark:text-gray-400">ট্রাফিকের ধরন (Service Mode)</span>
+                                    <span class="font-bold text-gray-900 dark:text-white" id="calcModeText">১. ডিরেক্ট ট্রাফিক (Direct)</span>
                                 </div>
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">Total Visits</span>
+                                    <span class="text-gray-600 dark:text-gray-400">টার্গেট ভিজিট সংখ্যা</span>
                                     <span class="font-bold text-gray-900 dark:text-white" id="calcVisitsText">1,000 Visits</span>
                                 </div>
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">Total Duration / Visit</span>
+                                    <span class="text-gray-600 dark:text-gray-400">মোট ডিউরেশন / ভিজিট</span>
                                     <span class="font-bold text-gray-900 dark:text-white" id="calcDurationText">60 Seconds</span>
                                 </div>
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">Points per Visit</span>
-                                    <span class="font-bold text-orange-600 dark:text-orange-400" id="calcPointsPerVisitText">20.0 Pts</span>
+                                    <span class="text-gray-600 dark:text-gray-400">প্রতি ভিজিটে খরচ (Rate per Visit)</span>
+                                    <span class="font-black text-orange-600 dark:text-orange-400" id="calcPointsPerVisitText">1.00 Pts</span>
                                 </div>
                             </div>
 
                             <!-- TOTAL SUMMARY -->
                             <div class="py-6">
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-base font-bold text-gray-700 dark:text-gray-300">Estimated Total Cost</span>
-                                    <span class="text-3xl font-black text-orange-600 dark:text-orange-400" id="calcTotalPointsText">20,000</span>
+                                    <span class="text-base font-bold text-gray-700 dark:text-gray-300">মোট আনুমানিক পয়েন্ট খরচ</span>
+                                    <span class="text-3xl font-black text-orange-600 dark:text-orange-400" id="calcTotalPointsText">1,000</span>
                                 </div>
                                 <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                                    <span>Your Available Traffic Points:</span>
+                                    <span>আপনার বিদ্যমান ট্রাফিক পয়েন্ট:</span>
                                     <span class="font-bold text-gray-900 dark:text-white">{{ number_format($balance, 0) }} Points</span>
                                 </div>
                                 <div class="p-3 mt-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-bold">
-                                    ⚡ Pay-As-You-Go Mode: Points are deducted incrementally as visits are delivered. Launch unlimited campaigns with 30-Day validity!
+                                    ⚡ Pay-As-You-Go Mode: ডেলিভারি হওয়া ভিজিট অনুযায়ী পয়েন্ট কাটবে।
                                 </div>
+                            </div>
+
+                            <!-- OFFICIAL RATE CHART REFERENCE TABLE -->
+                            <div class="pt-2 pb-6 border-b border-gray-200 dark:border-gray-800">
+                                <div class="text-xs font-extrabold uppercase text-gray-500 dark:text-gray-400 mb-3 flex items-center justify-between">
+                                    <span>📊 ট্রাফিক রেট চার্ট (Per Visit Rate Table)</span>
+                                    <span class="text-[10px] text-orange-500 font-bold">Total Duration Formula</span>
+                                </div>
+                                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50">
+                                    <table class="w-full text-left text-xs border-collapse">
+                                        <thead>
+                                            <tr class="border-b border-gray-200 dark:border-gray-800 text-[11px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-950/80">
+                                                <th class="p-2.5 font-bold">ট্রাফিকের ধরন</th>
+                                                <th class="p-2.5 font-bold text-center">৬০ সেকেন্ড</th>
+                                                <th class="p-2.5 font-bold text-center">৯০ সেকেন্ড</th>
+                                                <th class="p-2.5 font-bold text-center">১২০ সেকেন্ড</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800/60 text-gray-700 dark:text-gray-300">
+                                            <tr>
+                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">১. ডিরেক্ট ট্রাফিক</td>
+                                                <td class="p-2.5 text-center font-bold text-orange-500">১.০ পয়েন্ট</td>
+                                                <td class="p-2.5 text-center font-bold">১.৫ পয়েন্ট</td>
+                                                <td class="p-2.5 text-center font-bold">২.০ পয়েন্ট</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">২. সার্চ (⚡ Normal)</td>
+                                                <td class="p-2.5 text-center font-bold text-orange-500">২০.০ পয়েন্ট</td>
+                                                <td class="p-2.5 text-center font-bold">৩০.০ পয়েন্ট</td>
+                                                <td class="p-2.5 text-center font-bold">৪০.০ পয়েন্ট</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-bold text-gray-900 dark:text-white">৩. সার্চ (💎 Premium)</td>
+                                                <td class="p-2.5 text-center font-bold text-orange-500">৩০.০ পয়েন্ট</td>
+                                                <td class="p-2.5 text-center font-bold">৪৫.০ পয়েন্ট</td>
+                                                <td class="p-2.5 text-center font-bold">৬০.০ পয়েন্ট</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2 text-center">
+                                    সূত্র: <span class="text-gray-900 dark:text-white font-bold">Total Duration</span> = Main Duration + (Sub-pages × Sub-page Duration)
+                                </p>
                             </div>
 
                             <!-- ACTION BUTTON -->
@@ -620,22 +663,53 @@
             const subPageDur = isSubPageOn ? (parseInt(document.getElementById('subPageDurationInput').value) || 20) : 0;
 
             const captchaMode = document.getElementById('captchaModeInput').value;
-            const isSearchPremium = (typeInput === 'search' && captchaMode === 'premium');
 
             const totalSeconds = durationSec + (subPageVisits * subPageDur);
-            const baseRate60s = isSearchPremium ? 30.0 : 20.0;
+            
+            let baseRate60s = 1.0;
+            let modeLabel = '১. ডিরেক্ট ট্রাফিক (Direct)';
+            if (typeInput === 'search') {
+                if (captchaMode === 'premium') {
+                    baseRate60s = 30.0;
+                    modeLabel = '৩. সার্চ ট্রাফিক - প্রিমিয়াম (💎 Premium)';
+                } else {
+                    baseRate60s = 20.0;
+                    modeLabel = '২. সার্চ ট্রাফিক - নরমাল (⚡ Normal)';
+                }
+            } else {
+                baseRate60s = 1.0;
+                modeLabel = '১. ডিরেক্ট ট্রাফিক (Direct)';
+            }
+
             const pointsPerVisit = baseRate60s * (totalSeconds / 60.0);
             const totalPoints = Math.ceil(pointsPerVisit * totalVisits);
 
-            document.getElementById('calcModeText').innerText = isSearchPremium ? 'Search Premium (Base 30 Pts/60s)' : (typeInput === 'search' ? 'Search Normal (Base 20 Pts/60s)' : 'Direct Traffic (Base 20 Pts/60s)');
-            document.getElementById('calcVisitsText').innerText = totalVisits.toLocaleString() + ' Visits';
-            document.getElementById('calcDurationText').innerText = totalSeconds + 's (' + durationSec + 's main' + (isSubPageOn ? ' + ' + (subPageVisits * subPageDur) + 's sub)' : ')');
-            document.getElementById('calcPointsPerVisitText').innerText = pointsPerVisit.toFixed(2) + ' Pts';
-            document.getElementById('calcTotalPointsText').innerText = totalPoints.toLocaleString();
+            const modeElem = document.getElementById('calcModeText');
+            if (modeElem) modeElem.innerText = modeLabel;
+
+            const visitsElem = document.getElementById('calcVisitsText');
+            if (visitsElem) visitsElem.innerText = totalVisits.toLocaleString() + ' Visits';
+
+            const durElem = document.getElementById('calcDurationText');
+            if (durElem) durElem.innerText = totalSeconds + 's (' + durationSec + 's main' + (isSubPageOn ? ' + ' + (subPageVisits * subPageDur) + 's sub)' : ')');
+
+            const ppvElem = document.getElementById('calcPointsPerVisitText');
+            if (ppvElem) ppvElem.innerText = pointsPerVisit.toFixed(2) + ' Pts';
+
+            const totalElem = document.getElementById('calcTotalPointsText');
+            if (totalElem) totalElem.innerText = totalPoints.toLocaleString();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             triggerRecalculate();
+
+            ['totalVisits', 'durationInput', 'subPageVisitsInput', 'subPageDurationInput', 'hourlyLimit', 'dailyLimit'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', triggerRecalculate);
+                    el.addEventListener('change', triggerRecalculate);
+                }
+            });
         });
     </script>
 </x-app-layout>
