@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'surf_engine' => [
+        'url' => env('SURF_ENGINE_BASE_URL', 'https://surf.abguestpost.net'),
+        'key' => env('SURF_ENGINE_API_KEY', ''),
+    ],
+
 ];

@@ -379,6 +379,14 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             Route::get('/website-traffic/{service:slug}', [\App\Http\Controllers\User\ServiceController::class , 'show'])->name('traffic.show');
             Route::post('/website-traffic/{package}/checkout', [\App\Http\Controllers\User\ServiceController::class , 'checkout'])->name('traffic.checkout');
 
+            // Interactive Traffic Campaign Builder & Live Monitoring (surf.abguestpost.net Core Engine)
+            Route::get('/traffic-campaign/builder', [\App\Http\Controllers\User\TrafficCampaignController::class, 'builder'])->name('traffic_campaign.builder');
+            Route::post('/traffic-campaign/launch', [\App\Http\Controllers\User\TrafficCampaignController::class, 'store'])->name('traffic_campaign.launch');
+            Route::get('/traffic-campaigns', [\App\Http\Controllers\User\TrafficCampaignController::class, 'index'])->name('traffic_campaign.index');
+            Route::get('/traffic-campaign/{campaign}/monitor', [\App\Http\Controllers\User\TrafficCampaignController::class, 'monitor'])->name('traffic_campaign.monitor');
+            Route::get('/traffic-campaign/{campaign}/live-status', [\App\Http\Controllers\User\TrafficCampaignController::class, 'liveStatus'])->name('traffic_campaign.live_status');
+            Route::post('/traffic-campaign/{campaign}/toggle', [\App\Http\Controllers\User\TrafficCampaignController::class, 'toggleStatus'])->name('traffic_campaign.toggle');
+
             // In-Dashboard Guest Posts
             Route::get('/guest-posts', [\App\Http\Controllers\User\GuestPostController::class , 'index'])->name('guest_posts.index');
             Route::get('/guest-posts/{guestPost}', [\App\Http\Controllers\User\GuestPostController::class , 'show'])->name('guest_posts.show');

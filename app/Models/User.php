@@ -77,6 +77,11 @@ class User extends Authenticatable
         return $this->hasMany(Project::class);
     }
 
+    public function trafficCampaigns()
+    {
+        return $this->hasMany(TrafficCampaign::class);
+    }
+
     /**
      * Check if user has a specific role
      */
