@@ -236,9 +236,12 @@ class TrafficCampaignController extends Controller
             'expires_at' => now()->addDays(30), // 30 days validity
         ]);
 
+        $isSearch = strtolower($campaign->campaign_type) === 'search';
+        $searchEngineVal = strtolower(trim($campaign->search_engine ?: 'google'));
+
         // Parse custom referrers for Direct Traffic
-        $finalSourceType = $campaign->traffic_source;
-        if (!empty($campaign->custom_referrers)) {
+        $finalSourceType = $isSearch ? $searchEngineVal : $campaign->traffic_source;
+        if (!$isSearch && !empty($campaign->custom_referrers)) {
             $referrers = array_map('trim', explode("\n", $campaign->custom_referrers));
             $finalSourceType = implode(', ', array_filter($referrers));
         }
@@ -258,7 +261,7 @@ class TrafficCampaignController extends Controller
             'source_type' => $finalSourceType,
             'traffic_source' => $finalSourceType,
             'referrers' => $finalSourceType,
-            'search_engine' => $campaign->search_engine,
+            'search_engine' => $searchEngineVal,
             'captcha_mode' => $campaign->captcha_mode,
             'keywords' => $campaign->keywords,
             'max_page' => $campaign->max_page,
@@ -441,16 +444,20 @@ class TrafficCampaignController extends Controller
             $apiDeviceType = 'random';
         }
 
+        $isSearch = strtolower($campaign->campaign_type) === 'search';
+        $searchEngineVal = strtolower(trim($campaign->search_engine ?: 'google'));
+        $sourceTypeVal = $isSearch ? $searchEngineVal : ($campaign->traffic_source ?: 'Direct URL');
+
         // Sync with Core Engine (V4 Spec supports updating all fields)
         $payload = [
             'action' => 'update',
             'external_order_id' => $campaign->external_order_id,
             'url' => $campaign->url,
-            'campaign_type' => $campaign->campaign_type,
-            'source_type' => $campaign->traffic_source ?: 'Direct URL',
-            'traffic_source' => $campaign->traffic_source ?: 'Direct URL',
-            'referrers' => $campaign->traffic_source ?: 'Direct URL',
-            'search_engine' => $campaign->search_engine,
+            'campaign_type' => strtolower($campaign->campaign_type),
+            'source_type' => $sourceTypeVal,
+            'traffic_source' => $sourceTypeVal,
+            'referrers' => $sourceTypeVal,
+            'search_engine' => $searchEngineVal,
             'keywords' => $campaign->keywords,
             'max_page' => $campaign->max_page,
             'duration' => (int) $campaign->duration,
