@@ -116,6 +116,7 @@ class TrafficCampaignController extends Controller
      */
     public function store(Request $request, SurfEngineApiService $apiService)
     {
+        self::ensureTrafficSchema();
         $validated = $request->validate([
             'campaign_type' => 'required|in:direct,search',
             'url' => 'required|url',
@@ -317,12 +318,14 @@ class TrafficCampaignController extends Controller
      */
     public function index()
     {
+        self::ensureTrafficSchema();
         $campaigns = auth()->user()->trafficCampaigns()->latest()->paginate(15);
         return view('client.traffic_campaign.index', compact('campaigns'));
     }
 
     public function edit(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
+        self::ensureTrafficSchema();
         abort_if(!$this->canAccessCampaign($campaign), 403);
 
         $user = auth()->user();
@@ -347,6 +350,7 @@ class TrafficCampaignController extends Controller
      */
     public function update(Request $request, TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
+        self::ensureTrafficSchema();
         abort_if(!$this->canAccessCampaign($campaign), 403);
 
         $validated = $request->validate([
