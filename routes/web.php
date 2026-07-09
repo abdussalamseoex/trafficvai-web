@@ -228,6 +228,7 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             Route::get('/traffic-campaigns/active', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'active'])->name('traffic_campaigns.active');
             Route::post('/traffic-campaigns/{campaign}/sync', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'syncStatus'])->name('traffic_campaigns.sync');
             Route::post('/traffic-campaigns/{campaign}/toggle', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'toggleStatus'])->name('traffic_campaigns.toggle');
+            Route::delete('/traffic-campaigns/{campaign}', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'destroy'])->name('traffic_campaigns.destroy');
 
             // Dynamic Campaign Routes
             Route::group(['prefix' => 'campaigns/{type}', 'as' => 'campaigns.'], function () {
@@ -392,6 +393,7 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             Route::get('/traffic-campaign/{campaign}/monitor', [\App\Http\Controllers\User\TrafficCampaignController::class, 'monitor'])->name('traffic_campaign.monitor');
             Route::get('/traffic-campaign/{campaign}/live-status', [\App\Http\Controllers\User\TrafficCampaignController::class, 'liveStatus'])->name('traffic_campaign.live_status');
             Route::post('/traffic-campaign/{campaign}/toggle', [\App\Http\Controllers\User\TrafficCampaignController::class, 'toggleStatus'])->name('traffic_campaign.toggle');
+            Route::delete('/traffic-campaign/{campaign}', [\App\Http\Controllers\User\TrafficCampaignController::class, 'destroy'])->name('traffic_campaign.destroy');
             Route::get('/traffic-campaign/topup', [\App\Http\Controllers\User\TrafficCampaignController::class, 'topup'])->name('traffic_campaign.topup');
             Route::post('/traffic-campaign/topup/purchase', [\App\Http\Controllers\User\TrafficCampaignController::class, 'purchasePoints'])->name('traffic_campaign.purchase_points');
 

@@ -96,4 +96,15 @@ class TrafficCampaignAdminController extends Controller
 
         return back()->with('success', "Campaign {$campaign->external_order_id} updated to " . ucfirst($newStatus));
     }
+
+    /**
+     * Delete any client campaign
+     */
+    public function destroy(TrafficCampaign $campaign)
+    {
+        $orderId = $campaign->external_order_id;
+        $campaign->delete();
+
+        return back()->with('success', "Campaign {$orderId} deleted successfully.");
+    }
 }

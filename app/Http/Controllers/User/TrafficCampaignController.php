@@ -365,6 +365,19 @@ class TrafficCampaignController extends Controller
     }
 
     /**
+     * Delete Campaign
+     */
+    public function destroy(TrafficCampaign $campaign)
+    {
+        abort_if(!$this->canAccessCampaign($campaign), 403);
+
+        $campaign->delete();
+
+        return redirect()->route('client.traffic_campaign.index')
+            ->with('success', 'Campaign deleted successfully.');
+    }
+
+    /**
      * Dedicated Traffic Points Top-up Store Page
      */
     public function topup()

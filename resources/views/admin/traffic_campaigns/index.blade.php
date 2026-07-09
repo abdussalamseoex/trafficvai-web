@@ -139,8 +139,17 @@
 
                                             <form action="{{ route('admin.traffic_campaigns.toggle', $camp) }}" method="POST" class="inline">
                                                 @csrf
+                                                @method('POST')
                                                 <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200 transition">
                                                     {{ $camp->status === 'active' ? 'Pause' : 'Resume' }}
+                                                </button>
+                                            </form>
+
+                                            <form action="{{ route('admin.traffic_campaigns.destroy', $camp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition" title="Delete Campaign">
+                                                    Delete
                                                 </button>
                                             </form>
                                         </td>
