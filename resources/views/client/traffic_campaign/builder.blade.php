@@ -110,11 +110,24 @@
                                         </div>
                                     </div>
 
-                                    <!-- Category 2: Search Engine Referrers -->
-                                    <div class="mb-3">
+                                    <!-- Category 2: AI Assistants Referrers (NEW V6) -->
+                                    <div class="mb-4">
+                                        <div class="text-[11px] font-extrabold uppercase text-gray-400 mb-1.5">AI Assistants Referrers</div>
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach(['chatgpt' => 'ChatGPT / OpenAI', 'gemini' => 'Google Gemini', 'claude' => 'Anthropic Claude'] as $aiKey => $aiLabel)
+                                                <div onclick="toggleSourceCard('{{ $aiKey }}')" id="sourceCard_{{ $aiKey }}"
+                                                    class="cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200">
+                                                    🤖 {{ $aiLabel }}
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <!-- Category 3: Search Engine Referrers -->
+                                    <div class="mb-4">
                                         <div class="text-[11px] font-extrabold uppercase text-gray-400 mb-1.5">Search Engine Referrers (Organic Source)</div>
                                         <div class="flex flex-wrap gap-2">
-                                            @foreach(['google' => 'Google', 'bing' => 'Bing', 'yahoo' => 'Yahoo', 'yandex' => 'Yandex', 'duckduckgo' => 'DuckDuckGo'] as $sKey => $sLabel)
+                                            @foreach(['google' => 'Google', 'bing' => 'Bing', 'duckduckgo' => 'DuckDuckGo', 'yahoo' => 'Yahoo', 'baidu' => 'Baidu', 'yandex' => 'Yandex', 'aol' => 'AOL', 'ask' => 'Ask.com', 'ecosia' => 'Ecosia'] as $sKey => $sLabel)
                                                 <div onclick="toggleSourceCard('{{ $sKey }}')" id="sourceCard_{{ $sKey }}"
                                                     class="cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200">
                                                     🔍 {{ $sLabel }}
@@ -123,11 +136,11 @@
                                         </div>
                                     </div>
 
-                                    <!-- Category 3: Social Media Referrers -->
+                                    <!-- Category 4: Social Media Referrers -->
                                     <div class="mb-3">
                                         <div class="text-[11px] font-extrabold uppercase text-gray-400 mb-1.5">Social Media Referrers</div>
                                         <div class="flex flex-wrap gap-2">
-                                            @foreach(['facebook' => 'Facebook', 'twitter' => 'Twitter / X', 'reddit' => 'Reddit', 'linkedin' => 'LinkedIn', 'pinterest' => 'Pinterest', 'quora' => 'Quora', 'instagram' => 'Instagram', 'youtube' => 'YouTube'] as $socKey => $socLabel)
+                                            @foreach(['facebook' => 'Facebook', 'instagram' => 'Instagram', 'twitter' => 'Twitter / X', 'linkedin' => 'LinkedIn', 'reddit' => 'Reddit', 'youtube' => 'YouTube', 'tiktok' => 'TikTok', 'pinterest' => 'Pinterest', 'discord' => 'Discord', 'snapchat' => 'Snapchat', 'threads' => 'Threads', 'twitch' => 'Twitch', 'tumblr' => 'Tumblr', 'quora' => 'Quora', 'medium' => 'Medium'] as $socKey => $socLabel)
                                                 <div onclick="toggleSourceCard('{{ $socKey }}')" id="sourceCard_{{ $socKey }}"
                                                     class="cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200">
                                                     🌐 {{ $socLabel }}
@@ -624,7 +637,7 @@
             document.getElementById('trafficSourceInput').value = selectedTrafficSources.join(',');
 
             // Update badge cards UI
-            const allSourceKeys = ['direct', 'google', 'bing', 'yahoo', 'yandex', 'duckduckgo', 'facebook', 'twitter', 'reddit', 'linkedin', 'pinterest', 'quora', 'instagram', 'youtube', 'custom'];
+            const allSourceKeys = ['direct', 'chatgpt', 'gemini', 'claude', 'google', 'bing', 'duckduckgo', 'yahoo', 'baidu', 'yandex', 'aol', 'ask', 'ecosia', 'facebook', 'instagram', 'twitter', 'linkedin', 'reddit', 'youtube', 'tiktok', 'pinterest', 'discord', 'snapchat', 'threads', 'twitch', 'tumblr', 'quora', 'medium', 'custom'];
             allSourceKeys.forEach(k => {
                 const card = document.getElementById('sourceCard_' + k);
                 if (card) {
