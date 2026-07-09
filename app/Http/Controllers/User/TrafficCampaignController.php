@@ -163,24 +163,11 @@ class TrafficCampaignController extends Controller
         $mainUsdBalance = (float) ($user->wallet ? $user->wallet->balance : 0.0);
         $totalAvailablePoints = $ptsBalance + (int) floor($mainUsdBalance * 1000);
 
-        // Smart Auto-Convert & Deduction Check
-        if ($totalAvailablePoints < $requiredPoints) {
+        // Pay-As-You-Go Delivery Check: Ensure user has positive balance to start delivery
+        if ($totalAvailablePoints <= 0) {
             return back()->withInput()->withErrors([
-                'balance' => "Insufficient Balance! This campaign requires " . number_format($requiredPoints) . " Points, but your combined balance is only " . number_format($totalAvailablePoints) . " Points (including $" . number_format($mainUsdBalance, 2) . " auto-convertable balance)."
+                'balance' => "Insufficient Balance! You need a positive Points balance to launch a campaign. Please top up your points."
             ]);
-        }
-
-        // Deduct points
-        if ($ptsBalance >= $requiredPoints) {
-            $user->decrement('traffic_points', $requiredPoints);
-        } else {
-            $shortfall = $requiredPoints - $ptsBalance;
-            $usdCost = $shortfall / 1000.0;
-            
-            $user->update(['traffic_points' => 0]);
-            if ($user->wallet) {
-                $user->wallet->decrement('balance', $usdCost);
-            }
         }
 
         // Generate external order ID
@@ -250,27 +237,36 @@ class TrafficCampaignController extends Controller
             $finalSourceType = implode(', ', array_filter($referrers));
         }
 
-        // Construct API Payload strictly matching Core Automation Engine V2 specification
+        // Construct API Payload strictly matching Core Automation Engine V2/V3 specification
         $apiPayload = [
             'client_name' => $user->name,
             'external_order_id' => $externalOrderId,
             'url' => $campaign->url,
             'campaign_type' => strtolower($campaign->campaign_type),
             'source_type' => $finalSourceType,
+            'traffic_source' => $finalSourceType,
+            'referrers' => $finalSourceType,
             'search_engine' => $campaign->search_engine,
             'captcha_mode' => $campaign->captcha_mode,
             'keywords' => $campaign->keywords,
             'max_page' => $campaign->max_page,
-            'duration' => $campaign->duration,
+            'duration' => (int) $campaign->duration,
+            'visit_duration' => (int) $campaign->duration,
             'scroll_enabled' => $campaign->behavior_scroll === 'enabled' ? 1 : 0,
             'link_click_type' => $linkClickType,
-            'sub_page_visits' => $campaign->sub_page_visits,
-            'sub_page_duration' => $campaign->sub_page_duration,
+            'click_type' => $linkClickType,
+            'click_behavior' => $linkClickType,
+            'internal_click_type' => $linkClickType,
+            'sub_page_visits' => (int) $campaign->sub_page_visits,
+            'sub_page_duration' => (int) $campaign->sub_page_duration,
             'device_type' => $campaign->device_type,
-            'target_country' => $campaign->target_country,
-            'total_limit' => $campaign->total_limit,
-            'hourly_limit' => $campaign->hourly_limit,
-            'daily_limit' => $campaign->daily_limit,
+            'device' => $campaign->device_type,
+            'device_targeting' => $campaign->device_type,
+            'target_country' => $campaign->target_country ?: 'Worldwide',
+            'country' => $campaign->target_country ?: 'Worldwide',
+            'total_limit' => (int) $campaign->total_limit,
+            'hourly_limit' => (int) $campaign->hourly_limit,
+            'daily_limit' => (int) $campaign->daily_limit,
         ];
 
         // Call Core Engine API
@@ -385,41 +381,16 @@ class TrafficCampaignController extends Controller
         $oldTotalLimit = (int) $campaign->total_limit;
         
         if ($newTotalLimit > $oldTotalLimit) {
-            $limitDiff = $newTotalLimit - $oldTotalLimit;
-            
-            $pointsForDiff = self::calculateRequiredPoints(
-                $campaign->campaign_type,
-                $campaign->duration,
-                $campaign->sub_page_visits,
-                $campaign->sub_page_duration,
-                $limitDiff,
-                $campaign->captcha_mode
-            );
-            
             $user = auth()->user();
             $ptsBalance = (int) $user->traffic_points;
             $mainUsdBalance = (float) ($user->wallet ? $user->wallet->balance : 0.0);
             $totalAvailablePoints = $ptsBalance + (int) floor($mainUsdBalance * 1000);
 
-            if ($totalAvailablePoints < $pointsForDiff) {
+            if ($totalAvailablePoints <= 0) {
                 return back()->withInput()->withErrors([
-                    'balance' => "Insufficient Balance to increase campaign limit! You need " . number_format($pointsForDiff) . " additional Points, but your combined balance is only " . number_format($totalAvailablePoints) . " Points."
+                    'balance' => "Insufficient Balance! Please top up your points before increasing campaign limits."
                 ]);
             }
-            
-            if ($ptsBalance >= $pointsForDiff) {
-                $user->decrement('traffic_points', $pointsForDiff);
-            } else {
-                $shortfall = $pointsForDiff - $ptsBalance;
-                $usdCost = $shortfall / 1000.0;
-                
-                $user->update(['traffic_points' => 0]);
-                if ($user->wallet) {
-                    $user->wallet->decrement('balance', $usdCost);
-                }
-            }
-            
-            $campaign->points_deducted += $pointsForDiff;
         }
 
         $campaign->update([
@@ -458,9 +429,14 @@ class TrafficCampaignController extends Controller
             'visit_duration' => (int) $campaign->duration,
             'scroll_enabled' => $campaign->behavior_scroll === 'enabled' ? 1 : 0,
             'link_click_type' => $campaign->link_click_type ?: 'Both',
+            'click_type' => $campaign->link_click_type ?: 'Both',
+            'click_behavior' => $campaign->link_click_type ?: 'Both',
+            'internal_click_type' => $campaign->link_click_type ?: 'Both',
             'sub_page_visits' => (int) $campaign->sub_page_visits,
             'sub_page_duration' => (int) $campaign->sub_page_duration,
             'device_type' => $campaign->device_type,
+            'device' => $campaign->device_type,
+            'device_targeting' => $campaign->device_type,
             'target_country' => $campaign->target_country ?: 'Worldwide',
             'country' => $campaign->target_country ?: 'Worldwide',
             'total_limit' => (int) $campaign->total_limit,

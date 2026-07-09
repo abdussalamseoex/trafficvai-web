@@ -392,7 +392,6 @@
                                             <option value="Both" {{ ($campaign->link_click_type ?? 'Both') === 'Both' ? 'selected' : '' }}>Both (Internal & External)</option>
                                             <option value="Internal" {{ ($campaign->link_click_type ?? '') === 'Internal' ? 'selected' : '' }}>Internal Links Only</option>
                                             <option value="External" {{ ($campaign->link_click_type ?? '') === 'External' ? 'selected' : '' }}>External Links Only</option>
-                                            <option value="None" {{ ($campaign->link_click_type ?? '') === 'None' ? 'selected' : '' }}>None (No Link Click)</option>
                                         </select>
                                     </div>
                                 </div>

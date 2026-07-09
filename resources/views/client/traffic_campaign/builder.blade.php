@@ -372,7 +372,6 @@
                                             <option value="Both" selected>Both (Internal & External)</option>
                                             <option value="Internal">Internal Links Only</option>
                                             <option value="External">External Links Only</option>
-                                            <option value="None">None (No Link Click)</option>
                                         </select>
                                     </div>
                                 </div>
