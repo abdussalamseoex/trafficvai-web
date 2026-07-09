@@ -302,7 +302,7 @@
             let hitData = [0, 0, 0, 0, 0, 0];
 
             try {
-                const res = await fetch(`{{ route('traffic_campaign.live_graph', $campaign->id) }}?view=${viewMode}`);
+                const res = await fetch(`{{ route('client.traffic_campaign.live_graph', $campaign->id) }}?view=${viewMode}`);
                 if (res.ok) {
                     const json = await res.json();
                     if (json && json.labels && json.data) {
