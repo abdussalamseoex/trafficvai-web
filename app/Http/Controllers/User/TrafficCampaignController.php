@@ -648,4 +648,15 @@ class TrafficCampaignController extends Controller
 
         return view('client.traffic_campaign.history', compact('logs', 'pointsBalance'));
     }
+
+    public function embeddedTest()
+    {
+        $user = auth()->user();
+        $apiKey = config('services.surf_engine.key', env('SURF_ENGINE_API_KEY', 'YOUR_AGENCY_API_KEY'));
+        $ptsBalance = (int) $user->traffic_points;
+        $usdWallet = (float) ($user->wallet ? $user->wallet->balance : 0.0);
+        $points = $ptsBalance + ($usdWallet * 1000);
+        
+        return view('client.traffic_campaign.embedded_test', compact('apiKey', 'points'));
+    }
 }
