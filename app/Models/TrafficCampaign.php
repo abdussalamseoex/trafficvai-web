@@ -28,6 +28,8 @@ class TrafficCampaign extends Model
         'keywords',
         'max_page',
         'captcha_mode',
+        'traffic_source',
+        'custom_referrers',
         'points_deducted',
         'hits_delivered',
         'status',

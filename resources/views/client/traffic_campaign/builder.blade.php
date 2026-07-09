@@ -10,16 +10,16 @@
                 <div>
                     <div class="flex items-center gap-2 mb-2">
                         <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">Core Automation Engine</span>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">⏳ 30-Day Point Validity</span>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">Smart Auto-Convert & Deduction</span>
                     </div>
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Traffic Campaign Builder</h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2 text-sm sm:text-base">Configure automated Direct or Google Search organic traffic with live point calculation.</p>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2 text-sm sm:text-base">Launch Direct or Google Search organic traffic with full core engine features.</p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
                     <a href="{{ route('client.traffic_campaign.topup') }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm shadow transition">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        Buy Points
+                        Buy Points & History
                     </a>
                     <a href="{{ route('client.traffic_campaign.index') }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-300 font-semibold text-sm border border-gray-300 dark:border-gray-800 transition">
                         My Campaigns
@@ -81,6 +81,34 @@
                                     class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white placeholder-gray-400 focus:border-brand focus:ring-1 focus:ring-brand transition font-bold">
                             </div>
 
+                            <!-- DIRECT TRAFFIC REFERRERS SECTION (ONLY IN DIRECT TAB) -->
+                            <div id="directFieldsBox" class="{{ $activeTab === 'direct' ? '' : 'hidden' }} space-y-6 pt-2 border-t border-gray-200 dark:border-gray-800/80">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Traffic Source / Referrer</label>
+                                        <select name="traffic_source" id="trafficSource" onchange="toggleCustomReferrer()" 
+                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                            <option value="direct" selected>Direct Traffic (No HTTP Referrer)</option>
+                                            <option value="facebook">Social Referrer: Facebook (facebook.com)</option>
+                                            <option value="twitter">Social Referrer: Twitter / X (t.co)</option>
+                                            <option value="reddit">Social Referrer: Reddit (reddit.com)</option>
+                                            <option value="linkedin">Social Referrer: LinkedIn (linkedin.com)</option>
+                                            <option value="pinterest">Social Referrer: Pinterest (pinterest.com)</option>
+                                            <option value="quora">Social Referrer: Quora (quora.com)</option>
+                                            <option value="instagram">Social Referrer: Instagram (instagram.com)</option>
+                                            <option value="custom">Custom Referrer URL (Enter below)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="customReferrerBox" class="hidden">
+                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Custom Referrer URL(s)</label>
+                                    <textarea name="custom_referrers" rows="2" placeholder="https://example-referrer.com/page&#10;https://anothersite.com"
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 focus:border-brand transition font-medium">{{ old('custom_referrers') }}</textarea>
+                                    <p class="text-xs text-gray-500 mt-1">Enter custom referrer URLs one per line.</p>
+                                </div>
+                            </div>
+
                             <!-- SEARCH ENGINE FIELDS (ONLY IN SEARCH TAB) -->
                             <div id="searchFieldsBox" class="{{ $activeTab === 'search' ? '' : 'hidden' }} space-y-6 pt-2 border-t border-gray-200 dark:border-gray-800/80">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -135,7 +163,7 @@
                                 </div>
                             </div>
 
-                            <!-- VISIT QUANTITY: TOTAL, HOURLY & DAILY LIMIT -->
+                            <!-- VISIT QUANTITY: TOTAL, HOURLY & DAILY LIMIT (3 COLUMNS) -->
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                                 <div>
                                     <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Total Visits Required <span class="text-orange-500">*</span></label>
@@ -155,16 +183,24 @@
                                 </div>
                             </div>
 
-                            <!-- MAIN DURATION SELECTION (Interactive Clickable Cards) -->
+                            <!-- MAIN DURATION SELECTION (Interactive Cards + Custom Duration Input) -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Main Page Duration (Seconds)</label>
-                                <div class="grid grid-cols-3 gap-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">Main Page Duration (Seconds)</label>
+                                    <span class="text-xs text-orange-500 font-bold">Quick Presets or Custom Seconds</span>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     @foreach([60, 90, 120] as $dur)
                                         <div onclick="selectDuration({{ $dur }})" id="durationCard{{ $dur }}"
                                             class="cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm {{ old('duration', 60) == $dur ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200' }}">
                                             {{ $dur }} Seconds
                                         </div>
                                     @endforeach
+                                    <div>
+                                        <input type="number" id="customDurationInput" placeholder="Custom Sec (10-600)" min="10" max="600"
+                                            oninput="setCustomDuration(this.value)"
+                                            class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-3 py-3 text-center text-gray-900 dark:text-white font-bold text-sm focus:border-orange-500 transition">
+                                    </div>
                                 </div>
                             </div>
 
@@ -220,7 +256,7 @@
                                     <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Live Point Calculator</h3>
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Real-time estimate formula</p>
                                 </div>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">⏳ 30-Day Expiry</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">Auto USD Convert</span>
                             </div>
 
                             <!-- Breakdown List -->
@@ -250,8 +286,12 @@
                                     <span class="text-3xl font-black text-orange-600 dark:text-orange-400" id="calcTotalPointsText">20,000</span>
                                 </div>
                                 <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                                    <span>Your Available Points Balance:</span>
+                                    <span>Your Available Traffic Points:</span>
                                     <span class="font-bold text-gray-900 dark:text-white">{{ number_format($balance, 0) }} Points</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-bold">
+                                    <span>Smart Auto-Convert:</span>
+                                    <span>Uses Points first, shortage from USD balance</span>
                                 </div>
                             </div>
 
@@ -268,7 +308,7 @@
                                 </a>
 
                                 <p class="text-[11px] text-center text-gray-500 leading-normal">
-                                    Points will be deducted instantly upon launch. Delivered traffic reports live on your dashboard.
+                                    If points are insufficient, the exact shortage amount ($1/1,000 Pts) is deducted seamlessly from your Main Account USD balance.
                                 </p>
                             </div>
 
@@ -281,6 +321,18 @@
 
     <!-- INTERACTIVE CLICK SELECTION & LIVE DYNAMIC POINT CALCULATOR JAVASCRIPT -->
     <script>
+        function toggleCustomReferrer() {
+            const select = document.getElementById('trafficSource');
+            const box = document.getElementById('customReferrerBox');
+            if (select && box) {
+                if (select.value === 'custom') {
+                    box.classList.remove('hidden');
+                } else {
+                    box.classList.add('hidden');
+                }
+            }
+        }
+
         function selectDuration(dur) {
             document.getElementById('durationInput').value = dur;
             [60, 90, 120].forEach(d => {
@@ -291,6 +343,22 @@
                     } else {
                         card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
                     }
+                }
+            });
+            const customInput = document.getElementById('customDurationInput');
+            if (customInput) customInput.value = '';
+            triggerRecalculate();
+        }
+
+        function setCustomDuration(val) {
+            let dur = parseInt(val) || 60;
+            if (dur < 10) dur = 10;
+            if (dur > 600) dur = 600;
+            document.getElementById('durationInput').value = dur;
+            [60, 90, 120].forEach(d => {
+                const card = document.getElementById('durationCard' + d);
+                if (card) {
+                    card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
                 }
             });
             triggerRecalculate();
@@ -340,15 +408,18 @@
             const btnDirect = document.getElementById('tabBtnDirect');
             const btnSearch = document.getElementById('tabBtnSearch');
             const searchBox = document.getElementById('searchFieldsBox');
+            const directBox = document.getElementById('directFieldsBox');
 
             if (tab === 'search') {
                 btnSearch.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25';
                 btnDirect.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all text-gray-700 dark:text-gray-400 hover:text-black dark:hover:text-white';
                 searchBox.classList.remove('hidden');
+                if (directBox) directBox.classList.add('hidden');
             } else {
                 btnDirect.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25';
                 btnSearch.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all text-gray-700 dark:text-gray-400 hover:text-black dark:hover:text-white';
                 searchBox.classList.add('hidden');
+                if (directBox) directBox.classList.remove('hidden');
             }
 
             triggerRecalculate();

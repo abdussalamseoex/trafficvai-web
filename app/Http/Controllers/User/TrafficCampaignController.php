@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\TrafficCampaign;
+use App\Models\TrafficPointLog;
 use App\Services\SurfEngineApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -24,9 +25,29 @@ class TrafficCampaignController extends Controller
                     $table->unsignedBigInteger('traffic_points')->default(0);
                 });
             }
-            if (Schema::hasTable('traffic_campaigns') && !Schema::hasColumn('traffic_campaigns', 'daily_limit')) {
+            if (Schema::hasTable('traffic_campaigns')) {
                 Schema::table('traffic_campaigns', function (Blueprint $table) {
-                    $table->integer('daily_limit')->default(1000);
+                    if (!Schema::hasColumn('traffic_campaigns', 'daily_limit')) {
+                        $table->integer('daily_limit')->default(1000);
+                    }
+                    if (!Schema::hasColumn('traffic_campaigns', 'traffic_source')) {
+                        $table->string('traffic_source')->default('direct');
+                    }
+                    if (!Schema::hasColumn('traffic_campaigns', 'custom_referrers')) {
+                        $table->text('custom_referrers')->nullable();
+                    }
+                });
+            }
+            if (!Schema::hasTable('traffic_point_logs')) {
+                Schema::create('traffic_point_logs', function (Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                    $table->string('type'); // 'purchase' or 'usage'
+                    $table->integer('points');
+                    $table->decimal('cost_usd', 10, 2)->default(0.00);
+                    $table->string('description');
+                    $table->string('status')->default('completed');
+                    $table->timestamps();
                 });
             }
         } catch (\Throwable $e) {
@@ -81,7 +102,7 @@ class TrafficCampaignController extends Controller
             'total_limit' => 'required|integer|min:10|max:100000',
             'hourly_limit' => 'required|integer|min:1|max:5000',
             'daily_limit' => 'nullable|integer|min:1|max:50000',
-            'duration' => 'required|in:60,90,120',
+            'duration' => 'required|integer|min:10|max:600',
             'sub_page_visits' => 'required|in:0,1,2,3',
             'sub_page_duration' => 'required|integer|min:0|max:120',
             'device_type' => 'required|in:desktop,mobile,All',
@@ -90,6 +111,8 @@ class TrafficCampaignController extends Controller
             'keywords' => 'nullable|string',
             'max_page' => 'nullable|in:1,3,5,10',
             'captcha_mode' => 'nullable|in:normal,premium',
+            'traffic_source' => 'nullable|string',
+            'custom_referrers' => 'nullable|string',
         ]);
 
         $campaignType = $validated['campaign_type'];
@@ -99,6 +122,8 @@ class TrafficCampaignController extends Controller
         $totalLimit = (int) $validated['total_limit'];
         $dailyLimit = (int) ($validated['daily_limit'] ?? 1000);
         $captchaMode = $validated['captcha_mode'] ?? 'normal';
+        $trafficSource = $validated['traffic_source'] ?? 'direct';
+        $customReferrers = $validated['custom_referrers'] ?? null;
 
         // Calculate required points
         $requiredPoints = self::calculateRequiredPoints(
@@ -111,15 +136,35 @@ class TrafficCampaignController extends Controller
         );
 
         $user = auth()->user();
-        $balance = $user->traffic_points;
+        $ptsBalance = (int) $user->traffic_points;
+        $mainUsdBalance = (float) ($user->wallet ? $user->wallet->balance : 0.0);
 
-        // Check if user has enough traffic points
-        if ($balance < $requiredPoints) {
-            $shortage = $requiredPoints - $balance;
-            $neededUsd = ceil($shortage / 1000.0);
-            return back()->withInput()->withErrors([
-                'balance' => "Insufficient Traffic Points! Required: " . number_format($requiredPoints) . " Pts | Available: " . number_format($balance) . " Pts. Please purchase at least " . number_format($shortage) . " more points (~$" . number_format($neededUsd, 2) . " USD) from the Traffic Points Store."
-            ]);
+        $pointsUsed = 0;
+        $usdUsed = 0.00;
+
+        // Smart balance check: use available traffic points first, auto-convert shortage from USD balance ($1/1000 Pts)
+        if ($ptsBalance >= $requiredPoints) {
+            $pointsUsed = $requiredPoints;
+            $user->decrement('traffic_points', $requiredPoints);
+        } else {
+            $shortagePts = $requiredPoints - $ptsBalance;
+            $neededUsd = round($shortagePts / 1000.0, 2);
+
+            if ($mainUsdBalance < $neededUsd) {
+                return back()->withInput()->withErrors([
+                    'balance' => "Insufficient balance to launch! Required: " . number_format($requiredPoints) . " Pts. Available Points: " . number_format($ptsBalance) . " Pts. Shortage: " . number_format($shortagePts) . " Pts (~$" . number_format($neededUsd, 2) . " USD). Your Main Account balance is $" . number_format($mainUsdBalance, 2) . " USD. Please top up funds or buy points first."
+                ]);
+            }
+
+            $pointsUsed = $ptsBalance;
+            $usdUsed = $neededUsd;
+
+            if ($ptsBalance > 0) {
+                $user->decrement('traffic_points', $ptsBalance);
+            }
+            if ($user->wallet) {
+                $user->wallet->decrement('balance', $neededUsd);
+            }
         }
 
         // Generate external order ID
@@ -137,9 +182,6 @@ class TrafficCampaignController extends Controller
                 }
             }
         }
-
-        // Deduct points from traffic_points
-        $user->decrement('traffic_points', $requiredPoints);
 
         // Create local campaign with 30 days validity per requirement
         $campaign = TrafficCampaign::create([
@@ -159,6 +201,8 @@ class TrafficCampaignController extends Controller
             'keywords' => !empty($keywordsArray) ? $keywordsArray : ['website traffic'],
             'max_page' => (int) ($validated['max_page'] ?? 1),
             'captcha_mode' => $captchaMode,
+            'traffic_source' => $trafficSource,
+            'custom_referrers' => $customReferrers,
             'points_deducted' => $requiredPoints,
             'hits_delivered' => 0,
             'status' => 'active',
@@ -173,6 +217,7 @@ class TrafficCampaignController extends Controller
             'campaign_type' => $campaign->campaign_type,
             'total_limit' => $campaign->total_limit,
             'hourly_limit' => $campaign->hourly_limit,
+            'daily_limit' => $campaign->daily_limit,
             'duration' => $campaign->duration,
             'sub_page_visits' => $campaign->sub_page_visits,
             'sub_page_duration' => $campaign->sub_page_duration,
@@ -182,6 +227,8 @@ class TrafficCampaignController extends Controller
             'keywords' => json_encode($campaign->keywords),
             'max_page' => $campaign->max_page,
             'captcha_mode' => $campaign->captcha_mode,
+            'traffic_source' => $campaign->traffic_source,
+            'custom_referrers' => $campaign->custom_referrers,
         ];
 
         // Call Core Engine API
@@ -195,8 +242,25 @@ class TrafficCampaignController extends Controller
             Log::info("Campaign created locally, remote engine notification pending for {$externalOrderId}");
         }
 
+        try {
+            TrafficPointLog::create([
+                'user_id' => $user->id,
+                'type' => 'usage',
+                'points' => -$requiredPoints,
+                'cost_usd' => $usdUsed,
+                'description' => "Launched Campaign {$externalOrderId} ({$campaignType})",
+                'status' => 'completed',
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning("Could not create traffic log: " . $e->getMessage());
+        }
+
+        $msg = "Traffic Campaign launched successfully! Used " . number_format($pointsUsed) . " Traffic Points"
+             . ($usdUsed > 0 ? " + $" . number_format($usdUsed, 2) . " USD from Main Account" : "")
+             . ". Monitoring live delivery below.";
+
         return redirect()->route('client.traffic_campaign.monitor', $campaign)
-            ->with('success', 'Traffic Campaign launched successfully! Monitoring live delivery below.');
+            ->with('success', $msg);
     }
 
     /**
@@ -209,7 +273,7 @@ class TrafficCampaignController extends Controller
     }
 
     /**
-     * Google Analytics & Live Campaign Monitoring Page
+     * Display live monitoring screen for launched campaign
      */
     public function monitor(TrafficCampaign $campaign)
     {
@@ -272,7 +336,9 @@ class TrafficCampaignController extends Controller
         $mainBalance = $user->balance ?? 0;
         $pointsBalance = $user->traffic_points;
 
-        return view('client.traffic_campaign.topup', compact('mainBalance', 'pointsBalance'));
+        $logs = TrafficPointLog::where('user_id', $user->id)->latest()->take(50)->get();
+
+        return view('client.traffic_campaign.topup', compact('mainBalance', 'pointsBalance', 'logs'));
     }
 
     /**
@@ -324,6 +390,21 @@ class TrafficCampaignController extends Controller
 
         // Credit points to user's traffic_points balance
         $user->increment('traffic_points', $points);
+
+        try {
+            TrafficPointLog::create([
+                'user_id' => $user->id,
+                'type' => 'purchase',
+                'points' => $points,
+                'cost_usd' => $costUsd,
+                'description' => $package === 'custom'
+                    ? "Purchased Custom Package ({$points} Pts)"
+                    : "Purchased " . ucfirst($package) . " Pack (" . number_format($points) . " Pts)",
+                'status' => 'completed',
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning("Could not create point purchase log: " . $e->getMessage());
+        }
 
         return back()->with('success', "Successfully purchased " . number_format($points) . " Traffic Points for $" . number_format($costUsd, 2) . " USD! Your new Traffic Points balance is " . number_format($user->fresh()->traffic_points) . " Pts (Valid for 30 Days).");
     }

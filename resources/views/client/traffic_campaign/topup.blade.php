@@ -180,6 +180,72 @@
                 </form>
             </div>
 
+            <!-- Points Top-up & Usage History Table -->
+            <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Points Top-up & Usage History</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Complete log of your traffic point purchases and campaign deductions</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Live Transaction Log</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-800 text-[11px] font-black uppercase text-gray-400">
+                                <th class="py-3 px-4">Date & Time</th>
+                                <th class="py-3 px-4">Type</th>
+                                <th class="py-3 px-4">Description</th>
+                                <th class="py-3 px-4">Points</th>
+                                <th class="py-3 px-4">USD Cost</th>
+                                <th class="py-3 px-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800/60 text-xs sm:text-sm">
+                            @forelse($logs ?? [] as $log)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
+                                    <td class="py-4 px-4 font-semibold text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                                        {{ $log->created_at->format('M d, Y h:i A') }}
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        @if($log->type === 'purchase')
+                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                                + Top-up Purchase
+                                            </span>
+                                        @else
+                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                                                - Campaign Launch
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="py-4 px-4 font-bold text-gray-900 dark:text-white">
+                                        {{ $log->description }}
+                                    </td>
+                                    <td class="py-4 px-4 font-black {{ $log->points >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400' }} whitespace-nowrap">
+                                        {{ $log->points >= 0 ? '+' : '' }}{{ number_format($log->points) }} Pts
+                                    </td>
+                                    <td class="py-4 px-4 font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                                        ${{ number_format($log->cost_usd, 2) }} USD
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-gray-400 dark:text-gray-500 font-semibold">
+                                        No point top-up or usage history yet. Purchase points above to get started!
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
