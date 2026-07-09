@@ -18,7 +18,7 @@
                         </span>
                     </div>
                     <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight">Campaign Analytics & Live Traffic Flow</h1>
-                    <p class="text-gray-300 mt-1 text-sm font-medium">Real-time sync with <code class="text-orange-400 font-bold">surf.abguestpost.net</code> core engine • Target: <a href="{{ $campaign->url }}" target="_blank" class="text-orange-400 underline font-bold">{{ $campaign->url }}</a></p>
+                    <p class="text-gray-300 mt-1 text-sm font-medium">Target URL: <a href="{{ $campaign->url }}" target="_blank" class="text-orange-400 underline font-bold">{{ $campaign->url }}</a></p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">

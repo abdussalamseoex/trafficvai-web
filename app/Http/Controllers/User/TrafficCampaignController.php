@@ -314,12 +314,44 @@ class TrafficCampaignController extends Controller
             'total_limit' => 'required|integer|min:10',
             'hourly_limit' => 'required|integer|min:1',
             'daily_limit' => 'nullable|integer|min:1',
+            'duration' => 'nullable|integer|min:10|max:600',
+            'target_country' => 'nullable|string',
+            'device_type' => 'nullable|in:All,desktop,mobile',
+            'sub_page_visits' => 'nullable|integer|min:0|max:10',
+            'search_engine' => 'nullable|string',
+            'keywords' => 'nullable|string',
+            'traffic_source' => 'nullable|string',
+            'custom_referrers' => 'nullable|string',
         ]);
+
+        $subPageVisits = (int) ($validated['sub_page_visits'] ?? $campaign->sub_page_visits);
+        $subPageToggle = $subPageVisits > 0;
+
+        $keywordsArray = $campaign->keywords;
+        if (!empty($validated['keywords'])) {
+            $lines = preg_split('/[\r\n,]+/', $validated['keywords']);
+            $keywordsArray = [];
+            foreach ($lines as $line) {
+                $trimmed = trim($line);
+                if ($trimmed !== '') {
+                    $keywordsArray[] = $trimmed;
+                }
+            }
+        }
 
         $campaign->update([
             'total_limit' => $validated['total_limit'],
             'hourly_limit' => $validated['hourly_limit'],
             'daily_limit' => $validated['daily_limit'] ?? 1000,
+            'duration' => $validated['duration'] ?? $campaign->duration,
+            'target_country' => $validated['target_country'] ?? $campaign->target_country,
+            'device_type' => $validated['device_type'] ?? $campaign->device_type,
+            'sub_page_visits' => $subPageVisits,
+            'sub_page_toggle' => $subPageToggle,
+            'search_engine' => $validated['search_engine'] ?? $campaign->search_engine,
+            'keywords' => $keywordsArray,
+            'traffic_source' => $validated['traffic_source'] ?? $campaign->traffic_source,
+            'custom_referrers' => $validated['custom_referrers'] ?? $campaign->custom_referrers,
         ]);
 
         // Sync with Core Engine
@@ -327,6 +359,22 @@ class TrafficCampaignController extends Controller
             'total_limit' => $campaign->total_limit,
             'hourly_limit' => $campaign->hourly_limit,
             'daily_limit' => $campaign->daily_limit,
+            'duration' => $campaign->duration,
+            'target_country' => $campaign->target_country,
+            'country' => $campaign->target_country,
+            'device_type' => $campaign->device_type,
+            'device' => $campaign->device_type,
+            'devices' => $campaign->device_type,
+            'sub_page_toggle' => $campaign->sub_page_toggle,
+            'sub_page_visits' => $campaign->sub_page_visits,
+            'search_engine' => $campaign->search_engine,
+            'keywords' => $campaign->keywords,
+            'keywords_json' => json_encode($campaign->keywords),
+            'traffic_source' => $campaign->traffic_source,
+            'traffic_sources' => explode(',', $campaign->traffic_source ?? ''),
+            'social_media' => $campaign->traffic_source,
+            'custom_referrers' => $campaign->custom_referrers,
+            'referrers' => !empty($campaign->custom_referrers) ? array_map('trim', explode("\n", $campaign->custom_referrers)) : [],
         ];
         
         try {
@@ -336,7 +384,7 @@ class TrafficCampaignController extends Controller
             }
         } catch (\Throwable $e) {}
 
-        return redirect()->route('client.traffic_campaign.index')->with('success', 'Campaign limits updated successfully and synced with Core Engine!');
+        return redirect()->route('client.traffic_campaign.index')->with('success', 'Campaign updated successfully and synced with Core Engine!');
     }
 
     /**
