@@ -274,8 +274,11 @@ class TrafficCampaignController extends Controller
             'device_type' => $apiDeviceType,
             'device' => $apiDeviceType,
             'devices' => $apiDeviceType,
-            'distribution_type' => $campaign->distribution_type ?: 'spread',
-            'visit_distribution' => $campaign->distribution_type ?: 'spread',
+            'distribution_type' => strtolower($campaign->distribution_type ?: 'spread'),
+            'visit_distribution' => strtolower($campaign->distribution_type ?: 'spread'),
+            'distribution' => strtolower($campaign->distribution_type ?: 'spread'),
+            'speed' => strtolower($campaign->distribution_type ?: 'spread'),
+            'delivery_speed' => strtolower($campaign->distribution_type ?: 'spread'),
             'target_country' => $campaign->target_country ?: 'Worldwide',
             'country' => $campaign->target_country ?: 'Worldwide',
             'total_limit' => (int) $campaign->total_limit,
@@ -462,8 +465,11 @@ class TrafficCampaignController extends Controller
             'device_type' => $apiDeviceType,
             'device' => $apiDeviceType,
             'devices' => $apiDeviceType,
-            'distribution_type' => $campaign->distribution_type ?: 'spread',
-            'visit_distribution' => $campaign->distribution_type ?: 'spread',
+            'distribution_type' => strtolower($campaign->distribution_type ?: 'spread'),
+            'visit_distribution' => strtolower($campaign->distribution_type ?: 'spread'),
+            'distribution' => strtolower($campaign->distribution_type ?: 'spread'),
+            'speed' => strtolower($campaign->distribution_type ?: 'spread'),
+            'delivery_speed' => strtolower($campaign->distribution_type ?: 'spread'),
             'target_country' => $campaign->target_country ?: 'Worldwide',
             'country' => $campaign->target_country ?: 'Worldwide',
             'total_limit' => (int) $campaign->total_limit,
@@ -747,16 +753,5 @@ class TrafficCampaignController extends Controller
         $pointsBalance = (int) $user->traffic_points;
 
         return view('client.traffic_campaign.history', compact('logs', 'pointsBalance'));
-    }
-
-    public function embeddedTest()
-    {
-        $user = auth()->user();
-        $apiKey = config('services.surf_engine.key', env('SURF_ENGINE_API_KEY', 'YOUR_AGENCY_API_KEY'));
-        $ptsBalance = (int) $user->traffic_points;
-        $usdWallet = (float) ($user->wallet ? $user->wallet->balance : 0.0);
-        $points = $ptsBalance + ($usdWallet * 1000);
-        
-        return view('client.traffic_campaign.embedded_test', compact('apiKey', 'points'));
     }
 }
