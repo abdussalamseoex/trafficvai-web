@@ -64,18 +64,20 @@
                                         class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:border-brand font-medium">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-800 mb-2">Target Country</label>
-                                    <select name="target_country" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:border-brand font-medium">
-                                        <option value="Worldwide" {{ $campaign->target_country == 'Worldwide' ? 'selected' : '' }}>Worldwide (Mixed)</option>
-                                        <option value="USA" {{ $campaign->target_country == 'USA' ? 'selected' : '' }}>United States</option>
-                                        <option value="UK" {{ $campaign->target_country == 'UK' ? 'selected' : '' }}>United Kingdom</option>
-                                        <option value="Canada" {{ $campaign->target_country == 'Canada' ? 'selected' : '' }}>Canada</option>
-                                        <option value="Australia" {{ $campaign->target_country == 'Australia' ? 'selected' : '' }}>Australia</option>
-                                        <option value="Germany" {{ $campaign->target_country == 'Germany' ? 'selected' : '' }}>Germany</option>
-                                        <option value="France" {{ $campaign->target_country == 'France' ? 'selected' : '' }}>France</option>
-                                        <option value="India" {{ $campaign->target_country == 'India' ? 'selected' : '' }}>India</option>
-                                        <option value="Bangladesh" {{ $campaign->target_country == 'Bangladesh' ? 'selected' : '' }}>Bangladesh</option>
-                                    </select>
+                                    <label class="block text-sm font-bold text-gray-800 mb-2">Target Country (Select Multiple)</label>
+                                    <div class="grid grid-cols-2 gap-2 h-36 overflow-y-auto p-2 bg-gray-50 border border-gray-300 rounded-xl">
+                                        @php
+                                            $selectedCountries = explode(',', $campaign->target_country ?? '');
+                                            $selectedCountries = array_map('trim', $selectedCountries);
+                                            $allCountries = ['Worldwide', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'India', 'Bangladesh'];
+                                        @endphp
+                                        @foreach($allCountries as $country)
+                                            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-200 cursor-pointer transition">
+                                                <input type="checkbox" name="target_country[]" value="{{ $country }}" {{ in_array($country, $selectedCountries) ? 'checked' : '' }} class="rounded border-gray-300 text-brand focus:ring-brand w-4 h-4">
+                                                <span class="text-xs font-bold text-gray-800">{{ $country }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 mb-2">Device Targeting</label>

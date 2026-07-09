@@ -252,9 +252,9 @@
                                     <!-- MANDATORY RANKING REQUIREMENT NOTICE -->
                                     <div class="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
                                         <span class="text-xl">⚠️</span>
-                                        <div class="text-xs text-amber-300 space-y-1">
-                                            <p class="font-extrabold text-amber-200 uppercase tracking-wider">Mandatory Google Ranking Requirement</p>
-                                            <p>Your target website URL <strong class="text-white">MUST BE RANKED</strong> on Google search within the selected scan range (e.g. Top 10 Pages / Top 100 Results) for every targeted keyword. If the URL is not found within the scan limit, traffic cannot be delivered.</p>
+                                        <div class="text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                                            <p class="font-extrabold text-amber-900 dark:text-amber-200 uppercase tracking-wider">Mandatory Google Ranking Requirement</p>
+                                            <p>Your target website URL <strong class="text-amber-700 dark:text-white">MUST BE RANKED</strong> on Google search within the selected scan range (e.g. Top 10 Pages / Top 100 Results) for every targeted keyword. If the URL is not found within the scan limit, traffic cannot be delivered.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -392,18 +392,15 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Country</label>
-                                    <select name="target_country" id="targetCountry" 
-                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                        <option value="All">All Countries (Worldwide)</option>
-                                        <option value="United States">United States</option>
-                                        <option value="United Kingdom">United Kingdom</option>
-                                        <option value="Canada">Canada</option>
-                                        <option value="Australia">Australia</option>
-                                        <option value="Germany">Germany</option>
-                                        <option value="France">France</option>
-                                        <option value="Bangladesh">Bangladesh</option>
-                                    </select>
+                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Country (Select Multiple)</label>
+                                    <div class="grid grid-cols-2 gap-2 h-36 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl">
+                                        @foreach(['Worldwide', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'India', 'Bangladesh'] as $country)
+                                            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-900 cursor-pointer transition">
+                                                <input type="checkbox" name="target_country[]" value="{{ $country }}" {{ $country === 'Worldwide' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-800 w-4 h-4">
+                                                <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $country }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
 

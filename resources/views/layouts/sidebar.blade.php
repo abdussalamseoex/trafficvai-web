@@ -352,6 +352,9 @@
                     <x-sidebar-link :href="route('client.traffic_campaign.topup')" :active="request()->routeIs('client.traffic_campaign.topup')">
                         {{ __('Wallet & Points Top-up') }}
                     </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.traffic_campaign.history')" :active="request()->routeIs('client.traffic_campaign.history')">
+                        {{ __('Points Ledger & History') }}
+                    </x-sidebar-link>
                 </x-sidebar-dropdown>
 
                 <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Management</p>
