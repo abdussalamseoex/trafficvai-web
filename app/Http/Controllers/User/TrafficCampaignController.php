@@ -45,6 +45,9 @@ class TrafficCampaignController extends Controller
                     if (!Schema::hasColumn('traffic_campaigns', 'behavior_click')) {
                         $table->string('behavior_click')->default('enabled');
                     }
+                    if (!Schema::hasColumn('traffic_campaigns', 'link_click_type')) {
+                        $table->string('link_click_type')->default('Both');
+                    }
                 });
             }
             if (!Schema::hasTable('traffic_point_logs')) {
@@ -222,6 +225,7 @@ class TrafficCampaignController extends Controller
             'sub_page_duration' => $subPageDuration,
             'behavior_scroll' => $behaviorScroll,
             'behavior_click' => $behaviorClick,
+            'link_click_type' => $linkClickType,
             'device_type' => $deviceVal,
             'target_country' => is_array($validated['target_country']) ? implode(', ', $validated['target_country']) : ($validated['target_country'] ?? 'Worldwide'),
             'search_engine' => $validated['search_engine'] ?? 'google',
@@ -237,14 +241,7 @@ class TrafficCampaignController extends Controller
         ]);
 
         // Calculate Link Click Type string for API Payload
-        $linkClickType = 'None';
-        if ($behaviorScroll === 'enabled' && $behaviorClick === 'enabled') {
-            $linkClickType = 'Both';
-        } elseif ($behaviorScroll === 'enabled') {
-            $linkClickType = 'Scroll';
-        } elseif ($behaviorClick === 'enabled') {
-            $linkClickType = 'Click';
-        }
+        $linkClickType = $request->input('link_click_type', 'Both');
 
         // Parse custom referrers for Direct Traffic
         $finalSourceType = $campaign->traffic_source;
@@ -441,6 +438,7 @@ class TrafficCampaignController extends Controller
             'custom_referrers' => $validated['custom_referrers'] ?? $campaign->custom_referrers,
             'behavior_scroll' => $request->input('behavior_scroll', $campaign->behavior_scroll),
             'behavior_click' => $request->input('behavior_click', $campaign->behavior_click),
+            'link_click_type' => $request->input('link_click_type', $campaign->link_click_type ?: 'Both'),
             'points_deducted' => $campaign->points_deducted,
         ]);
 
@@ -459,7 +457,7 @@ class TrafficCampaignController extends Controller
             'duration' => (int) $campaign->duration,
             'visit_duration' => (int) $campaign->duration,
             'scroll_enabled' => $campaign->behavior_scroll === 'enabled' ? 1 : 0,
-            'link_click_type' => $campaign->behavior_click === 'enabled' ? 'Click' : 'None',
+            'link_click_type' => $campaign->link_click_type ?: 'Both',
             'sub_page_visits' => (int) $campaign->sub_page_visits,
             'sub_page_duration' => (int) $campaign->sub_page_duration,
             'device_type' => $campaign->device_type,

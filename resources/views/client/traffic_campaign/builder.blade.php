@@ -332,7 +332,7 @@
                                 </div>
 
                                 <!-- SUB-PAGE OPTIONS (VISIBLE ONLY WHEN TOGGLED ON) -->
-                                <div id="subPageOptionsBox" class="hidden pt-4 border-t border-gray-200 dark:border-gray-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div id="subPageOptionsBox" class="hidden pt-4 border-t border-gray-200 dark:border-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div>
                                         <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Number of Sub-Pages to Visit</label>
                                         <div class="grid grid-cols-3 gap-2">
@@ -347,8 +347,8 @@
 
                                     <div>
                                         <div class="flex items-center justify-between mb-2">
-                                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Sub-Page Stay Duration (Per Page)</label>
-                                            <span class="text-[10px] text-orange-500 font-bold">Preset or Custom Sec</span>
+                                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Sub-Page Stay Duration</label>
+                                            <span class="text-[10px] text-orange-500 font-bold">Preset/Custom</span>
                                         </div>
                                         <div class="grid grid-cols-4 gap-2">
                                             @foreach([10, 20, 30] as $spd)
@@ -363,6 +363,17 @@
                                                     class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-2 py-2 text-center text-gray-900 dark:text-white font-bold text-xs focus:border-orange-500 transition">
                                             </div>
                                         </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Link Click Type</label>
+                                        <select name="link_click_type" id="linkClickTypeSelect"
+                                            class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2.5 text-gray-900 dark:text-white font-bold text-xs focus:border-orange-500 transition">
+                                            <option value="Both" selected>Both (Internal & External)</option>
+                                            <option value="Internal">Internal Links Only</option>
+                                            <option value="External">External Links Only</option>
+                                            <option value="None">None (No Link Click)</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
