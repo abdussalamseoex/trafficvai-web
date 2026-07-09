@@ -62,12 +62,12 @@
                         <!-- Tab Header -->
                         <div class="p-1.5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 flex gap-2 shadow-sm">
                             <button type="button" onclick="switchTab('direct')" id="tabBtnDirect" 
-                                class="flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'direct' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25' : 'text-gray-900 dark:text-gray-300 hover:text-orange-600 dark:hover:text-white' }}">
+                                class="flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'direct' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25 font-extrabold' : 'text-gray-900 dark:text-gray-200 hover:text-orange-600 dark:hover:text-white font-bold' }}">
                                 <span>🌐</span>
                                 <span>Direct Traffic (GOAT Package)</span>
                             </button>
                             <button type="button" onclick="switchTab('search')" id="tabBtnSearch" 
-                                class="flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'search' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25' : 'text-gray-900 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white' }}">
+                                class="flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'search' ? 'bg-blue-100 dark:bg-blue-900/40 border-2 border-blue-600 text-black dark:text-white font-black shadow-md' : 'text-gray-900 dark:text-gray-200 hover:text-blue-600 dark:hover:text-white font-bold' }}">
                                 <span>🔍</span>
                                 <span>Google Search (Click Booster)</span>
                             </button>
@@ -791,13 +791,13 @@
             const directBox = document.getElementById('directFieldsBox');
 
             if (tab === 'search') {
-                btnSearch.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25';
-                btnDirect.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all text-gray-700 dark:text-gray-400 hover:text-black dark:hover:text-white';
+                btnSearch.className = 'flex-1 py-3 px-6 rounded-xl font-black text-sm flex items-center justify-center gap-2.5 transition-all bg-blue-100 dark:bg-blue-900/40 border-2 border-blue-600 text-black dark:text-white shadow-md';
+                btnDirect.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all text-gray-900 dark:text-gray-200 hover:text-orange-600 dark:hover:text-white';
                 searchBox.classList.remove('hidden');
                 if (directBox) directBox.classList.add('hidden');
             } else {
-                btnDirect.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25';
-                btnSearch.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all text-gray-700 dark:text-gray-400 hover:text-black dark:hover:text-white';
+                btnDirect.className = 'flex-1 py-3 px-6 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2.5 transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25';
+                btnSearch.className = 'flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all text-gray-900 dark:text-gray-200 hover:text-blue-600 dark:hover:text-white';
                 searchBox.classList.add('hidden');
                 if (directBox) directBox.classList.remove('hidden');
             }

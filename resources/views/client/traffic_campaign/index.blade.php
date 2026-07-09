@@ -20,6 +20,33 @@
                 </div>
             </div>
 
+            @php
+                $userCamps = auth()->user()->trafficCampaigns ?? collect();
+                $totalDeliveredAll = $userCamps->sum('hits_delivered');
+                $totalLimitAll = $userCamps->sum('total_limit');
+                $activeCount = $userCamps->where('status', 'active')->count();
+            @endphp
+
+            <!-- Quick Overview Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm">
+                    <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Total Campaigns</span>
+                    <span class="text-2xl font-black text-gray-900">{{ $userCamps->count() }}</span>
+                </div>
+                <div class="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm">
+                    <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Active / Running</span>
+                    <span class="text-2xl font-black text-emerald-600">{{ $activeCount }} <span class="text-xs font-bold text-gray-400">Live</span></span>
+                </div>
+                <div class="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm">
+                    <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Delivered / Total</span>
+                    <span class="text-xl font-black text-gray-900">{{ number_format($totalDeliveredAll) }} <span class="text-xs font-bold text-gray-400">/ {{ number_format($totalLimitAll) }}</span></span>
+                </div>
+                <div class="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm">
+                    <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Points Balance</span>
+                    <span class="text-2xl font-black text-orange-500">{{ number_format(auth()->user()->traffic_points) }} <span class="text-xs font-bold text-gray-400">Pts</span></span>
+                </div>
+            </div>
+
             @if($campaigns->isEmpty())
                 <div class="p-12 text-center rounded-3xl bg-white border border-gray-200 shadow-sm">
                     <div class="text-4xl mb-4">🚀</div>
@@ -33,55 +60,55 @@
                 <div class="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-500 bg-gray-50">
-                                <th class="p-5">#</th>
-                                <th class="p-5">Order ID</th>
-                                <th class="p-5">Target URL</th>
-                                <th class="p-5">Type</th>
-                                <th class="p-5">Delivered / Total</th>
-                                <th class="p-5">Status</th>
-                                <th class="p-5">Expiry</th>
-                                <th class="p-5 text-right">Actions</th>
+                            <tr class="border-b border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-500 bg-gray-50 whitespace-nowrap">
+                                <th class="p-4">#</th>
+                                <th class="p-4">Order ID</th>
+                                <th class="p-4">Target URL</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Delivered / Total</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Expiry</th>
+                                <th class="p-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-sm">
                             @foreach($campaigns as $camp)
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="p-5 font-bold text-gray-500">{{ $campaigns->firstItem() + $loop->index }}</td>
-                                    <td class="p-5 font-bold text-gray-900">{{ $camp->external_order_id }}</td>
-                                    <td class="p-5 text-gray-600 max-w-xs truncate">{{ $camp->url }}</td>
-                                    <td class="p-5 capitalize font-medium">
+                                    <td class="p-4 font-bold text-gray-500 whitespace-nowrap">{{ $campaigns->firstItem() + $loop->index }}</td>
+                                    <td class="p-4 font-bold text-gray-900 whitespace-nowrap">{{ $camp->external_order_id }}</td>
+                                    <td class="p-4 text-gray-600 max-w-[140px] truncate" title="{{ $camp->url }}">{{ $camp->url }}</td>
+                                    <td class="p-4 capitalize font-medium whitespace-nowrap">
                                         <span class="px-2.5 py-1 rounded-lg text-xs font-bold {{ $camp->campaign_type === 'search' ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-orange-50 text-orange-600 border border-orange-200' }}">
                                             {{ $camp->campaign_type === 'search' ? 'Google Search' : 'Direct GOAT' }}
                                         </span>
                                     </td>
-                                    <td class="p-5">
+                                    <td class="p-4 whitespace-nowrap">
                                         <div class="font-bold text-gray-900">{{ number_format($camp->hits_delivered) }} / {{ number_format($camp->total_limit) }}</div>
-                                        <div class="w-24 h-1.5 rounded-full bg-gray-200 mt-1 overflow-hidden">
+                                        <div class="w-20 h-1.5 rounded-full bg-gray-200 mt-1 overflow-hidden">
                                             <div class="h-full bg-orange-500" style="width: {{ $camp->delivery_percentage }}%"></div>
                                         </div>
                                     </td>
-                                    <td class="p-5">
+                                    <td class="p-4 whitespace-nowrap">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
                                             {{ ucfirst($camp->status) }}
                                         </span>
                                     </td>
-                                    <td class="p-5 text-gray-500 text-xs">
+                                    <td class="p-4 text-gray-500 text-xs whitespace-nowrap">
                                         {{ $camp->expires_at ? $camp->expires_at->format('M d, Y') : '30 Days' }}
                                     </td>
-                                    <td class="p-5 text-right">
-                                        <div class="flex items-center justify-end gap-2">
+                                    <td class="p-4 text-right whitespace-nowrap">
+                                        <div class="flex items-center justify-end gap-1.5">
                                             <form action="{{ route('client.traffic_campaign.toggle', $camp) }}" method="POST">
                                                 @csrf
-                                                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-xl {{ $camp->status === 'active' ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200' }} font-bold text-xs transition" title="Toggle Pause/Resume">
+                                                <button type="submit" class="inline-flex items-center whitespace-nowrap px-3 py-2 rounded-xl {{ $camp->status === 'active' ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200' }} font-bold text-xs transition" title="Toggle Pause/Resume">
                                                     {{ $camp->status === 'active' ? '⏸ Pause' : '▶ Resume' }}
                                                 </button>
                                             </form>
-                                            <a href="{{ route('client.traffic_campaign.edit', $camp) }}" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition border border-gray-200" title="Edit Campaign Limits">
+                                            <a href="{{ route('client.traffic_campaign.edit', $camp) }}" class="inline-flex items-center whitespace-nowrap px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition border border-gray-200" title="Edit Campaign Limits">
                                                 Edit
                                             </a>
-                                            <a href="{{ route('client.traffic_campaign.monitor', $camp) }}" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold text-xs transition border border-orange-200">
-                                                Live Dash
+                                            <a href="{{ route('client.traffic_campaign.monitor', $camp) }}" class="inline-flex items-center whitespace-nowrap px-3 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 font-extrabold text-xs transition border border-orange-200">
+                                                📊 Live Dashboard
                                             </a>
                                             <form action="{{ route('client.traffic_campaign.destroy', $camp) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
                                                 @csrf

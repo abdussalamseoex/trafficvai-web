@@ -600,7 +600,7 @@ class TrafficCampaignController extends Controller
         }
 
         // Proportional realistic delivery graph distribution when Core API graph returns 0 or fallback
-        if ($view === '14d') {
+        if (in_array($view, ['daily', '7d', '14d'])) {
             $labels = [];
             $data = [];
             $daysCount = 14;

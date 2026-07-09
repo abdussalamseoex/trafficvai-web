@@ -374,11 +374,11 @@
 
             if (mode === 'daily') {
                 btnD.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-orange-500 text-white transition';
-                btnH.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-gray-400 hover:text-white transition';
-                initDeliveryChart('7d');
+                btnH.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-gray-500 hover:text-gray-900 transition';
+                initDeliveryChart('daily');
             } else {
                 btnH.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-orange-500 text-white transition';
-                btnD.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-gray-400 hover:text-white transition';
+                btnD.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-gray-500 hover:text-gray-900 transition';
                 initDeliveryChart('24h');
             }
         }
