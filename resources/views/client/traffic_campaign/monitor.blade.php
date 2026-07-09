@@ -278,7 +278,7 @@
                     <span class="block text-xs font-bold uppercase text-gray-500 mb-3">Allocated Keywords</span>
                     <div class="flex flex-wrap gap-2">
                         @foreach($campaign->keywords as $kw)
-                            <span class="px-3.5 py-1.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-800">{{ $kw }}</span>
+                            <span class="px-3.5 py-1.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-800">{{ is_array($kw) ? ($kw['kw'] . ' (' . ($kw['weight'] ?? 100) . '%)') : $kw }}</span>
                         @endforeach
                     </div>
                 </div>

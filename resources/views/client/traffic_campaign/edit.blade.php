@@ -212,11 +212,17 @@
                                         @endphp
                                         @foreach($kws as $kwString)
                                             @php
-                                                $text = $kwString;
+                                                $text = '';
                                                 $pct = 100;
-                                                if (preg_match('/^(.*)\((\d+)%\)$/', trim($kwString), $matches)) {
-                                                    $text = trim($matches[1]);
-                                                    $pct = intval($matches[2]);
+                                                if (is_array($kwString)) {
+                                                    $text = $kwString['kw'] ?? '';
+                                                    $pct = intval($kwString['weight'] ?? 100);
+                                                } else {
+                                                    $text = $kwString;
+                                                    if (is_string($kwString) && preg_match('/^(.*)\((\d+)%\)$/', trim($kwString), $matches)) {
+                                                        $text = trim($matches[1]);
+                                                        $pct = intval($matches[2]);
+                                                    }
                                                 }
                                             @endphp
                                             <div class="keyword-row flex items-center gap-2">
