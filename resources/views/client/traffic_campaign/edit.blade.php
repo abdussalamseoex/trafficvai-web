@@ -52,9 +52,9 @@
                 <input type="hidden" name="campaign_type" id="campaignTypeInput" value="{{ $campaign->campaign_type }}">
                 <input type="hidden" name="duration" id="durationInput" value="{{ old('duration', $campaign->duration) }}">
                 <input type="hidden" name="sub_page_toggle" id="subPageToggleInput" value="0">
-                <input type="hidden" name="sub_page_visits" id="subPageVisitsInput" value="1">
-                <input type="hidden" name="sub_page_duration" id="subPageDurationInput" value="20">
-                <input type="hidden" name="captcha_mode" id="captchaModeInput" value="{{ old('captcha_mode', 'normal') }}">
+                <input type="hidden" name="sub_page_visits" id="subPageVisitsInput" value="{{ $campaign->sub_page_visits ?? 1 }}">
+                <input type="hidden" name="sub_page_duration" id="subPageDurationInput" value="{{ $campaign->sub_page_duration ?? 20 }}">
+                <input type="hidden" name="captcha_mode" id="captchaModeInput" value="{{ old('captcha_mode', $campaign->captcha_mode ?? 'normal') }}">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <!-- LEFT COLUMN: Campaign Configuration -->
@@ -187,7 +187,7 @@
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div onclick="selectQualityMode('normal')" id="qualityCardNormal"
                                             class="cursor-pointer p-4 rounded-xl border-2 transition border-orange-500 bg-orange-500/10">
-                                            <div class="font-bold text-gray-900 dark:text-white text-sm">Normal Free Mode</div>
+                                            <div class="font-bold text-gray-900 dark:text-white text-sm">Normal Mode (Standard Quality)</div>
                                             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Standard rate (Base 20 pts / 60s visit)</div>
                                         </div>
                                         <div onclick="selectQualityMode('premium')" id="qualityCardPremium"
@@ -917,6 +917,7 @@
             selectDuration({{ $campaign->duration ?? 60 }});
             selectSubPageCount({{ $campaign->sub_page_visits ?? 1 }});
             selectSubPageDuration({{ $campaign->sub_page_duration ?? 20 }});
+            selectQualityMode('{{ old('captcha_mode', $campaign->captcha_mode ?? 'normal') }}');
 
             triggerRecalculate();
             updateKeywordPercents();

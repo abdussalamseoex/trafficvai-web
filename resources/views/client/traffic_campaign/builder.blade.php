@@ -186,7 +186,7 @@
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div onclick="selectQualityMode('normal')" id="qualityCardNormal"
                                             class="cursor-pointer p-4 rounded-xl border-2 transition border-orange-500 bg-orange-500/10">
-                                            <div class="font-bold text-gray-900 dark:text-white text-sm">Normal Free Mode</div>
+                                            <div class="font-bold text-gray-900 dark:text-white text-sm">Normal Mode (Standard Quality)</div>
                                             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Standard rate (Base 20 pts / 60s visit)</div>
                                         </div>
                                         <div onclick="selectQualityMode('premium')" id="qualityCardPremium"

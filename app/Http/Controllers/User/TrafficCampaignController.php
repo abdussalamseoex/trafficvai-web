@@ -369,6 +369,7 @@ class TrafficCampaignController extends Controller
             'distribution_type' => 'nullable|in:spread,asap',
             'sub_page_visits' => 'nullable|integer|min:0|max:10',
             'search_engine' => 'nullable|string',
+            'captcha_mode' => 'nullable|in:normal,premium',
             'keywords' => 'nullable|string',
             'traffic_source' => 'nullable|string',
             'custom_referrers' => 'nullable|string',
@@ -435,6 +436,7 @@ class TrafficCampaignController extends Controller
             'behavior_click' => $request->input('behavior_click', $campaign->behavior_click),
             'link_click_type' => $request->input('link_click_type', $campaign->link_click_type ?: 'Both'),
             'distribution_type' => $request->input('distribution_type', $campaign->distribution_type ?: 'spread'),
+            'captcha_mode' => $request->input('captcha_mode', $campaign->captcha_mode ?: 'normal'),
             'points_deducted' => $campaign->points_deducted,
         ]);
 
@@ -458,6 +460,7 @@ class TrafficCampaignController extends Controller
             'traffic_source' => $sourceTypeVal,
             'referrers' => $sourceTypeVal,
             'search_engine' => $searchEngineVal,
+            'captcha_mode' => $campaign->captcha_mode ?: 'normal',
             'keywords' => $campaign->keywords,
             'max_page' => $campaign->max_page,
             'duration' => (int) $campaign->duration,
