@@ -89,22 +89,56 @@
                                     class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white placeholder-gray-400 focus:border-brand focus:ring-1 focus:ring-brand transition font-bold">
                             </div>
 
-                            <!-- DIRECT TRAFFIC REFERRERS SECTION (ONLY IN DIRECT TAB) -->
-                            <div id="directFieldsBox" class="{{ $activeTab === 'direct' ? '' : 'hidden' }} space-y-5 pt-2">
+                            <!-- DIRECT TRAFFIC REFERRERS SECTION (MULTI-SELECTABLE CARDS / PILLS) -->
+                            <div id="directFieldsBox" class="{{ $activeTab === 'direct' ? '' : 'hidden' }} space-y-4 pt-2">
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Traffic Source / Referrer</label>
-                                    <select name="traffic_source" id="trafficSource" onchange="toggleCustomReferrer()" 
-                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                        <option value="direct" selected>Direct Traffic (No HTTP Referrer)</option>
-                                        <option value="facebook">Social Referrer: Facebook (facebook.com)</option>
-                                        <option value="twitter">Social Referrer: Twitter / X (t.co)</option>
-                                        <option value="reddit">Social Referrer: Reddit (reddit.com)</option>
-                                        <option value="linkedin">Social Referrer: LinkedIn (linkedin.com)</option>
-                                        <option value="pinterest">Social Referrer: Pinterest (pinterest.com)</option>
-                                        <option value="quora">Social Referrer: Quora (quora.com)</option>
-                                        <option value="instagram">Social Referrer: Instagram (instagram.com)</option>
-                                        <option value="custom">Custom Referrer URL (Enter below)</option>
-                                    </select>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">Traffic Sources / Referrers (Multi-Selectable)</label>
+                                        <span class="text-xs text-orange-500 font-bold">Click multiple sources to combine referrers</span>
+                                    </div>
+                                    
+                                    <input type="hidden" name="traffic_source" id="trafficSourceInput" value="direct">
+
+                                    <!-- Category 1: Direct -->
+                                    <div class="mb-3">
+                                        <div class="text-[11px] font-extrabold uppercase text-gray-400 mb-1.5">Primary Source</div>
+                                        <div class="flex flex-wrap gap-2">
+                                            <div onclick="toggleSourceCard('direct')" id="sourceCard_direct"
+                                                class="cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                                                ✓ Direct URL (No Referrer)
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Category 2: Search Engine Referrers -->
+                                    <div class="mb-3">
+                                        <div class="text-[11px] font-extrabold uppercase text-gray-400 mb-1.5">Search Engine Referrers (Organic Source)</div>
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach(['google' => 'Google', 'bing' => 'Bing', 'yahoo' => 'Yahoo', 'yandex' => 'Yandex', 'duckduckgo' => 'DuckDuckGo'] as $sKey => $sLabel)
+                                                <div onclick="toggleSourceCard('{{ $sKey }}')" id="sourceCard_{{ $sKey }}"
+                                                    class="cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200">
+                                                    🔍 {{ $sLabel }}
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <!-- Category 3: Social Media Referrers -->
+                                    <div class="mb-3">
+                                        <div class="text-[11px] font-extrabold uppercase text-gray-400 mb-1.5">Social Media Referrers</div>
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach(['facebook' => 'Facebook', 'twitter' => 'Twitter / X', 'reddit' => 'Reddit', 'linkedin' => 'LinkedIn', 'pinterest' => 'Pinterest', 'quora' => 'Quora', 'instagram' => 'Instagram', 'youtube' => 'YouTube'] as $socKey => $socLabel)
+                                                <div onclick="toggleSourceCard('{{ $socKey }}')" id="sourceCard_{{ $socKey }}"
+                                                    class="cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200">
+                                                    🌐 {{ $socLabel }}
+                                                </div>
+                                            @endforeach
+                                            <div onclick="toggleSourceCard('custom')" id="sourceCard_custom"
+                                                class="cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200">
+                                                🔗 + Custom Referrer URL
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div id="customReferrerBox" class="hidden">
@@ -201,17 +235,43 @@
                                 </div>
                             </div>
 
-                            <!-- SUB-PAGE VISIT ON/OFF TOGGLE SYSTEM -->
-                            <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 space-y-4">
+                            <!-- BEHAVIOR CLICKS: SCROLL & CLICK LINK ON/OFF BUTTON CARD -->
+                            <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 transition">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <label class="font-extrabold text-gray-900 dark:text-white text-sm">Enable Sub-Page Visits (Internal Navigation)</label>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">Visitor clicks an internal link on your site and visits additional pages</p>
+                                        <div class="flex items-center gap-2">
+                                            <label class="font-extrabold text-gray-900 dark:text-white text-sm">Behavior Clicks: Scroll & Click Internal Link</label>
+                                            <span id="behaviorStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">ON</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Simulate human-like page scrolling and clicking internal links</p>
                                     </div>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" id="subPageToggleCheckbox" class="sr-only peer" onchange="toggleSubPages(this.checked)">
-                                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                                    </label>
+                                    <div>
+                                        <input type="hidden" name="behavior_scroll" id="behaviorScrollInput" value="enabled">
+                                        <input type="hidden" name="behavior_click" id="behaviorClickInput" value="enabled">
+                                        <button type="button" onclick="toggleBehaviorClicks()" id="behaviorToggleBtn"
+                                            class="px-5 py-2.5 rounded-xl font-extrabold text-xs transition border-2 border-orange-500 bg-orange-500 text-white shadow-lg shadow-orange-500/20">
+                                            ENABLED (ON)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SUB-PAGE VISITS ON/OFF BUTTON CARD -->
+                            <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 transition space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <label class="font-extrabold text-gray-900 dark:text-white text-sm">Sub-Page Visits (Multi-Page Navigation)</label>
+                                            <span id="subPageStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-gray-500/10 text-gray-500 border border-gray-500/20">OFF</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Visitor navigates deeper into your website sub-pages</p>
+                                    </div>
+                                    <div>
+                                        <button type="button" onclick="toggleSubPagesBtn()" id="subPageToggleBtn"
+                                            class="px-5 py-2.5 rounded-xl font-extrabold text-xs transition border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300">
+                                            DISABLED (OFF)
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- SUB-PAGE OPTIONS (VISIBLE ONLY WHEN TOGGLED ON) -->
@@ -239,25 +299,6 @@
                                             @endforeach
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- VISITOR BEHAVIOR / SCROLL & INTERACTION -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Page Scrolling Behavior</label>
-                                    <select name="behavior_scroll" class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500">
-                                        <option value="enabled" selected>Enabled: Natural Random Scrolling</option>
-                                        <option value="deep">Enabled: Deep Scrolling (Up to Footer)</option>
-                                        <option value="disabled">Disabled: No Scrolling</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Mouse & Interaction Simulation</label>
-                                    <select name="behavior_click" class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500">
-                                        <option value="enabled" selected>Enabled: Human-Like Mouse Hover & Movement</option>
-                                        <option value="disabled">Disabled: Passive View Only</option>
-                                    </select>
                                 </div>
                             </div>
 
@@ -396,27 +437,82 @@
 
     <!-- INTERACTIVE CLICK SELECTION & LIVE DYNAMIC POINT CALCULATOR JAVASCRIPT -->
     <script>
-        function toggleCustomReferrer() {
-            const select = document.getElementById('trafficSource');
-            const box = document.getElementById('customReferrerBox');
-            if (select && box) {
-                if (select.value === 'custom') {
-                    box.classList.remove('hidden');
+        let selectedTrafficSources = ['direct'];
+
+        function toggleSourceCard(key) {
+            const idx = selectedTrafficSources.indexOf(key);
+            if (idx > -1) {
+                if (selectedTrafficSources.length > 1) {
+                    selectedTrafficSources.splice(idx, 1);
+                }
+            } else {
+                selectedTrafficSources.push(key);
+            }
+
+            document.getElementById('trafficSourceInput').value = selectedTrafficSources.join(',');
+
+            // Update badge cards UI
+            const allSourceKeys = ['direct', 'google', 'bing', 'yahoo', 'yandex', 'duckduckgo', 'facebook', 'twitter', 'reddit', 'linkedin', 'pinterest', 'quora', 'instagram', 'youtube', 'custom'];
+            allSourceKeys.forEach(k => {
+                const card = document.getElementById('sourceCard_' + k);
+                if (card) {
+                    if (selectedTrafficSources.includes(k)) {
+                        card.className = 'cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400';
+                    } else {
+                        card.className = 'cursor-pointer px-3.5 py-2 rounded-xl border-2 font-bold text-xs transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
+                    }
+                }
+            });
+
+            const customBox = document.getElementById('customReferrerBox');
+            if (customBox) {
+                if (selectedTrafficSources.includes('custom')) {
+                    customBox.classList.remove('hidden');
                 } else {
-                    box.classList.add('hidden');
+                    customBox.classList.add('hidden');
                 }
             }
         }
 
-        function toggleSubPages(checked) {
-            document.getElementById('subPageToggleInput').value = checked ? '1' : '0';
+        let isBehaviorOn = true;
+        function toggleBehaviorClicks() {
+            isBehaviorOn = !isBehaviorOn;
+            document.getElementById('behaviorScrollInput').value = isBehaviorOn ? 'enabled' : 'disabled';
+            document.getElementById('behaviorClickInput').value = isBehaviorOn ? 'enabled' : 'disabled';
+            const btn = document.getElementById('behaviorToggleBtn');
+            const badge = document.getElementById('behaviorStatusBadge');
+            if (isBehaviorOn) {
+                btn.innerText = 'ENABLED (ON)';
+                btn.className = 'px-5 py-2.5 rounded-xl font-extrabold text-xs transition border-2 border-orange-500 bg-orange-500 text-white shadow-lg shadow-orange-500/20';
+                badge.innerText = 'ON';
+                badge.className = 'px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20';
+            } else {
+                btn.innerText = 'DISABLED (OFF)';
+                btn.className = 'px-5 py-2.5 rounded-xl font-extrabold text-xs transition border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300';
+                badge.innerText = 'OFF';
+                badge.className = 'px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-gray-500/10 text-gray-500 border border-gray-500/20';
+            }
+        }
+
+        let isSubPageOn = false;
+        function toggleSubPagesBtn() {
+            isSubPageOn = !isSubPageOn;
+            document.getElementById('subPageToggleInput').value = isSubPageOn ? '1' : '0';
+            const btn = document.getElementById('subPageToggleBtn');
+            const badge = document.getElementById('subPageStatusBadge');
             const box = document.getElementById('subPageOptionsBox');
-            if (box) {
-                if (checked) {
-                    box.classList.remove('hidden');
-                } else {
-                    box.classList.add('hidden');
-                }
+            if (isSubPageOn) {
+                btn.innerText = 'ENABLED (ON)';
+                btn.className = 'px-5 py-2.5 rounded-xl font-extrabold text-xs transition border-2 border-orange-500 bg-orange-500 text-white shadow-lg shadow-orange-500/20';
+                badge.innerText = 'ON';
+                badge.className = 'px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20';
+                if (box) box.classList.remove('hidden');
+            } else {
+                btn.innerText = 'DISABLED (OFF)';
+                btn.className = 'px-5 py-2.5 rounded-xl font-extrabold text-xs transition border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300';
+                badge.innerText = 'OFF';
+                badge.className = 'px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-gray-500/10 text-gray-500 border border-gray-500/20';
+                if (box) box.classList.add('hidden');
             }
             triggerRecalculate();
         }
