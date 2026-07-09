@@ -63,6 +63,39 @@ class SurfEngineApiService
     }
 
     /**
+     * Fetch available countries list and active proxy counts from Core Automation Engine
+     */
+    public function getAvailableCountries(): array
+    {
+        $url = "{$this->baseUrl}/api/v1/external/countries";
+
+        try {
+            $response = Http::withHeaders([
+                'x-api-key' => $this->apiKey,
+                'Accept' => 'application/json',
+            ])->timeout(10)->get($url);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'Countries request failed: ' . $response->status()
+            ];
+        } catch (\Exception $e) {
+            Log::error('SurfEngineApiService getAvailableCountries Exception: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Connection error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Fetch live campaign status from Core Automation Engine
      */
     public function getCampaignStatus(string $orderId): array

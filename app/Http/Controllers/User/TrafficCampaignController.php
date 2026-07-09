@@ -67,7 +67,7 @@ class TrafficCampaignController extends Controller
     /**
      * Display the Ultra-Premium Sleek Dark Mode Traffic Campaign Builder Page
      */
-    public function builder(Request $request)
+    public function builder(Request $request, SurfEngineApiService $apiService)
     {
         self::ensureTrafficSchema();
 
@@ -79,7 +79,15 @@ class TrafficCampaignController extends Controller
         $user = auth()->user();
         $balance = $user->traffic_points;
 
-        return view('client.traffic_campaign.builder', compact('activeTab', 'balance'));
+        $availableCountries = [];
+        try {
+            $countryRes = $apiService->getAvailableCountries();
+            if ($countryRes['success'] ?? false) {
+                $availableCountries = $countryRes['data']['countries'] ?? [];
+            }
+        } catch (\Throwable $e) {}
+
+        return view('client.traffic_campaign.builder', compact('activeTab', 'balance', 'availableCountries'));
     }
 
     /**
