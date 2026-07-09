@@ -366,7 +366,7 @@ class TrafficCampaignController extends Controller
             'duration' => 'nullable|integer|min:10|max:600',
             'target_country' => 'nullable',
             'device_type' => 'nullable|in:All,desktop,mobile,random,Desktop,Mobile,ALL,RANDOM',
-            'distribution_type' => 'nullable|in:spread,asap',
+            'distribution_type' => 'nullable|string',
             'sub_page_visits' => 'nullable|integer|min:0|max:10',
             'search_engine' => 'nullable|string',
             'captcha_mode' => 'nullable|in:normal,premium',
@@ -435,7 +435,7 @@ class TrafficCampaignController extends Controller
             'behavior_scroll' => $request->input('behavior_scroll', $campaign->behavior_scroll),
             'behavior_click' => $request->input('behavior_click', $campaign->behavior_click),
             'link_click_type' => $request->input('link_click_type', $campaign->link_click_type ?: 'Both'),
-            'distribution_type' => $request->input('distribution_type', $campaign->distribution_type ?: 'spread'),
+            'distribution_type' => strtolower($request->input('distribution_type', $campaign->distribution_type ?: 'spread')) === 'asap' ? 'ASAP' : 'spread',
             'captcha_mode' => $request->input('captcha_mode', $campaign->captcha_mode ?: 'normal'),
             'points_deducted' => $campaign->points_deducted,
         ]);
