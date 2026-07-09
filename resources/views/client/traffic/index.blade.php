@@ -77,31 +77,31 @@
             @foreach ($categories as $category)
                 @if($category->services->count() > 0)
                 <div class="mb-16">
-                    <h2 class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">{{ $category->name }}</h2>
+                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">{{ $category->name }}</h2>
                     @if($category->description)
-                        <p class="text-gray-500 mb-8">{{ $category->description }}</p>
+                        <p class="text-gray-600 dark:text-gray-300 mb-8">{{ $category->description }}</p>
                     @endif
                     <div class="space-y-6">
                         @foreach ($category->services as $service)
-                        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 group">
+                        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 md:p-8 shadow-md border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300 group">
                             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div class="max-w-xl">
-                                    <h3 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-brand transition">{{ $service->name }}</h3>
-                                    <p class="text-gray-500 leading-relaxed">{{ Str::limit($service->description, 120) }}</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-brand transition">{{ $service->name }}</h3>
+                                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">{{ Str::limit($service->description, 120) }}</p>
                                     
                                     <div class="mt-6 flex flex-wrap gap-2">
                                         @if($service->packages->count() > 0)
-                                        <span class="bg-orange-50 text-brand px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Starting from <span class="price-convert" data-base-price="{{ $service->packages->min('price') }}">${{ number_format($service->packages->min('price'), 0) }}</span></span>
-                                        <span class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ $service->packages->count() }} Plans</span>
+                                        <span class="bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Starting from <span class="price-convert" data-base-price="{{ $service->packages->min('price') }}">${{ number_format($service->packages->min('price'), 0) }}</span></span>
+                                        <span class="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ $service->packages->count() }} Plans</span>
                                         @endif
                                         @if($service->addons && $service->addons->count() > 0)
-                                        <span class="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">+{{ $service->addons->count() }} Addons</span>
+                                        <span class="bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">+{{ $service->addons->count() }} Addons</span>
                                         @endif
                                     </div>
                                 </div>
                                 
                                 <div class="shrink-0 mt-6 md:mt-0">
-                                    <a href="{{ route('client.traffic.show', $service) }}" class="inline-flex items-center justify-center w-full md:w-auto bg-brand hover:bg-brand text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md">
+                                    <a href="{{ route('client.traffic.show', $service) }}" class="inline-flex items-center justify-center w-full md:w-auto bg-brand hover:bg-brand/90 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md">
                                         View Details
                                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                                     </a>

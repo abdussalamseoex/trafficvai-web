@@ -79,6 +79,19 @@
                     </x-sidebar-link>
                 </x-sidebar-dropdown>
 
+                <p class="px-4 text-[10px] font-bold text-orange-400 uppercase tracking-wider mb-2 mt-6">Core Automation</p>
+                <x-sidebar-dropdown title="Website Traffic Engine" :active="request()->routeIs('admin.traffic_campaigns.*')">
+                    <x-slot name="icon">
+                        <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </x-slot>
+                    <x-sidebar-link :href="route('admin.traffic_campaigns.index')" :active="request()->routeIs('admin.traffic_campaigns.index')">
+                        {{ __('All Campaigns') }}
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.traffic_campaigns.active')" :active="request()->routeIs('admin.traffic_campaigns.active')">
+                        {{ __('Active Running') }}
+                    </x-sidebar-link>
+                </x-sidebar-dropdown>
+
                 <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">SEO & Content</p>
                 <x-sidebar-dropdown title="SEO & Campaigns" :active="request()->routeIs('admin.campaigns.*')">
                     <x-slot name="icon">
@@ -321,6 +334,25 @@
                         x-text="count">
                     </span>
                 </x-sidebar-link>
+
+                <p class="px-4 text-[10px] font-bold text-orange-400 uppercase tracking-wider mb-2 mt-6">Core Automation</p>
+                <x-sidebar-dropdown title="Website Traffic Engine" :active="request()->routeIs('client.traffic_campaign.*')">
+                    <x-slot name="icon">
+                        <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </x-slot>
+                    <x-sidebar-link :href="route('client.traffic_campaign.builder', ['tab' => 'direct'])" :active="request()->routeIs('client.traffic_campaign.builder') && request('tab', 'direct') === 'direct'">
+                        {{ __('Direct Traffic') }}
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.traffic_campaign.builder', ['tab' => 'search'])" :active="request()->routeIs('client.traffic_campaign.builder') && request('tab') === 'search'">
+                        {{ __('Search Traffic') }}
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.traffic_campaign.index')" :active="request()->routeIs('client.traffic_campaign.index') || request()->routeIs('client.traffic_campaign.monitor')">
+                        {{ __('My Campaigns & Monitor') }}
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.payments.topup')" :active="false">
+                        {{ __('Wallet & Points Top-up') }}
+                    </x-sidebar-link>
+                </x-sidebar-dropdown>
 
                 <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Management</p>
                 <x-sidebar-dropdown title="Payments & Billing" :active="request()->routeIs('client.payments.*') || request()->routeIs('client.invoices.*')">

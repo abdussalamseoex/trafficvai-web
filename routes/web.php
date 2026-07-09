@@ -223,6 +223,12 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             Route::resource('/traffic', \App\Http\Controllers\Admin\WebsiteTrafficController::class)->parameters(['traffic' => 'traffic']);
             Route::resource('/link-building', \App\Http\Controllers\Admin\LinkBuildingController::class)->parameters(['link-building' => 'linkBuilding']);
 
+            // Core Automation Engine Traffic Campaigns Management
+            Route::get('/traffic-campaigns', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'index'])->name('traffic_campaigns.index');
+            Route::get('/traffic-campaigns/active', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'active'])->name('traffic_campaigns.active');
+            Route::post('/traffic-campaigns/{campaign}/sync', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'syncStatus'])->name('traffic_campaigns.sync');
+            Route::post('/traffic-campaigns/{campaign}/toggle', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'toggleStatus'])->name('traffic_campaigns.toggle');
+
             // Dynamic Campaign Routes
             Route::group(['prefix' => 'campaigns/{type}', 'as' => 'campaigns.'], function () {
                     Route::get('/', [\App\Http\Controllers\Admin\CampaignController::class , 'index'])->name('index');
