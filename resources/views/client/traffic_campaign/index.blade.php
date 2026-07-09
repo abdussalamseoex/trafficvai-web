@@ -69,7 +69,10 @@
                                     </td>
                                     <td class="p-5 text-right">
                                         <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ route('client.traffic_campaign.monitor', $camp) }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold text-xs transition">
+                                            <a href="{{ route('client.traffic_campaign.edit', $camp) }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white font-bold text-xs transition border border-gray-700" title="Edit Campaign Limits">
+                                                Edit
+                                            </a>
+                                            <a href="{{ route('client.traffic_campaign.monitor', $camp) }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white font-bold text-xs transition border border-orange-500/20">
                                                 Live Dashboard
                                             </a>
                                             <form action="{{ route('client.traffic_campaign.destroy', $camp) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this campaign?');">

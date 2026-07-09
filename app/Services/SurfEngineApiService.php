@@ -136,6 +136,12 @@ class SurfEngineApiService
     {
         $url = "{$this->baseUrl}/api/v1/external/campaign/action";
 
+        $actionMap = [
+            'active' => 'resume',
+            'paused' => 'pause'
+        ];
+        $action = $actionMap[$status] ?? $status;
+
         try {
             $response = Http::withHeaders([
                 'x-api-key' => $this->apiKey,
@@ -143,7 +149,7 @@ class SurfEngineApiService
             ])->timeout(10)->post($url, [
                 'external_order_id' => $orderId,
                 'order_id' => $orderId,
-                'action' => $status,
+                'action' => $action,
                 'status' => $status,
             ]);
 
@@ -155,5 +161,38 @@ class SurfEngineApiService
             Log::error('SurfEngineApiService updateCampaignStatus Exception: ' . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Update campaign limits and settings on Core Automation Engine
+     */
+    public function updateCampaign(string $orderId, array $payload): array
+    {
+        $urls = [
+            "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/update",
+            "{$this->baseUrl}/api/v1/external/campaign/update"
+        ];
+
+        $payload['external_order_id'] = $orderId;
+        $payload['order_id'] = $orderId;
+
+        $results = [];
+        foreach ($urls as $url) {
+            try {
+                $response = Http::withHeaders([
+                    'x-api-key' => $this->apiKey,
+                    'Accept' => 'application/json',
+                ])->timeout(10)->post($url, $payload);
+
+                if ($response->successful()) {
+                    return ['success' => true, 'data' => $response->json()];
+                }
+                $results[] = $response->status();
+            } catch (\Exception $e) {
+                Log::warning('SurfEngineApiService updateCampaign Exception: ' . $e->getMessage());
+            }
+        }
+
+        return ['success' => false, 'error' => 'Update sync attempted: ' . implode(', ', $results)];
     }
 }

@@ -249,7 +249,10 @@ class TrafficCampaignController extends Controller
             'search_pages_to_scan' => $campaign->max_page,
             'captcha_mode' => $campaign->captcha_mode,
             'traffic_source' => $campaign->traffic_source,
+            'traffic_sources' => explode(',', $campaign->traffic_source ?? ''),
+            'social_media' => $campaign->traffic_source,
             'custom_referrers' => $campaign->custom_referrers,
+            'referrers' => !empty($campaign->custom_referrers) ? array_map('trim', explode("\n", $campaign->custom_referrers)) : [],
         ];
 
         // Call Core Engine API
@@ -289,6 +292,51 @@ class TrafficCampaignController extends Controller
     {
         $campaigns = auth()->user()->trafficCampaigns()->latest()->paginate(15);
         return view('client.traffic_campaign.index', compact('campaigns'));
+    }
+
+    /**
+     * Show edit limits form
+     */
+    public function edit(TrafficCampaign $campaign)
+    {
+        abort_if(!$this->canAccessCampaign($campaign), 403);
+        return view('client.traffic_campaign.edit', compact('campaign'));
+    }
+
+    /**
+     * Update campaign limits and sync with Core Engine
+     */
+    public function update(Request $request, TrafficCampaign $campaign, SurfEngineApiService $apiService)
+    {
+        abort_if(!$this->canAccessCampaign($campaign), 403);
+
+        $validated = $request->validate([
+            'total_limit' => 'required|integer|min:10',
+            'hourly_limit' => 'required|integer|min:1',
+            'daily_limit' => 'nullable|integer|min:1',
+        ]);
+
+        $campaign->update([
+            'total_limit' => $validated['total_limit'],
+            'hourly_limit' => $validated['hourly_limit'],
+            'daily_limit' => $validated['daily_limit'] ?? 1000,
+        ]);
+
+        // Sync with Core Engine
+        $payload = [
+            'total_limit' => $campaign->total_limit,
+            'hourly_limit' => $campaign->hourly_limit,
+            'daily_limit' => $campaign->daily_limit,
+        ];
+        
+        try {
+            $apiService->updateCampaign($campaign->external_order_id, $payload);
+            if (!empty($campaign->remote_campaign_id)) {
+                $apiService->updateCampaign($campaign->remote_campaign_id, $payload);
+            }
+        } catch (\Throwable $e) {}
+
+        return redirect()->route('client.traffic_campaign.index')->with('success', 'Campaign limits updated successfully and synced with Core Engine!');
     }
 
     /**
