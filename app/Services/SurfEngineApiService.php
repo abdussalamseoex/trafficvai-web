@@ -84,15 +84,70 @@ class SurfEngineApiService
 
             return [
                 'success' => false,
-                'error' => 'Status request failed: ' . $response->status()
-            ];
-        } catch (\Exception $e) {
-            Log::error('SurfEngineApiService getCampaignStatus Exception: ' . $e->getMessage());
-
-            return [
-                'success' => false,
                 'error' => 'Connection error: ' . $e->getMessage()
             ];
+        }
+    }
+
+    /**
+     * Stop and Delete campaign on Core Automation Engine
+     */
+    public function deleteCampaign(string $orderId): array
+    {
+        $urls = [
+            "{$this->baseUrl}/api/v1/external/campaign/{$orderId}/delete",
+            "{$this->baseUrl}/api/v1/external/campaign/action",
+        ];
+
+        $results = [];
+        foreach ($urls as $url) {
+            try {
+                $response = Http::withHeaders([
+                    'x-api-key' => $this->apiKey,
+                    'Accept' => 'application/json',
+                ])->timeout(10)->post($url, [
+                    'external_order_id' => $orderId,
+                    'order_id' => $orderId,
+                    'action' => 'delete',
+                ]);
+
+                if ($response->successful()) {
+                    return ['success' => true, 'data' => $response->json()];
+                }
+                $results[] = $response->status();
+            } catch (\Exception $e) {
+                Log::warning('SurfEngineApiService deleteCampaign Exception: ' . $e->getMessage());
+            }
+        }
+
+        return ['success' => false, 'error' => 'Delete sync attempted: ' . implode(', ', $results)];
+    }
+
+    /**
+     * Update campaign status (pause/active) on Core Automation Engine
+     */
+    public function updateCampaignStatus(string $orderId, string $status): array
+    {
+        $url = "{$this->baseUrl}/api/v1/external/campaign/action";
+
+        try {
+            $response = Http::withHeaders([
+                'x-api-key' => $this->apiKey,
+                'Accept' => 'application/json',
+            ])->timeout(10)->post($url, [
+                'external_order_id' => $orderId,
+                'order_id' => $orderId,
+                'action' => $status,
+                'status' => $status,
+            ]);
+
+            return [
+                'success' => $response->successful(),
+                'data' => $response->json()
+            ];
+        } catch (\Exception $e) {
+            Log::error('SurfEngineApiService updateCampaignStatus Exception: ' . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 }

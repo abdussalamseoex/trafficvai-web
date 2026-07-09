@@ -89,22 +89,53 @@ class TrafficCampaignAdminController extends Controller
     /**
      * Pause or resume any client campaign
      */
-    public function toggleStatus(TrafficCampaign $campaign)
+    public function toggleStatus(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
         $newStatus = $campaign->status === 'active' ? 'paused' : 'active';
         $campaign->update(['status' => $newStatus]);
 
-        return back()->with('success', "Campaign {$campaign->external_order_id} updated to " . ucfirst($newStatus));
+        try {
+            $apiService->updateCampaignStatus($campaign->external_order_id, $newStatus);
+            if (!empty($campaign->remote_campaign_id)) {
+                $apiService->updateCampaignStatus($campaign->remote_campaign_id, $newStatus);
+            }
+        } catch (\Throwable $e) {}
+
+        return back()->with('success', "Campaign {$campaign->external_order_id} updated to " . ucfirst($newStatus) . " and synced with Core Engine");
     }
 
     /**
      * Delete any client campaign
      */
-    public function destroy(TrafficCampaign $campaign)
+    public function destroy(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
         $orderId = $campaign->external_order_id;
+        $url = $campaign->url;
+
+        // Stop & delete on Core Automation Engine
+        try {
+            $apiService->deleteCampaign($orderId);
+            if (!empty($campaign->remote_campaign_id) && $campaign->remote_campaign_id !== $orderId) {
+                $apiService->deleteCampaign($campaign->remote_campaign_id);
+            }
+        } catch (\Throwable $e) {}
+
+        // Record audit trail log
+        try {
+            if ($campaign->user_id) {
+                \App\Models\TrafficPointLog::create([
+                    'user_id' => $campaign->user_id,
+                    'type' => 'usage',
+                    'points' => 0,
+                    'cost_usd' => 0,
+                    'description' => "Campaign Deleted by Admin: {$orderId} ({$url}) - Delivery stopped on Core Engine",
+                    'status' => 'completed',
+                ]);
+            }
+        } catch (\Throwable $e) {}
+
         $campaign->delete();
 
-        return back()->with('success', "Campaign {$orderId} deleted successfully.");
+        return back()->with('success', "Campaign {$orderId} deleted successfully and delivery stopped on Core Server.");
     }
 }

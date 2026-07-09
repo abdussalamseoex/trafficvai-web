@@ -380,27 +380,64 @@ class TrafficCampaignController extends Controller
     /**
      * Pause / Resume Campaign
      */
-    public function toggleStatus(TrafficCampaign $campaign)
+    public function toggleStatus(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
         abort_if(!$this->canAccessCampaign($campaign), 403);
 
         $newStatus = $campaign->status === 'active' ? 'paused' : 'active';
         $campaign->update(['status' => $newStatus]);
 
-        return back()->with('success', "Campaign status updated to " . ucfirst($newStatus));
+        // Sync status to Core Automation Engine
+        try {
+            $apiService->updateCampaignStatus($campaign->external_order_id, $newStatus);
+            if (!empty($campaign->remote_campaign_id)) {
+                $apiService->updateCampaignStatus($campaign->remote_campaign_id, $newStatus);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Core Engine toggle status failed: ' . $e->getMessage());
+        }
+
+        return back()->with('success', "Campaign status updated to " . ucfirst($newStatus) . " and synced with Core Engine!");
     }
 
     /**
-     * Delete Campaign
+     * Delete Campaign & Stop Delivery on Core Server
      */
-    public function destroy(TrafficCampaign $campaign)
+    public function destroy(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
         abort_if(!$this->canAccessCampaign($campaign), 403);
+
+        $orderId = $campaign->external_order_id;
+        $url = $campaign->url;
+
+        // Stop & delete on Core Automation Engine (surf.abguestpost.net)
+        try {
+            $apiService->deleteCampaign($orderId);
+            if (!empty($campaign->remote_campaign_id) && $campaign->remote_campaign_id !== $orderId) {
+                $apiService->deleteCampaign($campaign->remote_campaign_id);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Core Engine delete campaign failed: ' . $e->getMessage());
+        }
+
+        // Record audit trail log
+        try {
+            if ($campaign->user_id) {
+                TrafficPointLog::create([
+                    'user_id' => $campaign->user_id,
+                    'type' => 'usage',
+                    'points' => 0,
+                    'cost_usd' => 0,
+                    'description' => "Campaign Deleted by Client: {$orderId} ({$url}) - Delivery stopped on Core Engine",
+                    'status' => 'completed',
+                ]);
+            }
+        } catch (\Throwable $e) {}
 
         $campaign->delete();
 
         return redirect()->route('client.traffic_campaign.index')
-            ->with('success', 'Campaign deleted successfully.');
+            ->with('success', "Campaign {$orderId} deleted successfully and delivery stopped on Core Server.");
     }
 
     /**

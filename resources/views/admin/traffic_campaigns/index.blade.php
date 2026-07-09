@@ -111,9 +111,13 @@
                                             <div class="text-xs text-gray-400 mt-0.5">Rate: {{ $camp->hourly_limit }}/hr | {{ $camp->points_deducted }} pts</div>
                                         </td>
                                         <td class="p-5">
-                                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase {{ $camp->campaign_type === 'search' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700' }}">
+                                            <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold uppercase {{ $camp->campaign_type === 'search' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700' }}">
                                                 {{ $camp->campaign_type === 'search' ? 'Google Search' : 'Direct GOAT' }}
                                             </span>
+                                            <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 uppercase">{{ $camp->device_type ?? 'All' }}</span>
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 uppercase">{{ $camp->target_country ?? 'All' }}</span>
+                                            </div>
                                         </td>
                                         <td class="p-5">
                                             <div class="font-bold text-gray-900">{{ number_format($camp->hits_delivered) }} / {{ number_format($camp->total_limit) }}</div>
