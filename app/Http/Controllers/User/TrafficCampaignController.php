@@ -132,7 +132,7 @@ class TrafficCampaignController extends Controller
             'device_type' => 'required|in:desktop,mobile,All,random,Desktop,Mobile,ALL,RANDOM',
             'distribution_type' => 'nullable|in:spread,asap',
             'target_country' => 'nullable',
-            'search_engine' => 'nullable|in:google,bing,yahoo',
+            'search_engine' => 'nullable|string',
             'keywords' => 'nullable|string',
             'max_page' => 'nullable|in:1,3,5,10',
             'captcha_mode' => 'nullable|in:normal,premium',

@@ -157,8 +157,14 @@
                                         <select name="search_engine" id="searchEngine" 
                                             class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                             <option value="google" selected>Google Search</option>
-                                            <option value="bing">Bing Search</option>
-                                            <option value="yahoo">Yahoo Search</option>
+                                            <option value="bing">Bing</option>
+                                            <option value="duckduckgo">DuckDuckGo</option>
+                                            <option value="yahoo">Yahoo</option>
+                                            <option value="baidu">Baidu</option>
+                                            <option value="yandex">Yandex</option>
+                                            <option value="aol">AOL</option>
+                                            <option value="ask">Ask.com</option>
+                                            <option value="ecosia">Ecosia</option>
                                         </select>
                                     </div>
 

@@ -157,9 +157,15 @@
                                         <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Search Engine</label>
                                         <select name="search_engine" id="searchEngine" 
                                             class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                            <option value="google" {{ $campaign->search_engine == 'google' ? 'selected' : '' }}>Google Search</option>
-                                            <option value="bing" {{ $campaign->search_engine == 'bing' ? 'selected' : '' }}>Bing Search</option>
-                                            <option value="yahoo" {{ $campaign->search_engine == 'yahoo' ? 'selected' : '' }}>Yahoo Search</option>
+                                            <option value="google" {{ strtolower($campaign->search_engine) == 'google' ? 'selected' : '' }}>Google Search</option>
+                                            <option value="bing" {{ strtolower($campaign->search_engine) == 'bing' ? 'selected' : '' }}>Bing</option>
+                                            <option value="duckduckgo" {{ strtolower($campaign->search_engine) == 'duckduckgo' ? 'selected' : '' }}>DuckDuckGo</option>
+                                            <option value="yahoo" {{ strtolower($campaign->search_engine) == 'yahoo' ? 'selected' : '' }}>Yahoo</option>
+                                            <option value="baidu" {{ strtolower($campaign->search_engine) == 'baidu' ? 'selected' : '' }}>Baidu</option>
+                                            <option value="yandex" {{ strtolower($campaign->search_engine) == 'yandex' ? 'selected' : '' }}>Yandex</option>
+                                            <option value="aol" {{ strtolower($campaign->search_engine) == 'aol' ? 'selected' : '' }}>AOL</option>
+                                            <option value="ask" {{ strtolower($campaign->search_engine) == 'ask' ? 'selected' : '' }}>Ask.com</option>
+                                            <option value="ecosia" {{ strtolower($campaign->search_engine) == 'ecosia' ? 'selected' : '' }}>Ecosia</option>
                                         </select>
                                     </div>
 
