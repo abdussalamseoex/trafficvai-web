@@ -148,16 +148,29 @@ class TrafficCampaignController extends Controller
         );
 
         $user = auth()->user();
+        $ptsBalance = (int) $user->traffic_points;
+        $mainUsdBalance = (float) ($user->wallet ? $user->wallet->balance : 0.0);
+        $totalAvailablePoints = $ptsBalance + (int) floor($mainUsdBalance * 1000);
 
-        // Check if user has enough traffic points
-        if ($user->traffic_points < $requiredPoints) {
+        // Smart Auto-Convert & Deduction Check
+        if ($totalAvailablePoints < $requiredPoints) {
             return back()->withInput()->withErrors([
-                'balance' => "Insufficient Traffic Points! This campaign requires " . number_format($requiredPoints) . " Points, but you only have " . number_format($user->traffic_points) . " Points."
+                'balance' => "Insufficient Balance! This campaign requires " . number_format($requiredPoints) . " Points, but your combined balance is only " . number_format($totalAvailablePoints) . " Points (including $" . number_format($mainUsdBalance, 2) . " auto-convertable balance)."
             ]);
         }
 
-        // Deduct points BEFORE firing POST request to Core Server
-        $user->decrement('traffic_points', $requiredPoints);
+        // Deduct points
+        if ($ptsBalance >= $requiredPoints) {
+            $user->decrement('traffic_points', $requiredPoints);
+        } else {
+            $shortfall = $requiredPoints - $ptsBalance;
+            $usdCost = $shortfall / 1000.0;
+            
+            $user->update(['traffic_points' => 0]);
+            if ($user->wallet) {
+                $user->wallet->decrement('balance', $usdCost);
+            }
+        }
 
         // Generate external order ID
         $externalOrderId = '#TV-' . rand(10000, 99999);
@@ -370,13 +383,28 @@ class TrafficCampaignController extends Controller
             );
             
             $user = auth()->user();
-            if ($user->traffic_points < $pointsForDiff) {
+            $ptsBalance = (int) $user->traffic_points;
+            $mainUsdBalance = (float) ($user->wallet ? $user->wallet->balance : 0.0);
+            $totalAvailablePoints = $ptsBalance + (int) floor($mainUsdBalance * 1000);
+
+            if ($totalAvailablePoints < $pointsForDiff) {
                 return back()->withInput()->withErrors([
-                    'balance' => "Insufficient Traffic Points to increase campaign limit! You need " . number_format($pointsForDiff) . " additional Points, but you only have " . number_format($user->traffic_points) . " Points."
+                    'balance' => "Insufficient Balance to increase campaign limit! You need " . number_format($pointsForDiff) . " additional Points, but your combined balance is only " . number_format($totalAvailablePoints) . " Points."
                 ]);
             }
             
-            $user->decrement('traffic_points', $pointsForDiff);
+            if ($ptsBalance >= $pointsForDiff) {
+                $user->decrement('traffic_points', $pointsForDiff);
+            } else {
+                $shortfall = $pointsForDiff - $ptsBalance;
+                $usdCost = $shortfall / 1000.0;
+                
+                $user->update(['traffic_points' => 0]);
+                if ($user->wallet) {
+                    $user->wallet->decrement('balance', $usdCost);
+                }
+            }
+            
             $campaign->points_deducted += $pointsForDiff;
         }
 
