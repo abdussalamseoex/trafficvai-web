@@ -10,10 +10,10 @@
                 <div>
                     <div class="flex items-center gap-2 mb-2">
                         <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">Core Automation Engine</span>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">surf.abguestpost.net</span>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">⏳ 30-Day Point Validity</span>
                     </div>
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Traffic Campaign Builder</h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2 text-sm sm:text-base">Configure automated Direct or Google Search organic traffic with 30-day point validity.</p>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2 text-sm sm:text-base">Configure automated Direct or Google Search organic traffic with live point calculation.</p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
@@ -49,6 +49,10 @@
             <form action="{{ route('client.traffic_campaign.launch') }}" method="POST" id="campaignForm">
                 @csrf
                 <input type="hidden" name="campaign_type" id="campaignTypeInput" value="{{ $activeTab }}">
+                <input type="hidden" name="duration" id="durationInput" value="{{ old('duration', 60) }}">
+                <input type="hidden" name="sub_page_visits" id="subPageVisitsInput" value="{{ old('sub_page_visits', 0) }}">
+                <input type="hidden" name="sub_page_duration" value="30">
+                <input type="hidden" name="captcha_mode" id="captchaModeInput" value="{{ old('captcha_mode', 'normal') }}">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <!-- LEFT COLUMN: 2-Tab Campaign Configuration Form -->
@@ -74,7 +78,7 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Website URL <span class="text-orange-500">*</span></label>
                                 <input type="url" name="url" id="targetUrl" value="{{ old('url') }}" required placeholder="https://client-website.com" 
-                                    class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white placeholder-gray-400 focus:border-brand focus:ring-1 focus:ring-brand transition font-semibold">
+                                    class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white placeholder-gray-400 focus:border-brand focus:ring-1 focus:ring-brand transition font-bold">
                             </div>
 
                             <!-- SEARCH ENGINE FIELDS (ONLY IN SEARCH TAB) -->
@@ -83,7 +87,7 @@
                                     <div>
                                         <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Search Engine</label>
                                         <select name="search_engine" id="searchEngine" 
-                                            class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-semibold">
+                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                             <option value="google" {{ old('search_engine') == 'google' ? 'selected' : '' }}>Google Search</option>
                                             <option value="bing" {{ old('search_engine') == 'bing' ? 'selected' : '' }}>Bing Search</option>
                                             <option value="yahoo" {{ old('search_engine') == 'yahoo' ? 'selected' : '' }}>Yahoo Search</option>
@@ -93,7 +97,7 @@
                                     <div>
                                         <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Max Search Crawl Pages</label>
                                         <select name="max_page" id="maxPage" 
-                                            class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-semibold">
+                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                             <option value="1">Page 1 (Top 10 Results)</option>
                                             <option value="3">Up to Page 3</option>
                                             <option value="5" selected>Up to Page 5</option>
@@ -102,27 +106,23 @@
                                     </div>
                                 </div>
 
-                                <!-- Traffic Quality Mode -->
+                                <!-- Traffic Quality Mode (Interactive Clickable Cards) -->
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Traffic Quality Mode</label>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="captcha_mode" value="normal" class="peer hidden" onchange="triggerRecalculate()" {{ old('captcha_mode', 'normal') == 'normal' ? 'checked' : '' }}>
-                                            <div class="p-4 rounded-xl border border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 peer-checked:border-brand peer-checked:bg-brand/10 transition">
-                                                <div class="font-bold text-gray-900 dark:text-white text-sm">Normal Free Mode</div>
-                                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Standard rate (Base 20 pts / visit)</div>
+                                        <div onclick="selectQualityMode('normal')" id="qualityCardNormal"
+                                            class="cursor-pointer p-4 rounded-xl border-2 transition {{ old('captcha_mode', 'normal') === 'normal' ? 'border-orange-500 bg-orange-500/10' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40' }}">
+                                            <div class="font-bold text-gray-900 dark:text-white text-sm">Normal Free Mode</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Standard rate (Base 20 pts / visit)</div>
+                                        </div>
+                                        <div onclick="selectQualityMode('premium')" id="qualityCardPremium"
+                                            class="cursor-pointer p-4 rounded-xl border-2 transition {{ old('captcha_mode') === 'premium' ? 'border-orange-500 bg-orange-500/10' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40' }}">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-bold text-gray-900 dark:text-white text-sm">Premium Guaranteed Mode</span>
+                                                <span class="text-[10px] uppercase font-bold bg-orange-500 text-white px-2 py-0.5 rounded">High Quality</span>
                                             </div>
-                                        </label>
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="captcha_mode" value="premium" class="peer hidden" onchange="triggerRecalculate()" {{ old('captcha_mode') == 'premium' ? 'checked' : '' }}>
-                                            <div class="p-4 rounded-xl border border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 peer-checked:border-orange-500 peer-checked:bg-orange-500/10 transition">
-                                                <div class="flex items-center justify-between">
-                                                    <span class="font-bold text-gray-900 dark:text-white text-sm">Premium Guaranteed Mode</span>
-                                                    <span class="text-[10px] uppercase font-bold bg-orange-500 text-white px-2 py-0.5 rounded">High Quality</span>
-                                                </div>
-                                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Guaranteed Search Click (Base 30 pts / visit)</div>
-                                            </div>
-                                        </label>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Guaranteed Search Click (Base 30 pts / visit)</div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -130,55 +130,55 @@
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Keywords with % Allocation</label>
                                     <textarea name="keywords" id="keywords" rows="3" placeholder="seo tools 70%&#10;link building agency 30%"
-                                        class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 focus:border-brand transition font-medium">{{ old('keywords') }}</textarea>
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 focus:border-brand transition font-medium">{{ old('keywords') }}</textarea>
                                     <p class="text-xs text-gray-500 mt-1.5">Enter one keyword per line with percentage (e.g. <code class="text-orange-500 font-bold">seo agency 80%</code>).</p>
                                 </div>
                             </div>
 
-                            <!-- VISIT QUANTITY & HOURLY LIMIT -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <!-- VISIT QUANTITY: TOTAL, HOURLY & DAILY LIMIT -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Total Visits Required <span class="text-orange-500">*</span></label>
+                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Total Visits Required <span class="text-orange-500">*</span></label>
                                     <input type="number" name="total_limit" id="totalVisits" value="{{ old('total_limit', 1000) }}" min="10" max="100000" step="10" required 
                                         oninput="triggerRecalculate()"
-                                        class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Hourly Visit Limit <span class="text-orange-500">*</span></label>
+                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Hourly Visit Limit <span class="text-orange-500">*</span></label>
                                     <input type="number" name="hourly_limit" id="hourlyLimit" value="{{ old('hourly_limit', 100) }}" min="1" max="5000" required 
-                                        class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Daily Visit Limit <span class="text-orange-500">*</span></label>
+                                    <input type="number" name="daily_limit" id="dailyLimit" value="{{ old('daily_limit', 1000) }}" min="10" max="50000" required 
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                 </div>
                             </div>
 
-                            <!-- MAIN DURATION SELECTION -->
+                            <!-- MAIN DURATION SELECTION (Interactive Clickable Cards) -->
                             <div>
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Main Page Duration (Seconds)</label>
                                 <div class="grid grid-cols-3 gap-3">
                                     @foreach([60, 90, 120] as $dur)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="duration" value="{{ $dur }}" class="peer hidden" onchange="triggerRecalculate()" {{ old('duration', 60) == $dur ? 'checked' : '' }}>
-                                            <div class="p-3 text-center rounded-xl border border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 peer-checked:border-brand peer-checked:bg-brand/10 transition">
-                                                <div class="font-bold text-gray-900 dark:text-white text-sm">{{ $dur }}s</div>
-                                            </div>
-                                        </label>
+                                        <div onclick="selectDuration({{ $dur }})" id="durationCard{{ $dur }}"
+                                            class="cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm {{ old('duration', 60) == $dur ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200' }}">
+                                            {{ $dur }} Seconds
+                                        </div>
                                     @endforeach
                                 </div>
                             </div>
 
-                            <!-- SUB-PAGE VISITS SELECTION -->
+                            <!-- SUB-PAGE VISITS SELECTION (Interactive Clickable Cards) -->
                             <div>
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Sub-Page Visits (+30s per sub-page)</label>
                                 <div class="grid grid-cols-4 gap-3">
                                     @foreach([0, 1, 2, 3] as $sp)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="sub_page_visits" value="{{ $sp }}" class="peer hidden" onchange="triggerRecalculate()" {{ old('sub_page_visits', 0) == $sp ? 'checked' : '' }}>
-                                            <div class="p-3 text-center rounded-xl border border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 peer-checked:border-brand peer-checked:bg-brand/10 transition">
-                                                <div class="font-bold text-gray-900 dark:text-white text-sm">{{ $sp }} {{ $sp == 1 ? 'Page' : 'Pages' }}</div>
-                                            </div>
-                                        </label>
+                                        <div onclick="selectSubPages({{ $sp }})" id="subPageCard{{ $sp }}"
+                                            class="cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm {{ old('sub_page_visits', 0) == $sp ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200' }}">
+                                            {{ $sp }} {{ $sp == 1 ? 'Page' : 'Pages' }}
+                                        </div>
                                     @endforeach
                                 </div>
-                                <input type="hidden" name="sub_page_duration" value="30">
                             </div>
 
                             <!-- DEVICE & TARGET COUNTRY -->
@@ -186,7 +186,7 @@
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Device Targeting</label>
                                     <select name="device_type" id="deviceType" 
-                                        class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-semibold">
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                         <option value="All">All Devices (Desktop + Mobile)</option>
                                         <option value="desktop">Desktop Only</option>
                                         <option value="mobile">Mobile Only</option>
@@ -196,7 +196,7 @@
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Country</label>
                                     <select name="target_country" id="targetCountry" 
-                                        class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-semibold">
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                         <option value="All">All Countries (Worldwide)</option>
                                         <option value="United States">United States</option>
                                         <option value="United Kingdom">United Kingdom</option>
@@ -220,7 +220,7 @@
                                     <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Live Point Calculator</h3>
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Real-time estimate formula</p>
                                 </div>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">30-Day Expiry</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">⏳ 30-Day Expiry</span>
                             </div>
 
                             <!-- Breakdown List -->
@@ -279,8 +279,53 @@
         </div>
     </div>
 
-    <!-- LIVE DYNAMIC POINT CALCULATOR JAVASCRIPT -->
+    <!-- INTERACTIVE CLICK SELECTION & LIVE DYNAMIC POINT CALCULATOR JAVASCRIPT -->
     <script>
+        function selectDuration(dur) {
+            document.getElementById('durationInput').value = dur;
+            [60, 90, 120].forEach(d => {
+                const card = document.getElementById('durationCard' + d);
+                if (card) {
+                    if (d === dur) {
+                        card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400';
+                    } else {
+                        card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
+                    }
+                }
+            });
+            triggerRecalculate();
+        }
+
+        function selectSubPages(sp) {
+            document.getElementById('subPageVisitsInput').value = sp;
+            [0, 1, 2, 3].forEach(s => {
+                const card = document.getElementById('subPageCard' + s);
+                if (card) {
+                    if (s === sp) {
+                        card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400';
+                    } else {
+                        card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
+                    }
+                }
+            });
+            triggerRecalculate();
+        }
+
+        function selectQualityMode(mode) {
+            document.getElementById('captchaModeInput').value = mode;
+            const cardNorm = document.getElementById('qualityCardNormal');
+            const cardPrem = document.getElementById('qualityCardPremium');
+
+            if (mode === 'premium') {
+                if (cardPrem) cardPrem.className = 'cursor-pointer p-4 rounded-xl border-2 transition border-orange-500 bg-orange-500/10';
+                if (cardNorm) cardNorm.className = 'cursor-pointer p-4 rounded-xl border-2 transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40';
+            } else {
+                if (cardNorm) cardNorm.className = 'cursor-pointer p-4 rounded-xl border-2 transition border-orange-500 bg-orange-500/10';
+                if (cardPrem) cardPrem.className = 'cursor-pointer p-4 rounded-xl border-2 transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40';
+            }
+            triggerRecalculate();
+        }
+
         function calculatePoints(durationSec, subPages, subPageSec, totalVisits, isSearchPremium) {
             const totalSeconds = durationSec + (subPages * subPageSec);
             const baseRate60s = isSearchPremium ? 30.0 : 20.0;
@@ -313,15 +358,12 @@
             const typeInput = document.getElementById('campaignTypeInput').value;
             const totalVisits = parseInt(document.getElementById('totalVisits').value) || 0;
             
-            const durationEl = document.querySelector('input[name="duration"]:checked');
-            const durationSec = durationEl ? parseInt(durationEl.value) : 60;
-
-            const subPageEl = document.querySelector('input[name="sub_page_visits"]:checked');
-            const subPages = subPageEl ? parseInt(subPageEl.value) : 0;
+            const durationSec = parseInt(document.getElementById('durationInput').value) || 60;
+            const subPages = parseInt(document.getElementById('subPageVisitsInput').value) || 0;
             const subPageSec = 30;
 
-            const captchaEl = document.querySelector('input[name="captcha_mode"]:checked');
-            const isSearchPremium = (typeInput === 'search' && captchaEl && captchaEl.value === 'premium');
+            const captchaMode = document.getElementById('captchaModeInput').value;
+            const isSearchPremium = (typeInput === 'search' && captchaMode === 'premium');
 
             const totalPoints = calculatePoints(durationSec, subPages, subPageSec, totalVisits, isSearchPremium);
 

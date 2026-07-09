@@ -57,7 +57,7 @@
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 block mb-1">Available Traffic Points</span>
                         <div class="text-3xl font-black text-orange-600 dark:text-orange-400">{{ number_format($pointsBalance) }} <span class="text-lg font-bold">Pts</span></div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Valid for 30 days from purchase</p>
+                        <p class="text-xs font-bold text-orange-600 dark:text-orange-400 mt-1">⏳ Valid for 30 days from purchase date</p>
                     </div>
                     <a href="{{ route('client.traffic_campaign.builder', ['tab' => 'direct']) }}" class="px-5 py-3 rounded-2xl bg-orange-500 text-white font-extrabold text-xs shadow hover:bg-orange-600 transition">
                         Use Points
@@ -66,7 +66,7 @@
             </div>
 
             <!-- Package Selection Section -->
-            <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-6">Select a Points Package</h2>
+            <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-6">Select a Points Package (30-Day Validity)</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 <!-- Starter Pack -->
@@ -76,6 +76,7 @@
                         <div class="text-3xl font-black text-gray-900 dark:text-white mt-4">5,000 <span class="text-sm font-semibold text-gray-500">Pts</span></div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Ideal for testing direct or search campaigns.</p>
                         <div class="text-2xl font-black text-orange-600 dark:text-orange-400 mt-6">$5.00 <span class="text-xs font-normal text-gray-500">USD</span></div>
+                        <div class="text-[11px] font-semibold text-gray-500 mt-1">⏳ 30-Day Point Validity</div>
                     </div>
 
                     <form action="{{ route('client.traffic_campaign.purchase_points') }}" method="POST" class="mt-6">
@@ -90,10 +91,11 @@
                 <!-- Growth Pack -->
                 <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition flex flex-col justify-between relative overflow-hidden">
                     <div>
-                        <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300">Growth Pack</span>
+                        <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-blue-50 dark:blue-950 text-blue-700 dark:text-blue-300">Growth Pack</span>
                         <div class="text-3xl font-black text-gray-900 dark:text-white mt-4">15,000 <span class="text-sm font-semibold text-gray-500">Pts</span></div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">10% discount compared to base rate.</p>
                         <div class="text-2xl font-black text-orange-600 dark:text-orange-400 mt-6">$13.50 <span class="text-xs font-normal text-gray-500">USD</span></div>
+                        <div class="text-[11px] font-semibold text-gray-500 mt-1">⏳ 30-Day Point Validity</div>
                     </div>
 
                     <form action="{{ route('client.traffic_campaign.purchase_points') }}" method="POST" class="mt-6">
@@ -113,6 +115,7 @@
                         <div class="text-3xl font-black text-gray-900 dark:text-white mt-4">35,000 <span class="text-sm font-semibold text-gray-500">Pts</span></div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">20% bonus points for continuous campaigns.</p>
                         <div class="text-2xl font-black text-orange-600 dark:text-orange-400 mt-6">$28.00 <span class="text-xs font-normal text-gray-500">USD</span></div>
+                        <div class="text-[11px] font-semibold text-gray-500 mt-1">⏳ 30-Day Point Validity</div>
                     </div>
 
                     <form action="{{ route('client.traffic_campaign.purchase_points') }}" method="POST" class="mt-6">
@@ -131,6 +134,7 @@
                         <div class="text-3xl font-black text-gray-900 dark:text-white mt-4">100,000 <span class="text-sm font-semibold text-gray-500">Pts</span></div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Maximum value for agency volume scaling.</p>
                         <div class="text-2xl font-black text-orange-600 dark:text-orange-400 mt-6">$70.00 <span class="text-xs font-normal text-gray-500">USD</span></div>
+                        <div class="text-[11px] font-semibold text-gray-500 mt-1">⏳ 30-Day Point Validity</div>
                     </div>
 
                     <form action="{{ route('client.traffic_campaign.purchase_points') }}" method="POST" class="mt-6">
@@ -145,15 +149,20 @@
 
             <!-- Custom Points Purchase Section -->
             <div class="p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md">
-                <h3 class="text-xl font-extrabold text-gray-900 dark:text-white mb-2">Custom Points Purchase</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-6">Enter any amount of points you need (Rate: $1.00 USD per 1,000 Points | Minimum 1,000 Points).</p>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Custom Points Purchase</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Rate: $1.00 USD per 1,000 Points | Minimum Purchase: $1.00 USD (1,000 Points)</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">⏳ 30-Day Validity</span>
+                </div>
 
                 <form action="{{ route('client.traffic_campaign.purchase_points') }}" method="POST" class="flex flex-col sm:flex-row gap-4 items-end">
                     @csrf
                     <input type="hidden" name="package" value="custom">
 
                     <div class="flex-1 w-full">
-                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Points Amount</label>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Points Amount (Min. 1,000 Pts)</label>
                         <input type="number" name="custom_points" id="customPointsInput" min="1000" step="1000" value="1000" required
                             class="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold focus:border-brand">
                     </div>
@@ -181,7 +190,8 @@
 
             if (customInput && costDisplay) {
                 customInput.addEventListener('input', function() {
-                    const pts = parseInt(this.value) || 0;
+                    let pts = parseInt(this.value) || 0;
+                    if (pts < 0) pts = 0;
                     const usd = (pts / 1000.0).toFixed(2);
                     costDisplay.innerText = '$' + usd + ' USD';
                 });

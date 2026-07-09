@@ -27,6 +27,7 @@ class User extends Authenticatable
         'is_admin',
         'role',
         'referred_by_code',
+        'traffic_points',
     ];
 
     /**
@@ -134,6 +135,11 @@ class User extends Authenticatable
     public function getBalanceAttribute()
     {
         return $this->wallet ? $this->wallet->balance : 0.00;
+    }
+
+    public function getTrafficPointsAttribute($value)
+    {
+        return (int) ($value ?? 0);
     }
 
     /**

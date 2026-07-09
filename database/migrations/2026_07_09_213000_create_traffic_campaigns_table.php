@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('url');
             $table->integer('total_limit')->default(1000);
             $table->integer('hourly_limit')->default(100);
+            $table->integer('daily_limit')->default(1000);
             $table->integer('duration')->default(60); // 60, 90, 120
             $table->integer('sub_page_visits')->default(0); // 0, 1, 2, 3
             $table->integer('sub_page_duration')->default(30);

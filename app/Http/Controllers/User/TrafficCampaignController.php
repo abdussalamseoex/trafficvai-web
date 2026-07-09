@@ -8,21 +8,46 @@ use App\Services\SurfEngineApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class TrafficCampaignController extends Controller
 {
+    /**
+     * Auto-ensure database schema on live server without requiring manual artisan commands
+     */
+    private static function ensureTrafficSchema(): void
+    {
+        try {
+            if (Schema::hasTable('users') && !Schema::hasColumn('users', 'traffic_points')) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->unsignedBigInteger('traffic_points')->default(0);
+                });
+            }
+            if (Schema::hasTable('traffic_campaigns') && !Schema::hasColumn('traffic_campaigns', 'daily_limit')) {
+                Schema::table('traffic_campaigns', function (Blueprint $table) {
+                    $table->integer('daily_limit')->default(1000);
+                });
+            }
+        } catch (\Throwable $e) {
+            Log::warning("ensureTrafficSchema fallback check: " . $e->getMessage());
+        }
+    }
+
     /**
      * Display the Ultra-Premium Sleek Dark Mode Traffic Campaign Builder Page
      */
     public function builder(Request $request)
     {
+        self::ensureTrafficSchema();
+
         $activeTab = $request->query('tab', 'direct'); // 'direct' or 'search'
         if (!in_array($activeTab, ['direct', 'search'])) {
             $activeTab = 'direct';
         }
 
-        $wallet = auth()->user()->wallet;
-        $balance = $wallet ? $wallet->balance : 0;
+        $user = auth()->user();
+        $balance = $user->traffic_points;
 
         return view('client.traffic_campaign.builder', compact('activeTab', 'balance'));
     }
@@ -55,6 +80,7 @@ class TrafficCampaignController extends Controller
             'url' => 'required|url',
             'total_limit' => 'required|integer|min:10|max:100000',
             'hourly_limit' => 'required|integer|min:1|max:5000',
+            'daily_limit' => 'nullable|integer|min:1|max:50000',
             'duration' => 'required|in:60,90,120',
             'sub_page_visits' => 'required|in:0,1,2,3',
             'sub_page_duration' => 'required|integer|min:0|max:120',
@@ -71,6 +97,7 @@ class TrafficCampaignController extends Controller
         $subPageVisits = (int) $validated['sub_page_visits'];
         $subPageDuration = (int) ($validated['sub_page_duration'] ?? 30);
         $totalLimit = (int) $validated['total_limit'];
+        $dailyLimit = (int) ($validated['daily_limit'] ?? 1000);
         $captchaMode = $validated['captcha_mode'] ?? 'normal';
 
         // Calculate required points
@@ -84,13 +111,14 @@ class TrafficCampaignController extends Controller
         );
 
         $user = auth()->user();
-        $wallet = $user->wallet;
-        $balance = $wallet ? (float) $wallet->balance : 0.0;
+        $balance = $user->traffic_points;
 
-        // Check if user has enough points/balance
+        // Check if user has enough traffic points
         if ($balance < $requiredPoints) {
+            $shortage = $requiredPoints - $balance;
+            $neededUsd = ceil($shortage / 1000.0);
             return back()->withInput()->withErrors([
-                'balance' => "Insufficient point/wallet balance. Required: {$requiredPoints} points. Available: " . number_format($balance, 0) . " points."
+                'balance' => "Insufficient Traffic Points! Required: " . number_format($requiredPoints) . " Pts | Available: " . number_format($balance) . " Pts. Please purchase at least " . number_format($shortage) . " more points (~$" . number_format($neededUsd, 2) . " USD) from the Traffic Points Store."
             ]);
         }
 
@@ -110,10 +138,8 @@ class TrafficCampaignController extends Controller
             }
         }
 
-        // Deduct points from wallet balance
-        if ($wallet) {
-            $wallet->decrement('balance', $requiredPoints);
-        }
+        // Deduct points from traffic_points
+        $user->decrement('traffic_points', $requiredPoints);
 
         // Create local campaign with 30 days validity per requirement
         $campaign = TrafficCampaign::create([
@@ -123,6 +149,7 @@ class TrafficCampaignController extends Controller
             'url' => $validated['url'],
             'total_limit' => $totalLimit,
             'hourly_limit' => (int) $validated['hourly_limit'],
+            'daily_limit' => $dailyLimit,
             'duration' => $duration,
             'sub_page_visits' => $subPageVisits,
             'sub_page_duration' => $subPageDuration,
@@ -239,9 +266,11 @@ class TrafficCampaignController extends Controller
      */
     public function topup()
     {
+        self::ensureTrafficSchema();
+
         $user = auth()->user();
         $mainBalance = $user->balance ?? 0;
-        $pointsBalance = $user->wallet ? $user->wallet->balance : 0;
+        $pointsBalance = $user->traffic_points;
 
         return view('client.traffic_campaign.topup', compact('mainBalance', 'pointsBalance'));
     }
@@ -251,6 +280,8 @@ class TrafficCampaignController extends Controller
      */
     public function purchasePoints(\Illuminate\Http\Request $request)
     {
+        self::ensureTrafficSchema();
+
         $request->validate([
             'package' => 'required|string',
             'custom_points' => 'nullable|integer|min:1000',
@@ -271,7 +302,7 @@ class TrafficCampaignController extends Controller
         if ($package === 'custom') {
             $points = (int) $request->input('custom_points');
             if ($points < 1000) {
-                return back()->with('error', 'Minimum custom purchase is 1,000 points.');
+                return back()->with('error', 'Minimum custom purchase is 1,000 points ($1.00 USD minimum).');
             }
             $costUsd = round($points / 1000.0, 2);
         } elseif (isset($packages[$package])) {
@@ -285,13 +316,15 @@ class TrafficCampaignController extends Controller
             return back()->with('error', "Insufficient Main Account USD balance! You need $" . number_format($costUsd, 2) . " USD, but your Main Account balance is $" . number_format($user->balance, 2) . " USD. Please add funds to your Main Account first.");
         }
 
-        // Deduct USD from main balance
-        $user->decrement('balance', $costUsd);
+        // Deduct USD from main balance wallet
+        $wallet = $user->wallet;
+        if ($wallet) {
+            $wallet->decrement('balance', $costUsd);
+        }
 
-        // Credit points to wallet
-        $wallet = $user->wallet ?: $user->wallet()->create(['balance' => 0]);
-        $wallet->increment('balance', $points);
+        // Credit points to user's traffic_points balance
+        $user->increment('traffic_points', $points);
 
-        return back()->with('success', "Successfully purchased " . number_format($points) . " Traffic Points for $" . number_format($costUsd, 2) . " USD! Your new Traffic Points balance is " . number_format($wallet->fresh()->balance) . ".");
+        return back()->with('success', "Successfully purchased " . number_format($points) . " Traffic Points for $" . number_format($costUsd, 2) . " USD! Your new Traffic Points balance is " . number_format($user->fresh()->traffic_points) . " Pts (Valid for 30 Days).");
     }
 }
