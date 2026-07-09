@@ -233,4 +233,65 @@ class TrafficCampaignController extends Controller
 
         return back()->with('success', "Campaign status updated to " . ucfirst($newStatus));
     }
+
+    /**
+     * Dedicated Traffic Points Top-up Store Page
+     */
+    public function topup()
+    {
+        $user = auth()->user();
+        $mainBalance = $user->balance ?? 0;
+        $pointsBalance = $user->wallet ? $user->wallet->balance : 0;
+
+        return view('client.traffic_campaign.topup', compact('mainBalance', 'pointsBalance'));
+    }
+
+    /**
+     * Purchase Traffic Points using Main Account USD Balance
+     */
+    public function purchasePoints(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'package' => 'required|string',
+            'custom_points' => 'nullable|integer|min:1000',
+        ]);
+
+        $user = auth()->user();
+        $package = $request->input('package');
+        $points = 0;
+        $costUsd = 0;
+
+        $packages = [
+            'starter' => ['points' => 5000, 'cost' => 5.00],
+            'growth' => ['points' => 15000, 'cost' => 13.50],
+            'pro' => ['points' => 35000, 'cost' => 28.00],
+            'scale' => ['points' => 100000, 'cost' => 70.00],
+        ];
+
+        if ($package === 'custom') {
+            $points = (int) $request->input('custom_points');
+            if ($points < 1000) {
+                return back()->with('error', 'Minimum custom purchase is 1,000 points.');
+            }
+            $costUsd = round($points / 1000.0, 2);
+        } elseif (isset($packages[$package])) {
+            $points = $packages[$package]['points'];
+            $costUsd = $packages[$package]['cost'];
+        } else {
+            return back()->with('error', 'Invalid point package selected.');
+        }
+
+        if ($user->balance < $costUsd) {
+            return back()->with('error', "Insufficient Main Account USD balance! You need $" . number_format($costUsd, 2) . " USD, but your Main Account balance is $" . number_format($user->balance, 2) . " USD. Please add funds to your Main Account first.");
+        }
+
+        // Deduct USD from main balance
+        $user->decrement('balance', $costUsd);
+
+        // Credit points to wallet
+        $wallet = $user->wallet ?: $user->wallet()->create(['balance' => 0]);
+        $wallet->increment('balance', $points);
+
+        return back()->with('success', "Successfully purchased " . number_format($points) . " Traffic Points for $" . number_format($costUsd, 2) . " USD! Your new Traffic Points balance is " . number_format($wallet->fresh()->balance) . ".");
+    }
 }

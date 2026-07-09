@@ -392,6 +392,8 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             Route::get('/traffic-campaign/{campaign}/monitor', [\App\Http\Controllers\User\TrafficCampaignController::class, 'monitor'])->name('traffic_campaign.monitor');
             Route::get('/traffic-campaign/{campaign}/live-status', [\App\Http\Controllers\User\TrafficCampaignController::class, 'liveStatus'])->name('traffic_campaign.live_status');
             Route::post('/traffic-campaign/{campaign}/toggle', [\App\Http\Controllers\User\TrafficCampaignController::class, 'toggleStatus'])->name('traffic_campaign.toggle');
+            Route::get('/traffic-campaign/topup', [\App\Http\Controllers\User\TrafficCampaignController::class, 'topup'])->name('traffic_campaign.topup');
+            Route::post('/traffic-campaign/topup/purchase', [\App\Http\Controllers\User\TrafficCampaignController::class, 'purchasePoints'])->name('traffic_campaign.purchase_points');
 
             // In-Dashboard Guest Posts
             Route::get('/guest-posts', [\App\Http\Controllers\User\GuestPostController::class , 'index'])->name('guest_posts.index');
