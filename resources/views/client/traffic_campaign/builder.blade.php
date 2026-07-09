@@ -50,14 +50,15 @@
                 @csrf
                 <input type="hidden" name="campaign_type" id="campaignTypeInput" value="{{ $activeTab }}">
                 <input type="hidden" name="duration" id="durationInput" value="{{ old('duration', 60) }}">
-                <input type="hidden" name="sub_page_visits" id="subPageVisitsInput" value="{{ old('sub_page_visits', 0) }}">
-                <input type="hidden" name="sub_page_duration" value="30">
+                <input type="hidden" name="sub_page_toggle" id="subPageToggleInput" value="0">
+                <input type="hidden" name="sub_page_visits" id="subPageVisitsInput" value="1">
+                <input type="hidden" name="sub_page_duration" id="subPageDurationInput" value="20">
                 <input type="hidden" name="captcha_mode" id="captchaModeInput" value="{{ old('captcha_mode', 'normal') }}">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <!-- LEFT COLUMN: 2-Tab Campaign Configuration Form -->
+                    <!-- LEFT COLUMN: Campaign Configuration -->
                     <div class="lg:col-span-7 space-y-6">
-                        <!-- Modern Tab Header -->
+                        <!-- Tab Header -->
                         <div class="p-1.5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 flex gap-2 shadow-sm">
                             <button type="button" onclick="switchTab('direct')" id="tabBtnDirect" 
                                 class="flex-1 py-3 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all {{ $activeTab === 'direct' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25' : 'text-gray-700 dark:text-gray-400 hover:text-black dark:hover:text-white' }}">
@@ -71,9 +72,16 @@
                             </button>
                         </div>
 
-                        <!-- Main Form Card -->
+                        <!-- STEP 1: TARGET WEBSITE & SOURCE CONFIGURATION -->
                         <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
-                            
+                            <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
+                                <span class="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-extrabold flex items-center justify-center text-sm">1</span>
+                                <div>
+                                    <h3 class="font-bold text-gray-900 dark:text-white text-base">Target Website & Traffic Source</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Configure where visitors land and how they reach your page</p>
+                                </div>
+                            </div>
+
                             <!-- TARGET URL -->
                             <div>
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Website URL <span class="text-orange-500">*</span></label>
@@ -82,23 +90,21 @@
                             </div>
 
                             <!-- DIRECT TRAFFIC REFERRERS SECTION (ONLY IN DIRECT TAB) -->
-                            <div id="directFieldsBox" class="{{ $activeTab === 'direct' ? '' : 'hidden' }} space-y-6 pt-2 border-t border-gray-200 dark:border-gray-800/80">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div class="sm:col-span-2">
-                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Traffic Source / Referrer</label>
-                                        <select name="traffic_source" id="trafficSource" onchange="toggleCustomReferrer()" 
-                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                            <option value="direct" selected>Direct Traffic (No HTTP Referrer)</option>
-                                            <option value="facebook">Social Referrer: Facebook (facebook.com)</option>
-                                            <option value="twitter">Social Referrer: Twitter / X (t.co)</option>
-                                            <option value="reddit">Social Referrer: Reddit (reddit.com)</option>
-                                            <option value="linkedin">Social Referrer: LinkedIn (linkedin.com)</option>
-                                            <option value="pinterest">Social Referrer: Pinterest (pinterest.com)</option>
-                                            <option value="quora">Social Referrer: Quora (quora.com)</option>
-                                            <option value="instagram">Social Referrer: Instagram (instagram.com)</option>
-                                            <option value="custom">Custom Referrer URL (Enter below)</option>
-                                        </select>
-                                    </div>
+                            <div id="directFieldsBox" class="{{ $activeTab === 'direct' ? '' : 'hidden' }} space-y-5 pt-2">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Traffic Source / Referrer</label>
+                                    <select name="traffic_source" id="trafficSource" onchange="toggleCustomReferrer()" 
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                        <option value="direct" selected>Direct Traffic (No HTTP Referrer)</option>
+                                        <option value="facebook">Social Referrer: Facebook (facebook.com)</option>
+                                        <option value="twitter">Social Referrer: Twitter / X (t.co)</option>
+                                        <option value="reddit">Social Referrer: Reddit (reddit.com)</option>
+                                        <option value="linkedin">Social Referrer: LinkedIn (linkedin.com)</option>
+                                        <option value="pinterest">Social Referrer: Pinterest (pinterest.com)</option>
+                                        <option value="quora">Social Referrer: Quora (quora.com)</option>
+                                        <option value="instagram">Social Referrer: Instagram (instagram.com)</option>
+                                        <option value="custom">Custom Referrer URL (Enter below)</option>
+                                    </select>
                                 </div>
 
                                 <div id="customReferrerBox" class="hidden">
@@ -110,15 +116,15 @@
                             </div>
 
                             <!-- SEARCH ENGINE FIELDS (ONLY IN SEARCH TAB) -->
-                            <div id="searchFieldsBox" class="{{ $activeTab === 'search' ? '' : 'hidden' }} space-y-6 pt-2 border-t border-gray-200 dark:border-gray-800/80">
+                            <div id="searchFieldsBox" class="{{ $activeTab === 'search' ? '' : 'hidden' }} space-y-5 pt-2">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Search Engine</label>
                                         <select name="search_engine" id="searchEngine" 
                                             class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                            <option value="google" {{ old('search_engine') == 'google' ? 'selected' : '' }}>Google Search</option>
-                                            <option value="bing" {{ old('search_engine') == 'bing' ? 'selected' : '' }}>Bing Search</option>
-                                            <option value="yahoo" {{ old('search_engine') == 'yahoo' ? 'selected' : '' }}>Yahoo Search</option>
+                                            <option value="google" selected>Google Search</option>
+                                            <option value="bing">Bing Search</option>
+                                            <option value="yahoo">Yahoo Search</option>
                                         </select>
                                     </div>
 
@@ -134,27 +140,27 @@
                                     </div>
                                 </div>
 
-                                <!-- Traffic Quality Mode (Interactive Clickable Cards) -->
+                                <!-- Traffic Quality Mode -->
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Traffic Quality Mode</label>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div onclick="selectQualityMode('normal')" id="qualityCardNormal"
-                                            class="cursor-pointer p-4 rounded-xl border-2 transition {{ old('captcha_mode', 'normal') === 'normal' ? 'border-orange-500 bg-orange-500/10' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40' }}">
+                                            class="cursor-pointer p-4 rounded-xl border-2 transition border-orange-500 bg-orange-500/10">
                                             <div class="font-bold text-gray-900 dark:text-white text-sm">Normal Free Mode</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Standard rate (Base 20 pts / visit)</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Standard rate (Base 20 pts / 60s visit)</div>
                                         </div>
                                         <div onclick="selectQualityMode('premium')" id="qualityCardPremium"
-                                            class="cursor-pointer p-4 rounded-xl border-2 transition {{ old('captcha_mode') === 'premium' ? 'border-orange-500 bg-orange-500/10' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40' }}">
+                                            class="cursor-pointer p-4 rounded-xl border-2 transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40">
                                             <div class="flex items-center justify-between">
                                                 <span class="font-bold text-gray-900 dark:text-white text-sm">Premium Guaranteed Mode</span>
                                                 <span class="text-[10px] uppercase font-bold bg-orange-500 text-white px-2 py-0.5 rounded">High Quality</span>
                                             </div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Guaranteed Search Click (Base 30 pts / visit)</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Guaranteed Search Click (Base 30 pts / 60s visit)</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- KEYWORDS WITH PERCENTAGE -->
+                                <!-- TARGET KEYWORDS WITH PERCENTAGE -->
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Keywords with % Allocation</label>
                                     <textarea name="keywords" id="keywords" rows="3" placeholder="seo tools 70%&#10;link building agency 30%"
@@ -162,63 +168,113 @@
                                     <p class="text-xs text-gray-500 mt-1.5">Enter one keyword per line with percentage (e.g. <code class="text-orange-500 font-bold">seo agency 80%</code>).</p>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- VISIT QUANTITY: TOTAL, HOURLY & DAILY LIMIT (3 COLUMNS) -->
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                        <!-- STEP 2: VISIT DURATION & VISITOR BEHAVIOR -->
+                        <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
+                            <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
+                                <span class="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-extrabold flex items-center justify-center text-sm">2</span>
                                 <div>
-                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Total Visits Required <span class="text-orange-500">*</span></label>
-                                    <input type="number" name="total_limit" id="totalVisits" value="{{ old('total_limit', 1000) }}" min="10" max="100000" step="10" required 
-                                        oninput="triggerRecalculate()"
-                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                </div>
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Hourly Visit Limit <span class="text-orange-500">*</span></label>
-                                    <input type="number" name="hourly_limit" id="hourlyLimit" value="{{ old('hourly_limit', 100) }}" min="1" max="5000" required 
-                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                </div>
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Daily Visit Limit <span class="text-orange-500">*</span></label>
-                                    <input type="number" name="daily_limit" id="dailyLimit" value="{{ old('daily_limit', 1000) }}" min="10" max="50000" required 
-                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                    <h3 class="font-bold text-gray-900 dark:text-white text-base">Visit Duration & Visitor Behavior</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Control time spent on page, scrolling, and internal sub-page navigation</p>
                                 </div>
                             </div>
 
-                            <!-- MAIN DURATION SELECTION (Interactive Cards + Custom Duration Input) -->
+                            <!-- MAIN DURATION SELECTION (Presets 20s, 30s, 60s, 90s, 120s + Custom) -->
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">Main Page Duration (Seconds)</label>
-                                    <span class="text-xs text-orange-500 font-bold">Quick Presets or Custom Seconds</span>
+                                    <span class="text-xs text-orange-500 font-bold">Select Preset or Type Custom Seconds</span>
                                 </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    @foreach([60, 90, 120] as $dur)
+                                <div class="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
+                                    @foreach([20, 30, 60, 90, 120] as $dur)
                                         <div onclick="selectDuration({{ $dur }})" id="durationCard{{ $dur }}"
-                                            class="cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm {{ old('duration', 60) == $dur ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200' }}">
-                                            {{ $dur }} Seconds
+                                            class="cursor-pointer p-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm {{ old('duration', 60) == $dur ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200' }}">
+                                            {{ $dur }}s
                                         </div>
                                     @endforeach
                                     <div>
-                                        <input type="number" id="customDurationInput" placeholder="Custom Sec (10-600)" min="10" max="600"
+                                        <input type="number" id="customDurationInput" placeholder="Custom Sec" min="10" max="600"
                                             oninput="setCustomDuration(this.value)"
-                                            class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-3 py-3 text-center text-gray-900 dark:text-white font-bold text-sm focus:border-orange-500 transition">
+                                            class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-2 py-2.5 text-center text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500 transition">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- SUB-PAGE VISITS SELECTION (Interactive Clickable Cards) -->
-                            <div>
-                                <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Sub-Page Visits (+30s per sub-page)</label>
-                                <div class="grid grid-cols-4 gap-3">
-                                    @foreach([0, 1, 2, 3] as $sp)
-                                        <div onclick="selectSubPages({{ $sp }})" id="subPageCard{{ $sp }}"
-                                            class="cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm {{ old('sub_page_visits', 0) == $sp ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200' }}">
-                                            {{ $sp }} {{ $sp == 1 ? 'Page' : 'Pages' }}
+                            <!-- SUB-PAGE VISIT ON/OFF TOGGLE SYSTEM -->
+                            <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="font-extrabold text-gray-900 dark:text-white text-sm">Enable Sub-Page Visits (Internal Navigation)</label>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Visitor clicks an internal link on your site and visits additional pages</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="subPageToggleCheckbox" class="sr-only peer" onchange="toggleSubPages(this.checked)">
+                                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                                    </label>
+                                </div>
+
+                                <!-- SUB-PAGE OPTIONS (VISIBLE ONLY WHEN TOGGLED ON) -->
+                                <div id="subPageOptionsBox" class="hidden pt-4 border-t border-gray-200 dark:border-gray-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Number of Sub-Pages to Visit</label>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            @foreach([1, 2, 3] as $sp)
+                                                <div onclick="selectSubPageCount({{ $sp }})" id="subPageCard{{ $sp }}"
+                                                    class="cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs {{ $sp == 1 ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200' }}">
+                                                    {{ $sp }} {{ $sp == 1 ? 'Page' : 'Pages' }}
+                                                </div>
+                                            @endforeach
                                         </div>
-                                    @endforeach
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Sub-Page Stay Duration (Per Page)</label>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            @foreach([10, 20, 30] as $spd)
+                                                <div onclick="selectSubPageDuration({{ $spd }})" id="subPageDurCard{{ $spd }}"
+                                                    class="cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs {{ $spd == 20 ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200' }}">
+                                                    {{ $spd }}s / page
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VISITOR BEHAVIOR / SCROLL & INTERACTION -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Page Scrolling Behavior</label>
+                                    <select name="behavior_scroll" class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500">
+                                        <option value="enabled" selected>Enabled: Natural Random Scrolling</option>
+                                        <option value="deep">Enabled: Deep Scrolling (Up to Footer)</option>
+                                        <option value="disabled">Disabled: No Scrolling</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Mouse & Interaction Simulation</label>
+                                    <select name="behavior_click" class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500">
+                                        <option value="enabled" selected>Enabled: Human-Like Mouse Hover & Movement</option>
+                                        <option value="disabled">Disabled: Passive View Only</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- STEP 3: DEVICE, COUNTRY & VISIT QUANTITY LIMITS -->
+                        <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
+                            <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
+                                <span class="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-extrabold flex items-center justify-center text-sm">3</span>
+                                <div>
+                                    <h3 class="font-bold text-gray-900 dark:text-white text-base">Targeting & Delivery Limits</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Device filtering, country geolocation, and delivery caps</p>
                                 </div>
                             </div>
 
                             <!-- DEVICE & TARGET COUNTRY -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Device Targeting</label>
                                     <select name="device_type" id="deviceType" 
@@ -245,6 +301,25 @@
                                 </div>
                             </div>
 
+                            <!-- VISIT QUANTITY: TOTAL, HOURLY & DAILY LIMIT -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Total Visits Required <span class="text-orange-500">*</span></label>
+                                    <input type="number" name="total_limit" id="totalVisits" value="{{ old('total_limit', 1000) }}" min="10" max="100000" step="10" required 
+                                        oninput="triggerRecalculate()"
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Hourly Visit Limit <span class="text-orange-500">*</span></label>
+                                    <input type="number" name="hourly_limit" id="hourlyLimit" value="{{ old('hourly_limit', 100) }}" min="1" max="5000" required 
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Daily Visit Limit <span class="text-orange-500">*</span></label>
+                                    <input type="number" name="daily_limit" id="dailyLimit" value="{{ old('daily_limit', 1000) }}" min="10" max="50000" required 
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -262,8 +337,8 @@
                             <!-- Breakdown List -->
                             <div class="py-6 space-y-4 border-b border-gray-200 dark:border-gray-800">
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-gray-400">Base Mode</span>
-                                    <span class="font-bold text-gray-900 dark:text-white" id="calcModeText">Direct (Base 20 Pts)</span>
+                                    <span class="text-gray-600 dark:text-gray-400">Campaign Mode</span>
+                                    <span class="font-bold text-gray-900 dark:text-white" id="calcModeText">Direct (Base 20 Pts/60s)</span>
                                 </div>
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-gray-600 dark:text-gray-400">Total Visits</span>
@@ -333,16 +408,53 @@
             }
         }
 
+        function toggleSubPages(checked) {
+            document.getElementById('subPageToggleInput').value = checked ? '1' : '0';
+            const box = document.getElementById('subPageOptionsBox');
+            if (box) {
+                if (checked) {
+                    box.classList.remove('hidden');
+                } else {
+                    box.classList.add('hidden');
+                }
+            }
+            triggerRecalculate();
+        }
+
+        function selectSubPageCount(cnt) {
+            document.getElementById('subPageVisitsInput').value = cnt;
+            [1, 2, 3].forEach(c => {
+                const card = document.getElementById('subPageCard' + c);
+                if (card) {
+                    card.className = (c === cnt)
+                        ? 'cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                        : 'cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200';
+                }
+            });
+            triggerRecalculate();
+        }
+
+        function selectSubPageDuration(spd) {
+            document.getElementById('subPageDurationInput').value = spd;
+            [10, 20, 30].forEach(d => {
+                const card = document.getElementById('subPageDurCard' + d);
+                if (card) {
+                    card.className = (d === spd)
+                        ? 'cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                        : 'cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200';
+                }
+            });
+            triggerRecalculate();
+        }
+
         function selectDuration(dur) {
             document.getElementById('durationInput').value = dur;
-            [60, 90, 120].forEach(d => {
+            [20, 30, 60, 90, 120].forEach(d => {
                 const card = document.getElementById('durationCard' + d);
                 if (card) {
-                    if (d === dur) {
-                        card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400';
-                    } else {
-                        card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
-                    }
+                    card.className = (d === dur)
+                        ? 'cursor-pointer p-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                        : 'cursor-pointer p-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
                 }
             });
             const customInput = document.getElementById('customDurationInput');
@@ -355,25 +467,10 @@
             if (dur < 10) dur = 10;
             if (dur > 600) dur = 600;
             document.getElementById('durationInput').value = dur;
-            [60, 90, 120].forEach(d => {
+            [20, 30, 60, 90, 120].forEach(d => {
                 const card = document.getElementById('durationCard' + d);
                 if (card) {
-                    card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
-                }
-            });
-            triggerRecalculate();
-        }
-
-        function selectSubPages(sp) {
-            document.getElementById('subPageVisitsInput').value = sp;
-            [0, 1, 2, 3].forEach(s => {
-                const card = document.getElementById('subPageCard' + s);
-                if (card) {
-                    if (s === sp) {
-                        card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400';
-                    } else {
-                        card.className = 'cursor-pointer p-3.5 text-center rounded-xl border-2 transition font-bold text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
-                    }
+                    card.className = 'cursor-pointer p-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
                 }
             });
             triggerRecalculate();
@@ -392,13 +489,6 @@
                 if (cardPrem) cardPrem.className = 'cursor-pointer p-4 rounded-xl border-2 transition border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40';
             }
             triggerRecalculate();
-        }
-
-        function calculatePoints(durationSec, subPages, subPageSec, totalVisits, isSearchPremium) {
-            const totalSeconds = durationSec + (subPages * subPageSec);
-            const baseRate60s = isSearchPremium ? 30.0 : 20.0;
-            const pointsPerVisit = baseRate60s * (totalSeconds / 60.0);
-            return Math.ceil(pointsPerVisit * totalVisits);
         }
 
         function switchTab(tab) {
@@ -430,22 +520,22 @@
             const totalVisits = parseInt(document.getElementById('totalVisits').value) || 0;
             
             const durationSec = parseInt(document.getElementById('durationInput').value) || 60;
-            const subPages = parseInt(document.getElementById('subPageVisitsInput').value) || 0;
-            const subPageSec = 30;
+            const isSubPageOn = document.getElementById('subPageToggleInput').value === '1';
+            const subPageVisits = isSubPageOn ? (parseInt(document.getElementById('subPageVisitsInput').value) || 1) : 0;
+            const subPageDur = isSubPageOn ? (parseInt(document.getElementById('subPageDurationInput').value) || 20) : 0;
 
             const captchaMode = document.getElementById('captchaModeInput').value;
             const isSearchPremium = (typeInput === 'search' && captchaMode === 'premium');
 
-            const totalPoints = calculatePoints(durationSec, subPages, subPageSec, totalVisits, isSearchPremium);
-
-            const totalSeconds = durationSec + (subPages * subPageSec);
+            const totalSeconds = durationSec + (subPageVisits * subPageDur);
             const baseRate60s = isSearchPremium ? 30.0 : 20.0;
             const pointsPerVisit = baseRate60s * (totalSeconds / 60.0);
+            const totalPoints = Math.ceil(pointsPerVisit * totalVisits);
 
-            document.getElementById('calcModeText').innerText = isSearchPremium ? 'Search Premium (Base 30 Pts)' : (typeInput === 'search' ? 'Search Normal (Base 20 Pts)' : 'Direct (Base 20 Pts)');
+            document.getElementById('calcModeText').innerText = isSearchPremium ? 'Search Premium (Base 30 Pts/60s)' : (typeInput === 'search' ? 'Search Normal (Base 20 Pts/60s)' : 'Direct Traffic (Base 20 Pts/60s)');
             document.getElementById('calcVisitsText').innerText = totalVisits.toLocaleString() + ' Visits';
-            document.getElementById('calcDurationText').innerText = totalSeconds + ' Seconds (' + durationSec + 's + ' + (subPages * subPageSec) + 's)';
-            document.getElementById('calcPointsPerVisitText').innerText = pointsPerVisit.toFixed(1) + ' Pts';
+            document.getElementById('calcDurationText').innerText = totalSeconds + 's (' + durationSec + 's main' + (isSubPageOn ? ' + ' + (subPageVisits * subPageDur) + 's sub)' : ')');
+            document.getElementById('calcPointsPerVisitText').innerText = pointsPerVisit.toFixed(2) + ' Pts';
             document.getElementById('calcTotalPointsText').innerText = totalPoints.toLocaleString();
         }
 

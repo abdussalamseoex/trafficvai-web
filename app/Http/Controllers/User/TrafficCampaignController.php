@@ -36,6 +36,15 @@ class TrafficCampaignController extends Controller
                     if (!Schema::hasColumn('traffic_campaigns', 'custom_referrers')) {
                         $table->text('custom_referrers')->nullable();
                     }
+                    if (!Schema::hasColumn('traffic_campaigns', 'sub_page_toggle')) {
+                        $table->boolean('sub_page_toggle')->default(false);
+                    }
+                    if (!Schema::hasColumn('traffic_campaigns', 'behavior_scroll')) {
+                        $table->string('behavior_scroll')->default('enabled');
+                    }
+                    if (!Schema::hasColumn('traffic_campaigns', 'behavior_click')) {
+                        $table->string('behavior_click')->default('enabled');
+                    }
                 });
             }
             if (!Schema::hasTable('traffic_point_logs')) {
@@ -103,8 +112,11 @@ class TrafficCampaignController extends Controller
             'hourly_limit' => 'required|integer|min:1|max:5000',
             'daily_limit' => 'nullable|integer|min:1|max:50000',
             'duration' => 'required|integer|min:10|max:600',
-            'sub_page_visits' => 'required|in:0,1,2,3',
-            'sub_page_duration' => 'required|integer|min:0|max:120',
+            'sub_page_toggle' => 'nullable',
+            'sub_page_visits' => 'nullable|integer|min:0|max:10',
+            'sub_page_duration' => 'nullable|integer|min:0|max:300',
+            'behavior_scroll' => 'nullable|string',
+            'behavior_click' => 'nullable|string',
             'device_type' => 'required|in:desktop,mobile,All',
             'target_country' => 'required|string',
             'search_engine' => 'nullable|in:google,bing,yahoo',
@@ -117,8 +129,11 @@ class TrafficCampaignController extends Controller
 
         $campaignType = $validated['campaign_type'];
         $duration = (int) $validated['duration'];
-        $subPageVisits = (int) $validated['sub_page_visits'];
-        $subPageDuration = (int) ($validated['sub_page_duration'] ?? 30);
+        $subPageToggle = !empty($request->input('sub_page_toggle')) && $request->input('sub_page_toggle') !== '0';
+        $subPageVisits = $subPageToggle ? (int) ($validated['sub_page_visits'] ?? 1) : 0;
+        $subPageDuration = $subPageToggle ? (int) ($validated['sub_page_duration'] ?? 20) : 0;
+        $behaviorScroll = $validated['behavior_scroll'] ?? 'enabled';
+        $behaviorClick = $validated['behavior_click'] ?? 'enabled';
         $totalLimit = (int) $validated['total_limit'];
         $dailyLimit = (int) ($validated['daily_limit'] ?? 1000);
         $captchaMode = $validated['captcha_mode'] ?? 'normal';
@@ -193,8 +208,11 @@ class TrafficCampaignController extends Controller
             'hourly_limit' => (int) $validated['hourly_limit'],
             'daily_limit' => $dailyLimit,
             'duration' => $duration,
+            'sub_page_toggle' => $subPageToggle,
             'sub_page_visits' => $subPageVisits,
             'sub_page_duration' => $subPageDuration,
+            'behavior_scroll' => $behaviorScroll,
+            'behavior_click' => $behaviorClick,
             'device_type' => strtolower($validated['device_type']),
             'target_country' => $validated['target_country'],
             'search_engine' => $validated['search_engine'] ?? 'google',
@@ -219,8 +237,11 @@ class TrafficCampaignController extends Controller
             'hourly_limit' => $campaign->hourly_limit,
             'daily_limit' => $campaign->daily_limit,
             'duration' => $campaign->duration,
+            'sub_page_toggle' => $campaign->sub_page_toggle,
             'sub_page_visits' => $campaign->sub_page_visits,
             'sub_page_duration' => $campaign->sub_page_duration,
+            'behavior_scroll' => $campaign->behavior_scroll,
+            'behavior_click' => $campaign->behavior_click,
             'device_type' => $campaign->device_type,
             'target_country' => $campaign->target_country,
             'search_engine' => $campaign->search_engine,
