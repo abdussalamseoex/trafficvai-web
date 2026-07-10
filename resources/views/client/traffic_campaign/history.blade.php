@@ -94,7 +94,7 @@
                             <tbody class="divide-y divide-gray-200 text-sm">
                                 @foreach($logs as $log)
                                     @php
-                                        $isCredit = in_array($log->type, ['credit', 'purchase', 'topup']) || ($log->points > 0 && $log->cost_usd > 0);
+                                        $isCredit = in_array(strtolower(trim($log->type)), ['credit', 'purchase', 'topup']) || $log->points > 0;
                                         $rowCategory = $isCredit ? 'topups' : 'usage';
                                     @endphp
                                     <tr class="hover:bg-gray-50 transition"

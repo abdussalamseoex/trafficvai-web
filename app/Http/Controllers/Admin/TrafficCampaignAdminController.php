@@ -72,9 +72,11 @@ class TrafficCampaignAdminController extends Controller
 
         $tab = $request->query('tab', 'all');
         if ($tab === 'credit') {
-            $query->whereIn('type', ['credit', 'purchase', 'topup']);
+            $query->where(function($q) {
+                $q->whereIn('type', ['credit', 'purchase', 'topup'])->orWhere('points', '>', 0);
+            });
         } elseif ($tab === 'debit') {
-            $query->whereNotIn('type', ['credit', 'purchase', 'topup']);
+            $query->whereNotIn('type', ['credit', 'purchase', 'topup'])->where('points', '<=', 0);
         }
 
         if ($request->filled('search')) {
@@ -91,9 +93,13 @@ class TrafficCampaignAdminController extends Controller
         $ledgers = $query->paginate(25)->withQueryString();
 
         $stats = [
-            'total_credits' => \App\Models\TrafficPointLog::whereIn('type', ['credit', 'purchase', 'topup'])->sum('points'),
-            'total_debits' => abs(\App\Models\TrafficPointLog::whereNotIn('type', ['credit', 'purchase', 'topup'])->sum('points')),
-            'total_usd_topups' => \App\Models\TrafficPointLog::whereIn('type', ['credit', 'purchase', 'topup'])->sum('cost_usd'),
+            'total_credits' => \App\Models\TrafficPointLog::where(function($q) {
+                $q->whereIn('type', ['credit', 'purchase', 'topup'])->orWhere('points', '>', 0);
+            })->sum('points'),
+            'total_debits' => abs(\App\Models\TrafficPointLog::whereNotIn('type', ['credit', 'purchase', 'topup'])->where('points', '<=', 0)->sum('points')),
+            'total_usd_topups' => \App\Models\TrafficPointLog::where(function($q) {
+                $q->whereIn('type', ['credit', 'purchase', 'topup'])->orWhere('points', '>', 0);
+            })->sum('cost_usd'),
         ];
 
         return view('admin.traffic_campaigns.ledger', compact('ledgers', 'stats', 'tab'));
