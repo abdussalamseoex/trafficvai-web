@@ -24,7 +24,7 @@ class UserController extends Controller
             'orders.guestPostSite',
             'directMessages.sender',
             'trafficCampaigns' => fn($q) => $q->latest(),
-            'trafficPointLedgers' => fn($q) => $q->latest(),
+            'trafficPointLogs' => fn($q) => $q->latest(),
         ]);
 
         // Mark direct messages from this client as read

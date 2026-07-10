@@ -68,7 +68,7 @@ class TrafficCampaignAdminController extends Controller
      */
     public function ledger(Request $request)
     {
-        $query = \App\Models\TrafficPointLedger::with('user')->latest();
+        $query = \App\Models\TrafficPointLog::with('user')->latest();
 
         if ($request->filled('search')) {
             $search = $request->query('search');
@@ -84,9 +84,9 @@ class TrafficCampaignAdminController extends Controller
         $ledgers = $query->paginate(25)->withQueryString();
 
         $stats = [
-            'total_credits' => \App\Models\TrafficPointLedger::where('type', 'credit')->sum('points'),
-            'total_debits' => \App\Models\TrafficPointLedger::where('type', 'debit')->sum('points'),
-            'total_usd_topups' => \App\Models\TrafficPointLedger::where('type', 'credit')->sum('usd_spent'),
+            'total_credits' => \App\Models\TrafficPointLog::where('type', 'credit')->sum('points'),
+            'total_debits' => \App\Models\TrafficPointLog::where('type', 'debit')->sum('points'),
+            'total_usd_topups' => \App\Models\TrafficPointLog::where('type', 'credit')->sum('cost_usd'),
         ];
 
         return view('admin.traffic_campaigns.ledger', compact('ledgers', 'stats'));

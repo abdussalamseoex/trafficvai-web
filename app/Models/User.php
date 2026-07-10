@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\Invoice;
 use App\Models\TrafficCampaign;
-use App\Models\TrafficPointLedger;
+use App\Models\TrafficPointLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -84,9 +84,9 @@ class User extends Authenticatable
         return $this->hasMany(TrafficCampaign::class);
     }
 
-    public function trafficPointLedgers()
+    public function trafficPointLogs()
     {
-        return $this->hasMany(TrafficPointLedger::class);
+        return $this->hasMany(TrafficPointLog::class);
     }
 
     /**

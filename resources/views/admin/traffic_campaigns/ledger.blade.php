@@ -95,7 +95,7 @@
                                             {{ $item->type === 'credit' ? '+' : '-' }}{{ number_format($item->points) }} Pts
                                         </td>
                                         <td class="p-5 font-bold text-gray-900">
-                                            {{ $item->usd_spent > 0 ? '$' . number_format($item->usd_spent, 2) : '-' }}
+                                            {{ $item->cost_usd > 0 ? '$' . number_format($item->cost_usd, 2) : '-' }}
                                         </td>
                                         <td class="p-5 text-xs text-gray-500">
                                             {{ $item->created_at->format('M d, Y h:i A') }}

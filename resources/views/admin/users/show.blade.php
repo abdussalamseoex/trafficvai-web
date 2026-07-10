@@ -39,7 +39,7 @@
                         </div>
                         @php
                             $seoSpent = $user->orders->where('status', 'completed')->sum('total_amount');
-                            $trafficTopupSpent = $user->trafficPointLedgers->where('type', 'credit')->sum('usd_spent');
+                            $trafficTopupSpent = $user->trafficPointLogs->where('type', 'credit')->sum('cost_usd');
                             $totalSpentAll = $seoSpent + $trafficTopupSpent;
                             $totalOrdersAll = $user->orders->count() + $user->trafficCampaigns->count();
                         @endphp
@@ -217,16 +217,16 @@
                     <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
                         <div class="flex items-center justify-between mb-6">
                             <h4 class="text-lg font-bold text-gray-900">Traffic Points & Top-up Ledger</h4>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600">{{ $user->trafficPointLedgers->count() }} Transactions</span>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600">{{ $user->trafficPointLogs->count() }} Transactions</span>
                         </div>
                         <div class="space-y-4">
-                            @forelse($user->trafficPointLedgers as $ledger)
+                            @forelse($user->trafficPointLogs as $ledger)
                             <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                                 <div>
                                     <p class="font-bold text-gray-900 text-sm">{{ $ledger->description }}</p>
                                     <p class="text-xs text-gray-500 mt-0.5">
-                                        @if($ledger->usd_spent > 0)
-                                            USD Spent: <strong class="text-emerald-600">${{ number_format($ledger->usd_spent, 2) }}</strong>
+                                        @if($ledger->cost_usd > 0)
+                                            USD Spent: <strong class="text-emerald-600">${{ number_format($ledger->cost_usd, 2) }}</strong>
                                         @endif
                                     </p>
                                 </div>
