@@ -47,16 +47,43 @@
                 </div>
 
                 <div class="p-10">
-                    <form action="{{ route('client.payments.topup.process') }}" method="POST" x-data="{ amount: 50, paymentMethod: null, isProcessing: false }" class="space-y-10" @submit.prevent="if(!paymentMethod) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
+                    @php
+                        $bdtRate = (float) \App\Models\Setting::get('bdt_exchange_rate', 120);
+                        if ($bdtRate <= 0) $bdtRate = 120;
+                    @endphp
+                    <form action="{{ route('client.payments.topup.process') }}" method="POST"
+                          x-data="{
+                              amount: (localStorage.getItem('selected_currency') === 'BDT' || !localStorage.getItem('selected_currency')) ? {{ 50 * $bdtRate }} : 50,
+                              paymentMethod: null,
+                              isProcessing: false,
+                              init() {
+                                  if ($store.currency && $store.currency.current === 'BDT') {
+                                      this.amount = {{ 50 * $bdtRate }};
+                                  } else {
+                                      this.amount = 50;
+                                  }
+                                  window.addEventListener('currency-changed', (e) => {
+                                      if (e.detail.currency === 'BDT') {
+                                          if (this.amount == 10) this.amount = {{ 10 * $bdtRate }};
+                                          else if (this.amount == 50) this.amount = {{ 50 * $bdtRate }};
+                                          else if (this.amount == 100) this.amount = {{ 100 * $bdtRate }};
+                                          else if (this.amount == 500) this.amount = {{ 500 * $bdtRate }};
+                                      } else {
+                                          if (this.amount == {{ 10 * $bdtRate }}) this.amount = 10;
+                                          else if (this.amount == {{ 50 * $bdtRate }}) this.amount = 50;
+                                          else if (this.amount == {{ 100 * $bdtRate }}) this.amount = 100;
+                                          else if (this.amount == {{ 500 * $bdtRate }}) this.amount = 500;
+                                      }
+                                  });
+                              }
+                          }"
+                          class="space-y-10"
+                          @submit.prevent="if(!paymentMethod) { $dispatch('notify', {type: 'error', message: 'Please select a payment method'}); return; } isProcessing = true; $el.submit();">
                         @csrf
                         
                         <!-- Fixed Amounts Selection -->
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Choose Amount</label>
-                            @php
-                                $bdtRate = (float) \App\Models\Setting::get('bdt_exchange_rate', 120);
-                                if ($bdtRate <= 0) $bdtRate = 120;
-                            @endphp
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 @foreach([10, 50, 100, 500] as $opt)
                                 @php $bdtVal = $opt * $bdtRate; @endphp
