@@ -101,9 +101,9 @@ class TrafficCampaignController extends Controller
      */
     private static function calculateRequiredPoints($campaignType, $duration, $subPageVisits, $subPageDuration, $totalLimit, $captchaMode)
     {
-        $baseRate60s = 20.0;
-        if ($campaignType === 'search' && $captchaMode === 'premium') {
-            $baseRate60s = 30.0;
+        $baseRate60s = 1.0; // Direct Traffic default: 1 point per 60 seconds
+        if ($campaignType === 'search') {
+            $baseRate60s = ($captchaMode === 'premium') ? 30.0 : 20.0;
         }
 
         $totalSeconds = $duration + ($subPageVisits * $subPageDuration);
@@ -326,11 +326,22 @@ class TrafficCampaignController extends Controller
     public function index(SurfEngineApiService $apiService)
     {
         self::ensureTrafficSchema();
-        $activeCampaigns = auth()->user()->trafficCampaigns()->where('status', 'active')->get();
-        foreach ($activeCampaigns as $camp) {
-            try {
-                \App\Console\Commands\SyncTrafficDelivery::syncSingleCampaign($camp, $apiService);
-            } catch (\Throwable $e) {}
+        $allCampaigns = auth()->user()->trafficCampaigns()->get();
+        foreach ($allCampaigns as $camp) {
+            if (strtolower(trim($camp->campaign_type)) === 'direct' && $camp->total_limit > 0) {
+                $totalSeconds = (int) $camp->duration + ((int) $camp->sub_page_visits * (int) $camp->sub_page_duration);
+                if ($totalSeconds <= 0) $totalSeconds = 60;
+                $correctBudget = (int) ceil(1.0 * ($totalSeconds / 60.0) * $camp->total_limit);
+                if ($camp->points_deducted > ($correctBudget * 2)) {
+                    $camp->points_deducted = max($correctBudget, $camp->total_limit);
+                    $camp->save();
+                }
+            }
+            if ($camp->status === 'active') {
+                try {
+                    \App\Console\Commands\SyncTrafficDelivery::syncSingleCampaign($camp, $apiService);
+                } catch (\Throwable $e) {}
+            }
         }
         $campaigns = auth()->user()->trafficCampaigns()->latest()->paginate(15);
         return view('client.traffic_campaign.index', compact('campaigns'));

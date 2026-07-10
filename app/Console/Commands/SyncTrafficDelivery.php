@@ -33,6 +33,16 @@ class SyncTrafficDelivery extends Command
 
     public static function syncSingleCampaign(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
+        if (strtolower(trim($campaign->campaign_type)) === 'direct' && $campaign->total_limit > 0) {
+            $totalSeconds = (int) $campaign->duration + ((int) $campaign->sub_page_visits * (int) $campaign->sub_page_duration);
+            if ($totalSeconds <= 0) $totalSeconds = 60;
+            $correctBudget = (int) ceil(1.0 * ($totalSeconds / 60.0) * $campaign->total_limit);
+            if ($campaign->points_deducted > ($correctBudget * 2)) {
+                $campaign->points_deducted = max($correctBudget, $campaign->total_limit);
+                $campaign->save();
+            }
+        }
+
         $statusResponse = $apiService->getCampaignStatus($campaign->external_order_id);
 
         if (!($statusResponse['success'] ?? false)) {
