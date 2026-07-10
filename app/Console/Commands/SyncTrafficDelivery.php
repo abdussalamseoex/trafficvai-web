@@ -52,9 +52,10 @@ class SyncTrafficDelivery extends Command
         $userPoints = (int) ($user ? $user->traffic_points : 0);
 
         if ($deltaHits > 0 && $user && $userPoints > 0) {
-            $deduct = min($userPoints, $deltaHits);
+            $ratePerHit = $campaign->total_limit > 0 ? ($campaign->points_deducted / max(1, $campaign->total_limit)) : 1.0;
+            $ptsToDeduct = max(1, (int) round($deltaHits * $ratePerHit));
+            $deduct = min($userPoints, $ptsToDeduct);
             $user->decrement('traffic_points', $deduct);
-            $campaign->increment('points_deducted', $deduct);
 
             try {
                 TrafficPointLog::create([
@@ -62,7 +63,7 @@ class SyncTrafficDelivery extends Command
                     'type' => 'usage',
                     'points' => -$deduct,
                     'cost_usd' => 0,
-                    'description' => "Pay-As-You-Go Delivery: {$deduct} hits delivered for {$campaign->external_order_id}",
+                    'description' => "Pay-As-You-Go Delivery: {$deltaHits} visits delivered ({$deduct} Pts) for {$campaign->external_order_id}",
                     'status' => 'completed',
                 ]);
             } catch (\Throwable $e) {}

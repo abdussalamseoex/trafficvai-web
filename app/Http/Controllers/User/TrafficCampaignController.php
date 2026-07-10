@@ -552,9 +552,10 @@ class TrafficCampaignController extends Controller
                 $deltaHits = max(0, $newHits - (int) $campaign->hits_delivered);
 
                 if ($deltaHits > 0 && $user && $userPoints > 0) {
-                    $deduct = min($userPoints, $deltaHits);
+                    $ratePerHit = $campaign->total_limit > 0 ? ($campaign->points_deducted / max(1, $campaign->total_limit)) : 1.0;
+                    $ptsToDeduct = max(1, (int) round($deltaHits * $ratePerHit));
+                    $deduct = min($userPoints, $ptsToDeduct);
                     $user->decrement('traffic_points', $deduct);
-                    $campaign->increment('points_deducted', $deduct);
 
                     // Record incremental usage log
                     try {
@@ -563,7 +564,7 @@ class TrafficCampaignController extends Controller
                             'type' => 'usage',
                             'points' => -$deduct,
                             'cost_usd' => 0,
-                            'description' => "Pay-As-You-Go Delivery: {$deduct} hits delivered for {$campaign->external_order_id}",
+                            'description' => "Pay-As-You-Go Delivery: {$deltaHits} visits delivered ({$deduct} Pts) for {$campaign->external_order_id}",
                             'status' => 'completed',
                         ]);
                     } catch (\Throwable $e) {}

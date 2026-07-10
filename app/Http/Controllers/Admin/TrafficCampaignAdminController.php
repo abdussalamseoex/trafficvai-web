@@ -117,18 +117,9 @@ class TrafficCampaignAdminController extends Controller
      */
     public function syncStatus(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
-        $statusResponse = $apiService->getCampaignStatus($campaign->external_order_id);
+        $success = \App\Console\Commands\SyncTrafficDelivery::syncSingleCampaign($campaign, $apiService);
 
-        if ($statusResponse['success'] ?? false) {
-            $data = $statusResponse['data'];
-            if (isset($data['hits_delivered'])) {
-                $campaign->hits_delivered = (int) $data['hits_delivered'];
-            }
-            if (isset($data['status'])) {
-                $campaign->status = strtolower($data['status']);
-            }
-            $campaign->save();
-
+        if ($success) {
             return back()->with('success', "Campaign {$campaign->external_order_id} synced successfully with Core Engine!");
         }
 
