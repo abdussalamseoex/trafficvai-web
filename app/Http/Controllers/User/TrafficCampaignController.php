@@ -766,7 +766,7 @@ class TrafficCampaignController extends Controller
     /**
      * Dedicated Traffic Points Top-up Store Page
      */
-    public function topup()
+    public function topup(\Illuminate\Http\Request $request)
     {
         self::ensureTrafficSchema();
 
@@ -774,9 +774,28 @@ class TrafficCampaignController extends Controller
         $mainBalance = $user->balance ?? 0;
         $pointsBalance = $user->traffic_points;
 
-        $logs = TrafficPointLog::where('user_id', $user->id)->latest()->take(50)->get();
+        $tab = $request->query('tab', 'all');
+        $query = TrafficPointLog::where('user_id', $user->id)->latest();
 
-        return view('client.traffic_campaign.topup', compact('mainBalance', 'pointsBalance', 'logs'));
+        if ($tab === 'topups') {
+            $query->where(function($q) {
+                $q->whereIn('type', ['credit', 'purchase', 'topup'])->orWhere('points', '>', 0);
+            });
+        } elseif ($tab === 'usage') {
+            $query->whereNotIn('type', ['credit', 'purchase', 'topup'])->where('points', '<=', 0);
+        }
+
+        $logs = $query->paginate(25)->withQueryString();
+
+        $counts = [
+            'all' => TrafficPointLog::where('user_id', $user->id)->count(),
+            'topups' => TrafficPointLog::where('user_id', $user->id)->where(function($q) {
+                $q->whereIn('type', ['credit', 'purchase', 'topup'])->orWhere('points', '>', 0);
+            })->count(),
+            'usage' => TrafficPointLog::where('user_id', $user->id)->whereNotIn('type', ['credit', 'purchase', 'topup'])->where('points', '<=', 0)->count(),
+        ];
+
+        return view('client.traffic_campaign.topup', compact('mainBalance', 'pointsBalance', 'logs', 'tab', 'counts'));
     }
 
     /**

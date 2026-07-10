@@ -182,28 +182,25 @@
 
             <!-- Points Top-up & Usage History Table -->
             <!-- Points Top-up & Usage History Table -->
-            <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md" x-data="{ activeTab: 'all' }">
+            <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
                         <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Points Top-up & Usage History</h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Complete log of your traffic point purchases and campaign deductions</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl">
-                        <button type="button" @click="activeTab = 'all'"
-                                :class="activeTab === 'all' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 font-bold'"
-                                class="px-4 py-1.5 rounded-xl text-xs transition">
-                            All Activity
-                        </button>
-                        <button type="button" @click="activeTab = 'topups'"
-                                :class="activeTab === 'topups' ? 'bg-emerald-600 text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 font-bold'"
-                                class="px-4 py-1.5 rounded-xl text-xs transition">
-                            Top-up Purchases (+)
-                        </button>
-                        <button type="button" @click="activeTab = 'usage'"
-                                :class="activeTab === 'usage' ? 'bg-orange-600 text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 font-bold'"
-                                class="px-4 py-1.5 rounded-xl text-xs transition">
-                            Usage Deductions (-)
-                        </button>
+                        <a href="{{ route('client.traffic_campaign.topup', ['tab' => 'all']) }}"
+                           class="px-4 py-1.5 rounded-xl text-xs transition {{ ($tab ?? 'all') === 'all' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 font-bold' }}">
+                            All Activity ({{ $counts['all'] ?? 0 }})
+                        </a>
+                        <a href="{{ route('client.traffic_campaign.topup', ['tab' => 'topups']) }}"
+                           class="px-4 py-1.5 rounded-xl text-xs transition {{ ($tab ?? 'all') === 'topups' ? 'bg-emerald-600 text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 font-bold' }}">
+                            Top-up Purchases (+) ({{ $counts['topups'] ?? 0 }})
+                        </a>
+                        <a href="{{ route('client.traffic_campaign.topup', ['tab' => 'usage']) }}"
+                           class="px-4 py-1.5 rounded-xl text-xs transition {{ ($tab ?? 'all') === 'usage' ? 'bg-orange-600 text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 font-bold' }}">
+                            Usage Deductions (-) ({{ $counts['usage'] ?? 0 }})
+                        </a>
                     </div>
                 </div>
 
@@ -223,10 +220,8 @@
                             @forelse($logs ?? [] as $log)
                                 @php
                                     $isCredit = in_array(strtolower(trim($log->type)), ['credit', 'purchase', 'topup']) || $log->points > 0;
-                                    $rowCat = $isCredit ? 'topups' : 'usage';
                                 @endphp
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition"
-                                    x-show="activeTab === 'all' || activeTab === '{{ $rowCat }}'">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
                                     <td class="py-4 px-4 font-semibold text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                         {{ $log->created_at ? $log->created_at->format('M d, Y h:i A') : 'N/A' }}
                                     </td>
