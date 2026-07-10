@@ -204,7 +204,8 @@ class TrafficCampaignController extends Controller
 
         // Create local campaign with 30 days validity per requirement
         $linkClickType = $request->input('link_click_type', 'Both');
-        $distributionType = $request->input('distribution_type', 'spread');
+        $rawDist = strtolower($request->input('distribution_type', 'spread'));
+        $distributionType = in_array($rawDist, ['burst', 'asap']) ? 'burst' : 'spread';
 
         $campaign = TrafficCampaign::create([
             'user_id' => $user->id,
@@ -277,11 +278,11 @@ class TrafficCampaignController extends Controller
             'device_type' => $apiDeviceType,
             'device' => $apiDeviceType,
             'devices' => $apiDeviceType,
-            'distribution_type' => strtolower($campaign->distribution_type) === 'asap' ? 'ASAP' : 'spread',
-            'visit_distribution' => strtolower($campaign->distribution_type) === 'asap' ? 'asap' : 'spread',
-            'distribution' => strtolower($campaign->distribution_type) === 'asap' ? 'ASAP' : 'spread',
-            'speed' => strtolower($campaign->distribution_type) === 'asap' ? 'asap' : 'spread',
-            'delivery_speed' => strtolower($campaign->distribution_type) === 'asap' ? 'ASAP' : 'spread',
+            'distribution_type' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
+            'visit_distribution' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
+            'distribution' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
+            'speed' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
+            'delivery_speed' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
             'target_country' => $campaign->target_country ?: 'Worldwide',
             'country' => $campaign->target_country ?: 'Worldwide',
             'total_limit' => (int) $campaign->total_limit,
@@ -435,7 +436,7 @@ class TrafficCampaignController extends Controller
             'behavior_scroll' => $request->input('behavior_scroll', $campaign->behavior_scroll),
             'behavior_click' => $request->input('behavior_click', $campaign->behavior_click),
             'link_click_type' => $request->input('link_click_type', $campaign->link_click_type ?: 'Both'),
-            'distribution_type' => strtolower($request->input('distribution_type', $campaign->distribution_type ?: 'spread')) === 'asap' ? 'ASAP' : 'spread',
+            'distribution_type' => in_array(strtolower($request->input('distribution_type', $campaign->distribution_type ?: 'spread')), ['burst', 'asap']) ? 'burst' : 'spread',
             'captcha_mode' => $request->input('captcha_mode', $campaign->captcha_mode ?: 'normal'),
             'points_deducted' => $campaign->points_deducted,
         ]);
@@ -475,11 +476,11 @@ class TrafficCampaignController extends Controller
             'device_type' => $apiDeviceType,
             'device' => $apiDeviceType,
             'devices' => $apiDeviceType,
-            'distribution_type' => strtolower($campaign->distribution_type) === 'asap' ? 'ASAP' : 'spread',
-            'visit_distribution' => strtolower($campaign->distribution_type) === 'asap' ? 'asap' : 'spread',
-            'distribution' => strtolower($campaign->distribution_type) === 'asap' ? 'ASAP' : 'spread',
-            'speed' => strtolower($campaign->distribution_type) === 'asap' ? 'asap' : 'spread',
-            'delivery_speed' => strtolower($campaign->distribution_type) === 'asap' ? 'ASAP' : 'spread',
+            'distribution_type' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
+            'visit_distribution' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
+            'distribution' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
+            'speed' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
+            'delivery_speed' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
             'target_country' => $campaign->target_country ?: 'Worldwide',
             'country' => $campaign->target_country ?: 'Worldwide',
             'total_limit' => (int) $campaign->total_limit,

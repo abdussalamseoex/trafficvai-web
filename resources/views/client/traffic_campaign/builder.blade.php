@@ -428,7 +428,7 @@
                                         <select name="distribution_type" id="distributionType" 
                                             class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
                                             <option value="spread" selected>Spread out evenly (24 Hours)</option>
-                                            <option value="ASAP">Deliver As Fast As Possible (ASAP)</option>
+                                            <option value="burst">Deliver As Fast As Possible (ASAP)</option>
                                         </select>
                                     </div>
                                 </div>
