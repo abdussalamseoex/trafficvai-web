@@ -323,9 +323,15 @@ class TrafficCampaignController extends Controller
     /**
      * List all traffic campaigns for client
      */
-    public function index()
+    public function index(SurfEngineApiService $apiService)
     {
         self::ensureTrafficSchema();
+        $activeCampaigns = auth()->user()->trafficCampaigns()->where('status', 'active')->get();
+        foreach ($activeCampaigns as $camp) {
+            try {
+                \App\Console\Commands\SyncTrafficDelivery::syncSingleCampaign($camp, $apiService);
+            } catch (\Throwable $e) {}
+        }
         $campaigns = auth()->user()->trafficCampaigns()->latest()->paginate(15);
         return view('client.traffic_campaign.index', compact('campaigns'));
     }
@@ -802,14 +808,33 @@ class TrafficCampaignController extends Controller
     /**
      * Dedicated 30-Day Point Ledger & History Table Page
      */
-    public function history()
+    public function history(\Illuminate\Http\Request $request)
     {
         self::ensureTrafficSchema();
 
         $user = auth()->user();
-        $logs = TrafficPointLog::where('user_id', $user->id)->latest()->paginate(25);
+        $query = TrafficPointLog::where('user_id', $user->id)->latest();
+
+        $tab = $request->query('tab', 'all');
+        if ($tab === 'topups') {
+            $query->where(function($q) {
+                $q->whereIn('type', ['credit', 'purchase', 'topup'])->orWhere('points', '>', 0);
+            });
+        } elseif ($tab === 'usage') {
+            $query->whereNotIn('type', ['credit', 'purchase', 'topup'])->where('points', '<=', 0);
+        }
+
+        $logs = $query->paginate(25)->withQueryString();
         $pointsBalance = (int) $user->traffic_points;
 
-        return view('client.traffic_campaign.history', compact('logs', 'pointsBalance'));
+        $counts = [
+            'all' => TrafficPointLog::where('user_id', $user->id)->count(),
+            'topups' => TrafficPointLog::where('user_id', $user->id)->where(function($q) {
+                $q->whereIn('type', ['credit', 'purchase', 'topup'])->orWhere('points', '>', 0);
+            })->count(),
+            'usage' => TrafficPointLog::where('user_id', $user->id)->whereNotIn('type', ['credit', 'purchase', 'topup'])->where('points', '<=', 0)->count(),
+        ];
+
+        return view('client.traffic_campaign.history', compact('logs', 'pointsBalance', 'tab', 'counts'));
     }
 }

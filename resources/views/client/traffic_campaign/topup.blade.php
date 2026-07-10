@@ -181,13 +181,30 @@
             </div>
 
             <!-- Points Top-up & Usage History Table -->
-            <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md">
-                <div class="flex items-center justify-between mb-6">
+            <!-- Points Top-up & Usage History Table -->
+            <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md" x-data="{ activeTab: 'all' }">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
                         <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Points Top-up & Usage History</h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Complete log of your traffic point purchases and campaign deductions</p>
                     </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">Live Transaction Log</span>
+                    <div class="flex flex-wrap items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl">
+                        <button type="button" @click="activeTab = 'all'"
+                                :class="activeTab === 'all' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 font-bold'"
+                                class="px-4 py-1.5 rounded-xl text-xs transition">
+                            All Activity
+                        </button>
+                        <button type="button" @click="activeTab = 'topups'"
+                                :class="activeTab === 'topups' ? 'bg-emerald-600 text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 font-bold'"
+                                class="px-4 py-1.5 rounded-xl text-xs transition">
+                            Top-up Purchases (+)
+                        </button>
+                        <button type="button" @click="activeTab = 'usage'"
+                                :class="activeTab === 'usage' ? 'bg-orange-600 text-white shadow-sm font-black' : 'text-gray-600 dark:text-gray-400 font-bold'"
+                                class="px-4 py-1.5 rounded-xl text-xs transition">
+                            Usage Deductions (-)
+                        </button>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -204,12 +221,17 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800/60 text-xs sm:text-sm">
                             @forelse($logs ?? [] as $log)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
+                                @php
+                                    $isCredit = in_array(strtolower(trim($log->type)), ['credit', 'purchase', 'topup']) || $log->points > 0;
+                                    $rowCat = $isCredit ? 'topups' : 'usage';
+                                @endphp
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition"
+                                    x-show="activeTab === 'all' || activeTab === '{{ $rowCat }}'">
                                     <td class="py-4 px-4 font-semibold text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                                        {{ $log->created_at->format('M d, Y h:i A') }}
+                                        {{ $log->created_at ? $log->created_at->format('M d, Y h:i A') : 'N/A' }}
                                     </td>
                                     <td class="py-4 px-4 whitespace-nowrap">
-                                        @if($log->type === 'purchase')
+                                        @if($isCredit)
                                             <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                                 + Top-up Purchase
                                             </span>

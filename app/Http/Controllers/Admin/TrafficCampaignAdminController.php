@@ -12,8 +12,15 @@ class TrafficCampaignAdminController extends Controller
     /**
      * Display all clients' Traffic Campaigns
      */
-    public function index(Request $request)
+    public function index(Request $request, \App\Services\SurfEngineApiService $apiService)
     {
+        $activeCampaigns = TrafficCampaign::with('user')->where('status', 'active')->get();
+        foreach ($activeCampaigns as $camp) {
+            try {
+                \App\Console\Commands\SyncTrafficDelivery::syncSingleCampaign($camp, $apiService);
+            } catch (\Throwable $e) {}
+        }
+
         $query = TrafficCampaign::with('user')->latest();
 
         if ($request->filled('status')) {

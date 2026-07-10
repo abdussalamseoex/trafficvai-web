@@ -10,5 +10,8 @@ Artisan::command('inspire', function () {
 
 Schedule::command('invoices:send-renewal-reminders')->daily();
 
+// Ensure active campaigns sync delivery and deduct points every 5 minutes automatically
+Schedule::command('traffic:sync-delivery')->everyFiveMinutes()->withoutOverlapping();
+
 // Ensure background jobs run continuously on typical cPanel hosting setup
 Schedule::command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();

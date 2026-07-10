@@ -51,26 +51,23 @@
             </div>
 
             <!-- Ledger Table with Tabs -->
-            <div class="p-8 rounded-3xl bg-white border border-gray-200 shadow-2xl space-y-6" x-data="{ activeTab: 'all' }">
+            <div class="p-8 rounded-3xl bg-white border border-gray-200 shadow-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
                     <h3 class="text-xl font-black text-gray-900">Transaction & Usage Ledger</h3>
                     
                     <div class="flex flex-wrap items-center gap-2 bg-gray-100 p-1.5 rounded-2xl">
-                        <button type="button" @click="activeTab = 'all'"
-                                :class="activeTab === 'all' ? 'bg-white text-gray-900 shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold'"
-                                class="px-4 py-1.5 rounded-xl text-xs transition">
-                            All Activity
-                        </button>
-                        <button type="button" @click="activeTab = 'topups'"
-                                :class="activeTab === 'topups' ? 'bg-emerald-600 text-white shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold'"
-                                class="px-4 py-1.5 rounded-xl text-xs transition">
-                            Top-up Purchases (+)
-                        </button>
-                        <button type="button" @click="activeTab = 'usage'"
-                                :class="activeTab === 'usage' ? 'bg-orange-600 text-white shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold'"
-                                class="px-4 py-1.5 rounded-xl text-xs transition">
-                            Usage Deductions (-)
-                        </button>
+                        <a href="{{ route('client.traffic_campaign.history', ['tab' => 'all']) }}"
+                           class="px-4 py-1.5 rounded-xl text-xs transition {{ ($tab ?? 'all') === 'all' ? 'bg-white text-gray-900 shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold' }}">
+                            All Activity ({{ $counts['all'] ?? 0 }})
+                        </a>
+                        <a href="{{ route('client.traffic_campaign.history', ['tab' => 'topups']) }}"
+                           class="px-4 py-1.5 rounded-xl text-xs transition {{ ($tab ?? 'all') === 'topups' ? 'bg-emerald-600 text-white shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold' }}">
+                            Top-up Purchases (+) ({{ $counts['topups'] ?? 0 }})
+                        </a>
+                        <a href="{{ route('client.traffic_campaign.history', ['tab' => 'usage']) }}"
+                           class="px-4 py-1.5 rounded-xl text-xs transition {{ ($tab ?? 'all') === 'usage' ? 'bg-orange-600 text-white shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold' }}">
+                            Usage Deductions (-) ({{ $counts['usage'] ?? 0 }})
+                        </a>
                     </div>
                 </div>
 
@@ -97,8 +94,7 @@
                                         $isCredit = in_array(strtolower(trim($log->type)), ['credit', 'purchase', 'topup']) || $log->points > 0;
                                         $rowCategory = $isCredit ? 'topups' : 'usage';
                                     @endphp
-                                    <tr class="hover:bg-gray-50 transition"
-                                        x-show="activeTab === 'all' || activeTab === '{{ $rowCategory }}'">
+                                    <tr class="hover:bg-gray-50 transition">
                                         <td class="p-4 font-bold text-gray-700 text-xs">
                                             {{ $log->created_at ? $log->created_at->format('M d, Y h:i A') : 'N/A' }}
                                         </td>
