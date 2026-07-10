@@ -62,13 +62,10 @@
                         <thead>
                             <tr class="border-b border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-500 bg-gray-50 whitespace-nowrap">
                                 <th class="p-4">#</th>
-                                <th class="p-4">Order ID</th>
-                                <th class="p-4">Target URL</th>
+                                <th class="p-4">Campaign & Target URL</th>
                                 <th class="p-4">Type</th>
-                                <th class="p-4">Delivered / Total</th>
-                                <th class="p-4">Points Consumed</th>
+                                <th class="p-4">Delivery & Points Budget</th>
                                 <th class="p-4">Status</th>
-                                <th class="p-4">Expiry</th>
                                 <th class="p-4 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -76,36 +73,36 @@
                             @foreach($campaigns as $camp)
                                 <tr class="hover:bg-gray-50 transition">
                                     <td class="p-4 font-bold text-gray-500 whitespace-nowrap">{{ $campaigns->firstItem() + $loop->index }}</td>
-                                    <td class="p-4 font-bold text-gray-900 whitespace-nowrap">{{ $camp->external_order_id }}</td>
-                                    <td class="p-4 text-gray-600 max-w-[140px] truncate" title="{{ $camp->url }}">{{ $camp->url }}</td>
+                                    <td class="p-4 font-bold text-gray-900 whitespace-nowrap">
+                                        <div>{{ $camp->external_order_id }}</div>
+                                        <div class="text-xs font-normal text-gray-500 max-w-[180px] truncate" title="{{ $camp->url }}">{{ $camp->url }}</div>
+                                    </td>
                                     <td class="p-4 capitalize font-medium whitespace-nowrap">
                                         <span class="px-2.5 py-1 rounded-lg text-xs font-bold {{ $camp->campaign_type === 'search' ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-orange-50 text-orange-600 border border-orange-200' }}">
                                             {{ $camp->campaign_type === 'search' ? 'Google Search' : 'Direct GOAT' }}
                                         </span>
                                     </td>
+                                    @php
+                                        $consumedPts = $camp->total_limit > 0 
+                                            ? (int) round(($camp->hits_delivered / $camp->total_limit) * $camp->points_deducted)
+                                            : 0;
+                                    @endphp
                                     <td class="p-4 whitespace-nowrap">
-                                        <div class="font-bold text-gray-900">{{ number_format($camp->hits_delivered) }} / {{ number_format($camp->total_limit) }}</div>
-                                        <div class="w-20 h-1.5 rounded-full bg-gray-200 mt-1 overflow-hidden">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold text-gray-900 text-xs">{{ number_format($camp->hits_delivered) }} / {{ number_format($camp->total_limit) }} Visits</span>
+                                            <span class="text-[11px] font-extrabold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">{{ number_format($consumedPts) }} / {{ number_format($camp->points_deducted) }} Pts</span>
+                                        </div>
+                                        <div class="w-full h-1.5 rounded-full bg-gray-200 mt-1.5 overflow-hidden max-w-[200px]">
                                             <div class="h-full bg-orange-500" style="width: {{ $camp->delivery_percentage }}%"></div>
                                         </div>
                                     </td>
                                     <td class="p-4 whitespace-nowrap">
-                                        <div class="inline-flex flex-col gap-0.5">
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-600 font-extrabold text-xs">
-                                                {{ number_format($camp->hits_delivered) }} Pts Consumed
+                                        <div class="flex flex-col gap-0.5">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase w-fit {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                                {{ ucfirst($camp->status) }}
                                             </span>
-                                            <span class="text-[11px] text-gray-500 font-medium">
-                                                Budget: {{ number_format($camp->points_deducted) }} Pts
-                                            </span>
+                                            <span class="text-[10px] text-gray-400">Exp: {{ $camp->expires_at ? $camp->expires_at->format('M d, Y') : '30 Days' }}</span>
                                         </div>
-                                    </td>
-                                    <td class="p-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
-                                            {{ ucfirst($camp->status) }}
-                                        </span>
-                                    </td>
-                                    <td class="p-4 text-gray-500 text-xs whitespace-nowrap">
-                                        {{ $camp->expires_at ? $camp->expires_at->format('M d, Y') : '30 Days' }}
                                     </td>
                                     <td class="p-4 text-right whitespace-nowrap">
                                         <div class="flex items-center justify-end gap-1.5">

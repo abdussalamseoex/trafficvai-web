@@ -109,13 +109,16 @@
                                         <td class="p-5 font-medium text-gray-800">
                                             {{ $item->description }}
                                         </td>
+                                        @php
+                                            $isCredit = in_array($item->type, ['credit', 'purchase', 'topup']);
+                                        @endphp
                                         <td class="p-5">
-                                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase {{ $item->type === 'credit' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700' }}">
-                                                {{ $item->type === 'credit' ? 'Top-up Credit' : 'Usage Debit' }}
+                                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase {{ $isCredit ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700' }}">
+                                                {{ $isCredit ? 'Top-up Credit' : 'Usage Debit' }}
                                             </span>
                                         </td>
-                                        <td class="p-5 font-black {{ $item->type === 'credit' ? 'text-emerald-600' : 'text-orange-600' }}">
-                                            {{ $item->type === 'credit' ? '+' : '-' }}{{ number_format($item->points) }} Pts
+                                        <td class="p-5 font-black {{ $isCredit ? 'text-emerald-600' : 'text-orange-600' }}">
+                                            {{ $isCredit ? '+' : '' }}{{ number_format($item->points) }} Pts
                                         </td>
                                         <td class="p-5 font-bold text-gray-900">
                                             {{ $item->cost_usd > 0 ? '$' . number_format($item->cost_usd, 2) : '-' }}

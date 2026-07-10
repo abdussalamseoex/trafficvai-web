@@ -92,60 +92,51 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-gray-50/80 border-b border-gray-100 text-xs font-bold uppercase tracking-wider text-gray-500">
-                                    <th class="p-5">Order ID / Client</th>
-                                    <th class="p-5">Target URL</th>
-                                    <th class="p-5">Engine Type</th>
-                                    <th class="p-5">Delivery Progress</th>
-                                    <th class="p-5">Points Consumed / Budget</th>
-                                    <th class="p-5">Status</th>
-                                    <th class="p-5">30-Day Expiry</th>
-                                    <th class="p-5 text-right">Actions</th>
+                                    <th class="p-4">Order / Client</th>
+                                    <th class="p-4">Target URL & Engine</th>
+                                    <th class="p-4">Delivery & Points Budget</th>
+                                    <th class="p-4">Status & Expiry</th>
+                                    <th class="p-4 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
                                 @foreach($campaigns as $camp)
                                     <tr class="hover:bg-gray-50/50 transition">
-                                        <td class="p-5">
+                                        <td class="p-4">
                                             <div class="font-black text-gray-900">{{ $camp->external_order_id }}</div>
                                             <div class="text-xs text-gray-500">{{ $camp->user->name ?? 'N/A' }}</div>
                                             <div class="text-[11px] text-gray-400">{{ $camp->user->email ?? '' }}</div>
                                         </td>
-                                        <td class="p-5 max-w-xs truncate">
-                                            <a href="{{ $camp->url }}" target="_blank" class="text-blue-600 hover:underline font-medium">{{ $camp->url }}</a>
-                                            <div class="text-xs text-gray-400 mt-0.5">Rate: {{ $camp->hourly_limit }}/hr | {{ $camp->points_deducted }} pts</div>
-                                        </td>
-                                        <td class="p-5">
-                                            <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold uppercase {{ $camp->campaign_type === 'search' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700' }}">
-                                                {{ $camp->campaign_type === 'search' ? 'Google Search' : 'Direct GOAT' }}
-                                            </span>
-                                            <div class="mt-2 flex flex-wrap items-center gap-1.5">
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 uppercase">{{ $camp->device_type ?? 'All' }}</span>
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 uppercase">{{ $camp->target_country ?? 'All' }}</span>
+                                        <td class="p-4 max-w-[200px]">
+                                            <a href="{{ $camp->url }}" target="_blank" class="text-blue-600 hover:underline font-medium block truncate" title="{{ $camp->url }}">{{ $camp->url }}</a>
+                                            <div class="flex items-center gap-1.5 mt-1.5">
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $camp->campaign_type === 'search' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700' }}">
+                                                    {{ $camp->campaign_type === 'search' ? 'Google Search' : 'Direct GOAT' }}
+                                                </span>
+                                                <span class="text-xs text-gray-400">Rate: {{ $camp->hourly_limit }}/hr</span>
                                             </div>
                                         </td>
-                                        <td class="p-5">
-                                            <div class="font-bold text-gray-900">{{ number_format($camp->hits_delivered) }} / {{ number_format($camp->total_limit) }}</div>
-                                            <div class="w-28 h-2 rounded-full bg-gray-100 mt-1.5 overflow-hidden">
+                                        @php
+                                            $consumedPts = $camp->total_limit > 0
+                                                ? (int) round(($camp->hits_delivered / $camp->total_limit) * $camp->points_deducted)
+                                                : 0;
+                                        @endphp
+                                        <td class="p-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-gray-900 text-xs">{{ number_format($camp->hits_delivered) }} / {{ number_format($camp->total_limit) }} Visits</span>
+                                                <span class="text-[11px] font-extrabold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">{{ number_format($consumedPts) }} / {{ number_format($camp->points_deducted) }} Pts</span>
+                                            </div>
+                                            <div class="w-full h-1.5 rounded-full bg-gray-200 mt-1.5 overflow-hidden max-w-[200px]">
                                                 <div class="h-full bg-orange-500" style="width: {{ $camp->delivery_percentage }}%"></div>
                                             </div>
                                         </td>
-                                        <td class="p-5">
-                                            <div class="inline-flex flex-col gap-1">
-                                                <span class="inline-flex items-center px-3 py-1 rounded-xl bg-orange-50 text-orange-700 font-black text-xs">
-                                                    {{ number_format($camp->hits_delivered) }} Pts Consumed
+                                        <td class="p-4 whitespace-nowrap">
+                                            <div class="flex flex-col gap-1">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase w-fit {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
+                                                    {{ ucfirst($camp->status) }}
                                                 </span>
-                                                <span class="text-[11px] text-gray-500 font-medium px-1">
-                                                    Budget: {{ number_format($camp->points_deducted) }} Pts
-                                                </span>
+                                                <span class="text-[10px] text-gray-400">Exp: {{ $camp->expires_at ? $camp->expires_at->format('M d, Y') : '30 Days' }}</span>
                                             </div>
-                                        </td>
-                                        <td class="p-5">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
-                                                {{ ucfirst($camp->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="p-5 text-xs text-gray-500 font-medium">
-                                            {{ $camp->expires_at ? $camp->expires_at->format('M d, Y') : '30 Days' }}
                                         </td>
                                         <td class="p-5 text-right space-x-2">
                                             <form action="{{ route('admin.traffic_campaigns.sync', $camp) }}" method="POST" class="inline">

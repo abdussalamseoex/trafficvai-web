@@ -72,9 +72,9 @@ class TrafficCampaignAdminController extends Controller
 
         $tab = $request->query('tab', 'all');
         if ($tab === 'credit') {
-            $query->where('type', 'credit');
+            $query->whereIn('type', ['credit', 'purchase', 'topup']);
         } elseif ($tab === 'debit') {
-            $query->where('type', 'debit');
+            $query->whereNotIn('type', ['credit', 'purchase', 'topup']);
         }
 
         if ($request->filled('search')) {
@@ -91,9 +91,9 @@ class TrafficCampaignAdminController extends Controller
         $ledgers = $query->paginate(25)->withQueryString();
 
         $stats = [
-            'total_credits' => \App\Models\TrafficPointLog::where('type', 'credit')->sum('points'),
-            'total_debits' => \App\Models\TrafficPointLog::where('type', 'debit')->sum('points'),
-            'total_usd_topups' => \App\Models\TrafficPointLog::where('type', 'credit')->sum('cost_usd'),
+            'total_credits' => \App\Models\TrafficPointLog::whereIn('type', ['credit', 'purchase', 'topup'])->sum('points'),
+            'total_debits' => abs(\App\Models\TrafficPointLog::whereNotIn('type', ['credit', 'purchase', 'topup'])->sum('points')),
+            'total_usd_topups' => \App\Models\TrafficPointLog::whereIn('type', ['credit', 'purchase', 'topup'])->sum('cost_usd'),
         ];
 
         return view('admin.traffic_campaigns.ledger', compact('ledgers', 'stats', 'tab'));

@@ -216,8 +216,8 @@
                     <!-- Client Traffic Points Ledger / Top-up History -->
                     <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8" x-data="{ activeTab: 'topups', limitTopups: 10, limitUsage: 10 }">
                         @php
-                            $topupLogs = $user->trafficPointLogs->where('type', 'credit')->values();
-                            $usageLogs = $user->trafficPointLogs->where('type', 'debit')->values();
+                            $topupLogs = $user->trafficPointLogs->filter(fn($l) => in_array($l->type, ['credit', 'purchase', 'topup']))->values();
+                            $usageLogs = $user->trafficPointLogs->filter(fn($l) => !in_array($l->type, ['credit', 'purchase', 'topup']))->values();
                         @endphp
 
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
