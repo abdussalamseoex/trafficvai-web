@@ -371,7 +371,7 @@
                     <x-sidebar-link :href="route('client.payments.topup')" :active="request()->routeIs('client.payments.topup')">
                         {{ __('Add Balance') }}
                     </x-sidebar-link>
-                    <x-sidebar-link :href="route('client.invoices.index')" :active="request()->routeIs('client.invoices.*')">
+                    <x-sidebar-link :href="route('client.payments.index')" :active="request()->routeIs('client.payments.index')">
                         {{ __('Transaction History') }}
                     </x-sidebar-link>
                 </x-sidebar-dropdown>

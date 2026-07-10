@@ -260,6 +260,8 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
                 Route::resource('/leads', \App\Http\Controllers\Admin\LeadController::class);
                 Route::resource('/site-faqs', \App\Http\Controllers\Admin\SiteFaqController::class);
                 Route::resource('/users', \App\Http\Controllers\Admin\UserController::class);
+                Route::post('/users/{user}/adjust-balance', [\App\Http\Controllers\Admin\UserController::class, 'adjustBalance'])->name('users.adjust_balance');
+                Route::post('/users/{user}/adjust-points', [\App\Http\Controllers\Admin\UserController::class, 'adjustPoints'])->name('users.adjust_points');
                 Route::resource('/staff', \App\Http\Controllers\Admin\StaffController::class)->except(['show']);
                 Route::post('/media/sync', [\App\Http\Controllers\Admin\MediaController::class, 'sync'])->name('media.sync');
                 Route::delete('/media/bulk-destroy', [\App\Http\Controllers\Admin\MediaController::class, 'bulkDestroy'])->name('media.bulk-destroy');

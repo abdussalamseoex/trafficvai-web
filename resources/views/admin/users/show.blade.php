@@ -11,58 +11,101 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- User Info -->
-                <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm h-fit">
-                    <div class="text-center mb-6">
-                        <div class="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-3xl mx-auto mb-4">
-                            {{ strtoupper(substr($user->name, 0, 2)) }}
+                <!-- User Info & Adjustment Sidebar -->
+                <div class="space-y-6">
+                    <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                        <div class="text-center mb-6">
+                            <div class="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-3xl mx-auto mb-4">
+                                {{ strtoupper(substr($user->name, 0, 2)) }}
+                            </div>
+                            <h3 class="text-2xl font-black text-gray-900">{{ $user->name }}</h3>
+                            <p class="text-indigo-600 font-bold">{{ $user->email }}</p>
                         </div>
-                        <h3 class="text-2xl font-black text-gray-900">{{ $user->name }}</h3>
-                        <p class="text-indigo-600 font-bold">{{ $user->email }}</p>
+                        <div class="space-y-4 pt-6 border-t border-gray-50">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Website</span>
+                                <span class="font-bold text-gray-900 truncate max-w-[150px]">
+                                    @if($user->website)
+                                        <a href="{{ $user->website }}" target="_blank" class="text-indigo-600 hover:underline">{{ parse_url($user->website, PHP_URL_HOST) ?: $user->website }}</a>
+                                    @else
+                                        <span class="text-gray-300 italic">Not set</span>
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Phone</span>
+                                <span class="font-bold text-gray-900">
+                                    {{ $user->phone ?: 'Not set' }}
+                                </span>
+                            </div>
+                            @php
+                                $seoSpent = $user->orders->where('status', 'completed')->sum('total_amount');
+                                $trafficTopupSpent = $user->trafficPointLogs->where('type', 'credit')->sum('cost_usd');
+                                $totalSpentAll = $seoSpent + $trafficTopupSpent;
+                                $totalOrdersAll = $user->orders->count() + $user->trafficCampaigns->count();
+                            @endphp
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">USD Balance</span>
+                                <span class="font-black text-emerald-600">${{ number_format($user->balance ?? 0, 2) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Traffic Points</span>
+                                <span class="font-black text-orange-600">{{ number_format($user->traffic_points ?? 0) }} Pts</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Total Spent</span>
+                                <span class="font-bold text-gray-900">${{ number_format($totalSpentAll, 2) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Total Orders</span>
+                                <span class="font-bold text-gray-900">{{ $totalOrdersAll }} <span class="text-xs text-gray-400">({{ $user->trafficCampaigns->count() }} Traffic)</span></span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Joined</span>
+                                <span class="font-bold text-gray-900">{{ $user->created_at->format('M d, Y') }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="space-y-4 pt-6 border-t border-gray-50">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Website</span>
-                            <span class="font-bold text-gray-900 truncate max-w-[150px]">
-                                @if($user->website)
-                                    <a href="{{ $user->website }}" target="_blank" class="text-indigo-600 hover:underline">{{ parse_url($user->website, PHP_URL_HOST) ?: $user->website }}</a>
-                                @else
-                                    <span class="text-gray-300 italic">Not set</span>
-                                @endif
-                            </span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Phone</span>
-                            <span class="font-bold text-gray-900">
-                                {{ $user->phone ?: 'Not set' }}
-                            </span>
-                        </div>
-                        @php
-                            $seoSpent = $user->orders->where('status', 'completed')->sum('total_amount');
-                            $trafficTopupSpent = $user->trafficPointLogs->where('type', 'credit')->sum('cost_usd');
-                            $totalSpentAll = $seoSpent + $trafficTopupSpent;
-                            $totalOrdersAll = $user->orders->count() + $user->trafficCampaigns->count();
-                        @endphp
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">USD Balance</span>
-                            <span class="font-black text-emerald-600">${{ number_format($user->balance ?? 0, 2) }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Traffic Points</span>
-                            <span class="font-black text-orange-600">{{ number_format($user->traffic_points ?? 0) }} Pts</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Total Spent</span>
-                            <span class="font-bold text-gray-900">${{ number_format($totalSpentAll, 2) }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Total Orders</span>
-                            <span class="font-bold text-gray-900">{{ $totalOrdersAll }} <span class="text-xs text-gray-400">({{ $user->trafficCampaigns->count() }} Traffic)</span></span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Joined</span>
-                            <span class="font-bold text-gray-900">{{ $user->created_at->format('M d, Y') }}</span>
-                        </div>
+
+                    <!-- Admin Balance & Points Adjustments -->
+                    <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-6">
+                        <h4 class="text-base font-black text-gray-900 flex items-center gap-2">
+                            <span>⚡ Adjust Balance / Points</span>
+                        </h4>
+
+                        <!-- Adjust USD Balance -->
+                        <form action="{{ route('admin.users.adjust_balance', $user) }}" method="POST" class="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            @csrf
+                            <div class="text-xs font-black text-gray-700 uppercase tracking-wider">USD Wallet Balance (+ / -)</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select name="type" class="text-xs rounded-xl border-gray-200 font-bold">
+                                    <option value="credit">+ Add Balance ($)</option>
+                                    <option value="debit">- Deduct Balance ($)</option>
+                                </select>
+                                <input type="number" step="0.01" min="0.01" name="amount" placeholder="Amount ($)" required class="text-xs rounded-xl border-gray-200 font-bold">
+                            </div>
+                            <input type="text" name="description" placeholder="Reason / Description (e.g. Correction or Bonus)" required class="w-full text-xs rounded-xl border-gray-200">
+                            <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs rounded-xl transition shadow">
+                                Update USD Balance
+                            </button>
+                        </form>
+
+                        <!-- Adjust Traffic Points -->
+                        <form action="{{ route('admin.users.adjust_points', $user) }}" method="POST" class="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            @csrf
+                            <div class="text-xs font-black text-gray-700 uppercase tracking-wider">Traffic Points (+ / -)</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select name="type" class="text-xs rounded-xl border-gray-200 font-bold">
+                                    <option value="credit">+ Add Points</option>
+                                    <option value="debit">- Deduct Points</option>
+                                </select>
+                                <input type="number" step="1" min="1" name="points" placeholder="Points" required class="text-xs rounded-xl border-gray-200 font-bold">
+                            </div>
+                            <input type="text" name="description" placeholder="Reason / Description (e.g. Bonus points or Deduction)" required class="w-full text-xs rounded-xl border-gray-200">
+                            <button type="submit" class="w-full py-2 bg-orange-600 hover:bg-orange-700 text-white font-black text-xs rounded-xl transition shadow">
+                                Update Traffic Points
+                            </button>
+                        </form>
                     </div>
                 </div>
 

@@ -53,12 +53,17 @@
                         <!-- Fixed Amounts Selection -->
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Choose Amount</label>
+                            @php
+                                $bdtRate = (float) \App\Models\Setting::get('bdt_exchange_rate', 120);
+                                if ($bdtRate <= 0) $bdtRate = 120;
+                            @endphp
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 @foreach([10, 50, 100, 500] as $opt)
+                                @php $bdtVal = $opt * $bdtRate; @endphp
                                 <label class="relative block cursor-pointer group">
-                                    <input type="radio" name="quick_amount" value="{{ $opt }}" class="sr-only" @click="amount = {{ $opt }}">
+                                    <input type="radio" name="quick_amount" value="{{ $opt }}" class="sr-only" @click="amount = ($store.currency && $store.currency.current === 'BDT') ? {{ $bdtVal }} : {{ $opt }}">
                                     <div class="py-4 rounded-2xl border-2 text-center transition-all duration-200"
-                                         :class="amount == {{ $opt }} ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900 shadow-md shadow-indigo-100' : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white shadow-sm'">
+                                         :class="(amount == {{ $opt }} || amount == {{ $bdtVal }}) ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900 shadow-md shadow-indigo-100' : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white shadow-sm'">
                                         <span class="text-lg font-black"><span class="price-convert" data-base-price="{{ $opt }}">${{ $opt }}</span></span>
                                     </div>
                                 </label>
