@@ -100,7 +100,7 @@
                 </div>
 
                 <div class="p-6 md:p-10">
-                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:items-stretch">
 
                         {{-- Controls Column --}}
                         <div class="lg:col-span-3 space-y-6">
@@ -220,8 +220,8 @@
                         </div>
 
                         {{-- Live Output Panel --}}
-                        <div class="lg:col-span-2">
-                            <div class="bg-gray-900 rounded-2xl p-6 flex flex-col gap-4 h-full">
+                        <div class="lg:col-span-2 flex flex-col">
+                            <div class="bg-gray-900 rounded-2xl p-6 flex flex-col gap-4 flex-1">
                                 <div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Estimated Cost</div>
                                 <div>
                                     <div class="text-gray-400 text-xs mb-1">Traffic Points Required</div>
@@ -378,7 +378,7 @@
                 <p class="text-gray-500 text-base max-w-2xl mx-auto">Buy Traffic Points and use them for any campaign. Points are valid for 30 days from purchase.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
                 @php
                 $bundles = [
                     ['name'=>'Starter', 'points'=>5000,   'usd'=>5.00,  'popular'=>false],
@@ -388,24 +388,24 @@
                 ];
                 @endphp
                 @foreach($bundles as $bundle)
-                <div class="relative bg-white rounded-2xl p-7 border {{ $bundle['popular'] ? 'border-orange-400 ring-2 ring-orange-100 shadow-lg' : 'border-gray-200 shadow-sm hover:shadow-md' }} flex flex-col transition-all duration-300">
+                <div class="relative bg-white rounded-2xl p-6 border overflow-hidden min-w-0 {{ $bundle['popular'] ? 'border-orange-400 ring-2 ring-orange-100 shadow-lg' : 'border-gray-200 shadow-sm hover:shadow-md' }} flex flex-col transition-all duration-300">
                     @if($bundle['popular'])
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span class="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full whitespace-nowrap">Most Popular</span>
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                        <span class="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full whitespace-nowrap">Most Popular</span>
                     </div>
                     @endif
-                    <div class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">{{ $bundle['name'] }} Pack</div>
-                    <div class="text-2xl font-black text-gray-900 mb-1">{{ number_format($bundle['points']) }} <span class="text-sm font-bold text-indigo-600">Pts</span></div>
-                    <div class="text-gray-400 text-xs mb-5">≈ {{ number_format($bundle['points']) }} visitor-minutes</div>
-                    <div class="mt-auto">
-                        <div class="text-2xl font-black text-gray-900">${{ number_format($bundle['usd'], 2) }}</div>
-                        <div class="text-sm text-gray-400 mb-4">≈ ৳{{ number_format($bundle['usd'] * $bdtRate, 0) }} BDT</div>
+                    <div class="text-gray-400 text-[11px] font-bold uppercase tracking-widest mb-2 truncate">{{ $bundle['name'] }} Pack</div>
+                    <div class="font-black text-gray-900 mb-1 text-xl leading-tight">{{ number_format($bundle['points']) }} <span class="text-sm font-bold text-indigo-600">Pts</span></div>
+                    <div class="text-gray-400 text-xs mb-4 truncate">≈ {{ number_format($bundle['points']) }} visitor-min</div>
+                    <div class="mt-auto pt-3 border-t border-gray-100">
+                        <div class="text-xl font-black text-gray-900">${{ number_format($bundle['usd'], 2) }}</div>
+                        <div class="text-xs text-gray-400 mb-4">≈ ৳{{ number_format($bundle['usd'] * $bdtRate, 0) }} BDT</div>
                         @auth
-                        <a href="{{ route('client.traffic_campaign.topup') }}" class="{{ $bundle['popular'] ? 'bg-[#E8470A] hover:bg-orange-600' : 'bg-gray-900 hover:bg-gray-700' }} block w-full text-center text-white font-bold py-3 px-4 rounded-xl transition-all text-sm shadow-sm">
+                        <a href="{{ route('client.traffic_campaign.topup') }}" class="{{ $bundle['popular'] ? 'bg-[#E8470A] hover:bg-orange-600' : 'bg-gray-900 hover:bg-gray-700' }} block w-full text-center text-white font-bold py-3 px-3 rounded-xl transition-all text-xs shadow-sm">
                             Buy {{ $bundle['name'] }} Pack
                         </a>
                         @else
-                        <a href="{{ route('register') }}" class="{{ $bundle['popular'] ? 'bg-[#E8470A] hover:bg-orange-600' : 'bg-gray-900 hover:bg-gray-700' }} block w-full text-center text-white font-bold py-3 px-4 rounded-xl transition-all text-sm shadow-sm">
+                        <a href="{{ route('register') }}" class="{{ $bundle['popular'] ? 'bg-[#E8470A] hover:bg-orange-600' : 'bg-gray-900 hover:bg-gray-700' }} block w-full text-center text-white font-bold py-3 px-3 rounded-xl transition-all text-xs shadow-sm">
                             Get Started →
                         </a>
                         @endauth
