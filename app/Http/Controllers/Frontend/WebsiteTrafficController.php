@@ -10,18 +10,17 @@ class WebsiteTrafficController extends Controller
     public function index()
     {
         $page = \App\Models\Page::where('slug', 'website-traffic')->first();
-        $categories = \App\Models\Category::where('is_active', true)
-            ->with(['services' => function ($query) {
-            $query->where('is_active', true)->where('service_type', 'traffic')->with('packages');
-        }])
-            ->get();
 
-        $uncategorizedServices = \App\Models\Service::where('is_active', true)
-            ->where('service_type', 'traffic')
-            ->whereNull('category_id')
-            ->with('packages')
-            ->get();
+        $bdtRate = (float) \App\Models\Setting::get('bdt_exchange_rate', 120);
+        if ($bdtRate <= 0) $bdtRate = 120;
 
-        return view('traffic.index', compact('categories', 'uncategorizedServices', 'page'));
+        $pointBundles = [
+            ['name' => 'Starter',  'points' => 5000,   'usd' => 5.00,  'popular' => false, 'color' => 'indigo'],
+            ['name' => 'Growth',   'points' => 15000,  'usd' => 13.50, 'popular' => true,  'color' => 'orange'],
+            ['name' => 'Pro',      'points' => 35000,  'usd' => 28.00, 'popular' => false, 'color' => 'indigo'],
+            ['name' => 'Scale',    'points' => 100000, 'usd' => 70.00, 'popular' => false, 'color' => 'indigo'],
+        ];
+
+        return view('traffic.index', compact('page', 'bdtRate', 'pointBundles'));
     }
 }
