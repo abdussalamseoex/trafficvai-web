@@ -37,13 +37,27 @@
                                 {{ $user->phone ?: 'Not set' }}
                             </span>
                         </div>
+                        @php
+                            $seoSpent = $user->orders->where('status', 'completed')->sum('total_amount');
+                            $trafficTopupSpent = $user->trafficPointLedgers->where('type', 'credit')->sum('usd_spent');
+                            $totalSpentAll = $seoSpent + $trafficTopupSpent;
+                            $totalOrdersAll = $user->orders->count() + $user->trafficCampaigns->count();
+                        @endphp
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">USD Balance</span>
+                            <span class="font-black text-emerald-600">${{ number_format($user->balance ?? 0, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Traffic Points</span>
+                            <span class="font-black text-orange-600">{{ number_format($user->traffic_points ?? 0) }} Pts</span>
+                        </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Total Spent</span>
-                            <span class="font-bold text-gray-900">${{ number_format($user->orders->where('status', 'completed')->sum('total_amount'), 2) }}</span>
+                            <span class="font-bold text-gray-900">${{ number_format($totalSpentAll, 2) }}</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Total Orders</span>
-                            <span class="font-bold text-gray-900">{{ $user->orders->count() }}</span>
+                            <span class="font-bold text-gray-900">{{ $totalOrdersAll }} <span class="text-xs text-gray-400">({{ $user->trafficCampaigns->count() }} Traffic)</span></span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Joined</span>
@@ -164,8 +178,74 @@
                         </div>
                     </div>
 
+                    <!-- Client Traffic Campaigns History -->
                     <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
-                        <h4 class="text-lg font-bold text-gray-900 mb-6">Order History</h4>
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-lg font-bold text-gray-900">Traffic Campaigns History</h4>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-600">{{ $user->trafficCampaigns->count() }} Campaigns</span>
+                        </div>
+                        <div class="space-y-4">
+                            @forelse($user->trafficCampaigns as $tc)
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100 gap-4">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-black text-gray-900 text-sm">#{{ $tc->external_order_id }}</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $tc->status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200 text-gray-700' }}">
+                                            {{ $tc->status }}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs font-bold text-indigo-600 truncate max-w-md mt-1">{{ $tc->url }}</p>
+                                    <p class="text-[11px] text-gray-500 mt-1">
+                                        Type: <strong class="uppercase">{{ $tc->campaign_type }}</strong> | 
+                                        Delivered: <strong>{{ number_format($tc->hits_delivered) }}</strong> / {{ number_format($tc->total_limit) }} hits ({{ $tc->delivery_percentage }}%)
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-block px-3 py-1 rounded-xl bg-orange-500/10 text-orange-600 font-extrabold text-xs">
+                                        -{{ number_format($tc->points_deducted) }} Pts
+                                    </span>
+                                    <p class="text-[10px] text-gray-400 mt-1">{{ $tc->created_at->format('M d, Y h:i A') }}</p>
+                                </div>
+                            </div>
+                            @empty
+                            <p class="text-center py-6 text-gray-500 italic text-sm">No traffic campaigns launched yet.</p>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Client Traffic Points Ledger / Top-up History -->
+                    <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-lg font-bold text-gray-900">Traffic Points & Top-up Ledger</h4>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600">{{ $user->trafficPointLedgers->count() }} Transactions</span>
+                        </div>
+                        <div class="space-y-4">
+                            @forelse($user->trafficPointLedgers as $ledger)
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                <div>
+                                    <p class="font-bold text-gray-900 text-sm">{{ $ledger->description }}</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">
+                                        @if($ledger->usd_spent > 0)
+                                            USD Spent: <strong class="text-emerald-600">${{ number_format($ledger->usd_spent, 2) }}</strong>
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-extrabold text-sm {{ $ledger->type === 'credit' ? 'text-emerald-600' : 'text-orange-500' }}">
+                                        {{ $ledger->type === 'credit' ? '+' : '-' }}{{ number_format($ledger->points) }} Pts
+                                    </span>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">{{ $ledger->created_at->format('M d, Y h:i A') }}</p>
+                                </div>
+                            </div>
+                            @empty
+                            <p class="text-center py-6 text-gray-500 italic text-sm">No point ledger records found.</p>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- SEO / Guest Post Order History -->
+                    <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
+                        <h4 class="text-lg font-bold text-gray-900 mb-6">SEO & Guest Post Order History</h4>
                         <div class="space-y-4">
                             @forelse($user->orders as $order)
                             <div class="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100">
@@ -183,7 +263,7 @@
                                 </div>
                             </div>
                             @empty
-                            <p class="text-center py-8 text-gray-500 italic">No orders yet.</p>
+                            <p class="text-center py-6 text-gray-500 italic text-sm">No SEO/Guest Post orders yet.</p>
                             @endforelse
                         </div>
                     </div>

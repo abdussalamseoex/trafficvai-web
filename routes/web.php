@@ -226,6 +226,7 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             // Core Automation Engine Traffic Campaigns Management
             Route::get('/traffic-campaigns', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'index'])->name('traffic_campaigns.index');
             Route::get('/traffic-campaigns/active', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'active'])->name('traffic_campaigns.active');
+            Route::get('/traffic-campaigns/ledger', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'ledger'])->name('traffic_campaigns.ledger');
             Route::post('/traffic-campaigns/{campaign}/sync', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'syncStatus'])->name('traffic_campaigns.sync');
             Route::post('/traffic-campaigns/{campaign}/toggle', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'toggleStatus'])->name('traffic_campaigns.toggle');
             Route::delete('/traffic-campaigns/{campaign}', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'destroy'])->name('traffic_campaigns.destroy');

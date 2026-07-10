@@ -10,12 +10,15 @@
                     {{ __('Website Traffic Engine Management') }}
                 </h2>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
                 <a href="{{ route('admin.traffic_campaigns.index') }}" class="px-4 py-2 rounded-xl bg-gray-900 text-white font-bold text-xs shadow hover:bg-gray-800 transition">
                     All Campaigns
                 </a>
                 <a href="{{ route('admin.traffic_campaigns.active') }}" class="px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs shadow hover:bg-orange-600 transition">
                     Active Running
+                </a>
+                <a href="{{ route('admin.traffic_campaigns.ledger') }}" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs shadow hover:bg-blue-700 transition">
+                    Points Ledger & Topups
                 </a>
             </div>
         </div>
@@ -93,6 +96,7 @@
                                     <th class="p-5">Target URL</th>
                                     <th class="p-5">Engine Type</th>
                                     <th class="p-5">Delivery Progress</th>
+                                    <th class="p-5">Points Deducted</th>
                                     <th class="p-5">Status</th>
                                     <th class="p-5">30-Day Expiry</th>
                                     <th class="p-5 text-right">Actions</th>
@@ -124,6 +128,11 @@
                                             <div class="w-28 h-2 rounded-full bg-gray-100 mt-1.5 overflow-hidden">
                                                 <div class="h-full bg-orange-500" style="width: {{ $camp->delivery_percentage }}%"></div>
                                             </div>
+                                        </td>
+                                        <td class="p-5">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-xl bg-orange-50 text-orange-700 font-extrabold text-xs">
+                                                {{ number_format($camp->points_deducted) }} Pts
+                                            </span>
                                         </td>
                                         <td class="p-5">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">

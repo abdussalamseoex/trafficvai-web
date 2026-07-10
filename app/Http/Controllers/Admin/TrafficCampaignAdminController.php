@@ -64,6 +64,35 @@ class TrafficCampaignAdminController extends Controller
     }
 
     /**
+     * Display all clients' Points Ledger & Topup History
+     */
+    public function ledger(Request $request)
+    {
+        $query = \App\Models\TrafficPointLedger::with('user')->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(function($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($u) use ($search) {
+                      $u->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $ledgers = $query->paginate(25)->withQueryString();
+
+        $stats = [
+            'total_credits' => \App\Models\TrafficPointLedger::where('type', 'credit')->sum('points'),
+            'total_debits' => \App\Models\TrafficPointLedger::where('type', 'debit')->sum('points'),
+            'total_usd_topups' => \App\Models\TrafficPointLedger::where('type', 'credit')->sum('usd_spent'),
+        ];
+
+        return view('admin.traffic_campaigns.ledger', compact('ledgers', 'stats'));
+    }
+
+    /**
      * Manually sync live delivery status from surf.abguestpost.net
      */
     public function syncStatus(TrafficCampaign $campaign, SurfEngineApiService $apiService)

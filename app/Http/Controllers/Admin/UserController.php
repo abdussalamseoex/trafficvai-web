@@ -18,7 +18,14 @@ class UserController extends Controller
 
     public function show(\App\Models\User $user)
     {
-        $user->load(['orders.service', 'orders.package', 'directMessages.sender']);
+        $user->load([
+            'orders.service',
+            'orders.package',
+            'orders.guestPostSite',
+            'directMessages.sender',
+            'trafficCampaigns' => fn($q) => $q->latest(),
+            'trafficPointLedgers' => fn($q) => $q->latest(),
+        ]);
 
         // Mark direct messages from this client as read
         \App\Models\DirectMessage::where('client_id', $user->id)
