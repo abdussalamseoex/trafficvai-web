@@ -66,13 +66,93 @@
                 <h2 class="text-3xl lg:text-4xl font-bold mb-2 text-white">Welcome back, {{ auth()->user()->name }}! 👋</h2>
                 <p class="text-brand-50 font-medium text-lg">Here's what's happening with your SEO campaigns today.</p>
             </div>
-            <div class="relative z-10 mt-6 md:mt-0 flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                <a href="{{ route('client.services.index') }}" class="px-6 py-3 bg-white text-brand font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all text-center flex items-center justify-center">
-                    Browse Packages <span class="ml-2">&rarr;</span>
+            <div class="relative z-10 mt-6 md:mt-0 flex flex-wrap gap-3 w-full md:w-auto justify-center md:justify-end">
+                <a href="{{ route('client.traffic_campaign.builder') }}" class="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-0.5 transition-all text-center flex items-center justify-center">
+                    ⚡ Launch Website Traffic <span class="ml-1.5">&rarr;</span>
                 </a>
-                <a href="{{ route('client.guest_posts.index') }}" class="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold rounded-xl backdrop-blur-sm transition-all text-center">
+                <a href="{{ route('client.services.index') }}" class="px-5 py-3 bg-white text-brand font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all text-center flex items-center justify-center">
+                    Browse Packages <span class="ml-1.5">&rarr;</span>
+                </a>
+                <a href="{{ route('client.guest_posts.index') }}" class="px-5 py-3 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold rounded-xl backdrop-blur-sm transition-all text-center flex items-center justify-center">
                     Guest Post Inventory
                 </a>
+            </div>
+        </div>
+
+        <!-- FEATURED AUTOMATED & INSTANT SERVICES HIGHLIGHT BOXES -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Automated Website Traffic Highlight Card -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-[#111827] to-gray-900 p-7 sm:p-8 text-white border-2 border-orange-500/40 shadow-2xl shadow-orange-500/10 hover:border-orange-500/70 transition duration-300">
+                <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-orange-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col h-full justify-between space-y-6">
+                    <div>
+                        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 text-xs font-black uppercase tracking-wider">
+                                <span class="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+                                🔥 AUTOMATED SYSTEM • INSTANT LAUNCH
+                            </span>
+                            @if(($activeTrafficCampaigns ?? 0) > 0)
+                                <span class="px-2.5 py-1 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-bold">
+                                    {{ $activeTrafficCampaigns }} Active Campaign{{ $activeTrafficCampaigns > 1 ? 's' : '' }}
+                                </span>
+                            @endif
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            Real Automated Website Traffic
+                        </h3>
+                        <p class="text-sm sm:text-base text-gray-300 mt-2 font-medium leading-relaxed">
+                            Drive high-retention human-like visitors from Direct & Organic Google/Bing Search. Control stay durations (60s+), geo-targeting, and internal link clicks.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 pt-2">
+                        <a href="{{ route('client.traffic_campaign.builder') }}"
+                            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-sm shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02] active:scale-95 transition">
+                            <span>+ Launch New Campaign</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                        <a href="{{ route('client.traffic_campaign.index') }}"
+                            class="inline-flex items-center justify-center px-5 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition">
+                            Manage Campaigns
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guest Post Inventory Highlight Card -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-[#0F172A] to-gray-900 p-7 sm:p-8 text-white border-2 border-emerald-500/40 shadow-2xl shadow-emerald-500/10 hover:border-emerald-500/70 transition duration-300">
+                <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-12 -top-12 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col h-full justify-between space-y-6">
+                    <div>
+                        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-black uppercase tracking-wider">
+                                ⭐ FEATURED INVENTORY • DOFOLLOW SEO
+                            </span>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            High-Authority Guest Posts
+                        </h3>
+                        <p class="text-sm sm:text-base text-gray-300 mt-2 font-medium leading-relaxed">
+                            Publish articles on verified, high DA/DR websites with real organic traffic. Build powerful dofollow backlinks and accelerate your Google rankings.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 pt-2">
+                        <a href="{{ route('client.guest_posts.index') }}"
+                            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.02] active:scale-95 transition">
+                            <span>Browse Guest Post Sites</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                        <a href="{{ route('client.services.index') }}"
+                            class="inline-flex items-center justify-center px-5 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition">
+                            SEO Packages
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -225,6 +305,10 @@
                         <p class="text-gray-400 text-sm font-medium mb-8 leading-relaxed">Explore premium SEO services and high-quality guest post placements to boost your visibility today.</p>
                         
                         <div class="space-y-3">
+                            <a href="{{ route('client.traffic_campaign.builder') }}" class="flex items-center justify-between w-full px-5 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 transition-all">
+                                ⚡ Launch Website Traffic
+                                <span>&rarr;</span>
+                            </a>
                             <a href="{{ route('client.services.index') }}" class="flex items-center justify-between w-full px-5 py-4 bg-brand text-white font-bold rounded-xl shadow-md hover:bg-brand-600 transition-all">
                                 Browse Packages
                                 <span>&rarr;</span>

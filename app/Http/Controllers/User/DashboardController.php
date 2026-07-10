@@ -25,6 +25,9 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('client.dashboard', compact('totalOrders', 'activeOrders', 'completedOrders', 'recentOrders'));
+        $totalTrafficCampaigns = $user->trafficCampaigns()->count();
+        $activeTrafficCampaigns = $user->trafficCampaigns()->whereIn('status', ['active', 'processing', 'running'])->count();
+
+        return view('client.dashboard', compact('totalOrders', 'activeOrders', 'completedOrders', 'recentOrders', 'totalTrafficCampaigns', 'activeTrafficCampaigns'));
     }
 }
