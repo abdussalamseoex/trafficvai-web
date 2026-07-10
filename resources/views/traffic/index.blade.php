@@ -100,10 +100,10 @@
                 </div>
 
                 <div class="p-6 md:p-10">
-                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:items-stretch">
+                    <div class="flex flex-col lg:flex-row gap-8 items-stretch">
 
                         {{-- Controls Column --}}
-                        <div class="lg:col-span-3 space-y-6">
+                        <div class="w-full lg:w-3/5 shrink-0 space-y-6">
 
                             {{-- DIRECT CONTROLS --}}
                             <div x-show="activeCalc==='direct'" x-transition>
@@ -220,8 +220,8 @@
                         </div>
 
                         {{-- Live Output Panel --}}
-                        <div class="lg:col-span-2 flex flex-col">
-                            <div class="bg-gray-900 rounded-2xl p-6 flex flex-col gap-4 flex-1">
+                        <div class="w-full lg:flex-1 flex flex-col">
+                            <div class="bg-gray-900 rounded-2xl p-6 flex flex-col gap-4 flex-1 w-full">
                                 <div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Estimated Cost</div>
                                 <div>
                                     <div class="text-gray-400 text-xs mb-1">Traffic Points Required</div>
