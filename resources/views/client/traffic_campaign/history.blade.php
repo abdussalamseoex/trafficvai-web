@@ -50,9 +50,29 @@
                 </div>
             </div>
 
-            <!-- Ledger Table -->
-            <div class="p-8 rounded-3xl bg-white border border-gray-200 shadow-2xl space-y-6">
-                <h3 class="text-xl font-black text-gray-900">Transaction & Usage Ledger</h3>
+            <!-- Ledger Table with Tabs -->
+            <div class="p-8 rounded-3xl bg-white border border-gray-200 shadow-2xl space-y-6" x-data="{ activeTab: 'all' }">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+                    <h3 class="text-xl font-black text-gray-900">Transaction & Usage Ledger</h3>
+                    
+                    <div class="flex flex-wrap items-center gap-2 bg-gray-100 p-1.5 rounded-2xl">
+                        <button type="button" @click="activeTab = 'all'"
+                                :class="activeTab === 'all' ? 'bg-white text-gray-900 shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold'"
+                                class="px-4 py-1.5 rounded-xl text-xs transition">
+                            All Activity
+                        </button>
+                        <button type="button" @click="activeTab = 'topups'"
+                                :class="activeTab === 'topups' ? 'bg-emerald-600 text-white shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold'"
+                                class="px-4 py-1.5 rounded-xl text-xs transition">
+                            Top-up Purchases (+)
+                        </button>
+                        <button type="button" @click="activeTab = 'usage'"
+                                :class="activeTab === 'usage' ? 'bg-orange-600 text-white shadow-sm font-black' : 'text-gray-600 hover:text-gray-900 font-bold'"
+                                class="px-4 py-1.5 rounded-xl text-xs transition">
+                            Usage Deductions (-)
+                        </button>
+                    </div>
+                </div>
 
                 @if($logs->isEmpty())
                     <div class="text-center py-12 text-gray-500">
@@ -68,17 +88,22 @@
                                     <th class="p-4">Transaction Type</th>
                                     <th class="p-4">Amount</th>
                                     <th class="p-4">Description</th>
-                                    <th class="p-4 text-right">Validity / Status</th>
+                                    <th class="p-4 text-right">Validity / Cost</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 text-sm">
                                 @foreach($logs as $log)
-                                    <tr class="hover:bg-gray-50 transition">
+                                    @php
+                                        $isCredit = in_array($log->type, ['credit', 'purchase', 'topup']) || $log->points >= 0;
+                                        $rowCategory = $isCredit ? 'topups' : 'usage';
+                                    @endphp
+                                    <tr class="hover:bg-gray-50 transition"
+                                        x-show="activeTab === 'all' || activeTab === '{{ $rowCategory }}'">
                                         <td class="p-4 font-bold text-gray-700 text-xs">
                                             {{ $log->created_at ? $log->created_at->format('M d, Y h:i A') : 'N/A' }}
                                         </td>
                                         <td class="p-4">
-                                            @if($log->type === 'purchase')
+                                            @if($isCredit)
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                                                     ➕ Point Top-up
                                                 </span>
@@ -88,15 +113,15 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="p-4 font-black {{ $log->points >= 0 ? 'text-emerald-600' : 'text-orange-500' }}">
-                                            {{ $log->points >= 0 ? '+' : '' }}{{ number_format($log->points) }} Pts
+                                        <td class="p-4 font-black {{ $isCredit ? 'text-emerald-600' : 'text-orange-500' }}">
+                                            {{ $isCredit ? '+' : '' }}{{ number_format($log->points) }} Pts
                                         </td>
                                         <td class="p-4 text-gray-700 font-medium">
                                             {{ $log->description }}
                                         </td>
                                         <td class="p-4 text-right">
-                                            <span class="text-xs font-bold text-gray-500">
-                                                {{ $log->created_at ? 'Valid till ' . $log->created_at->addDays(30)->format('M d, Y') : '30 Days' }}
+                                            <span class="text-xs font-bold {{ $isCredit ? 'text-emerald-600' : 'text-gray-500' }}">
+                                                {{ $log->cost_usd > 0 ? '$' . number_format($log->cost_usd, 2) : ($log->created_at ? 'Valid till ' . $log->created_at->addDays(30)->format('M d, Y') : '30 Days') }}
                                             </span>
                                         </td>
                                     </tr>

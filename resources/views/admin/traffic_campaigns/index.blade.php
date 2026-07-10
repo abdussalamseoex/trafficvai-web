@@ -96,7 +96,7 @@
                                     <th class="p-5">Target URL</th>
                                     <th class="p-5">Engine Type</th>
                                     <th class="p-5">Delivery Progress</th>
-                                    <th class="p-5">Points Deducted</th>
+                                    <th class="p-5">Points Consumed / Budget</th>
                                     <th class="p-5">Status</th>
                                     <th class="p-5">30-Day Expiry</th>
                                     <th class="p-5 text-right">Actions</th>
@@ -130,9 +130,14 @@
                                             </div>
                                         </td>
                                         <td class="p-5">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-xl bg-orange-50 text-orange-700 font-extrabold text-xs">
-                                                {{ number_format($camp->points_deducted) }} Pts
-                                            </span>
+                                            <div class="inline-flex flex-col gap-1">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-xl bg-orange-50 text-orange-700 font-black text-xs">
+                                                    {{ number_format($camp->hits_delivered) }} Pts Consumed
+                                                </span>
+                                                <span class="text-[11px] text-gray-500 font-medium px-1">
+                                                    Budget: {{ number_format($camp->points_deducted) }} Pts
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="p-5">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">

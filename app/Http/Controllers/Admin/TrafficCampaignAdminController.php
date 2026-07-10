@@ -70,6 +70,13 @@ class TrafficCampaignAdminController extends Controller
     {
         $query = \App\Models\TrafficPointLog::with('user')->latest();
 
+        $tab = $request->query('tab', 'all');
+        if ($tab === 'credit') {
+            $query->where('type', 'credit');
+        } elseif ($tab === 'debit') {
+            $query->where('type', 'debit');
+        }
+
         if ($request->filled('search')) {
             $search = $request->query('search');
             $query->where(function($q) use ($search) {
@@ -89,7 +96,7 @@ class TrafficCampaignAdminController extends Controller
             'total_usd_topups' => \App\Models\TrafficPointLog::where('type', 'credit')->sum('cost_usd'),
         ];
 
-        return view('admin.traffic_campaigns.ledger', compact('ledgers', 'stats'));
+        return view('admin.traffic_campaigns.ledger', compact('ledgers', 'stats', 'tab'));
     }
 
     /**

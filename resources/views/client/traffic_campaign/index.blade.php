@@ -66,6 +66,7 @@
                                 <th class="p-4">Target URL</th>
                                 <th class="p-4">Type</th>
                                 <th class="p-4">Delivered / Total</th>
+                                <th class="p-4">Points Consumed</th>
                                 <th class="p-4">Status</th>
                                 <th class="p-4">Expiry</th>
                                 <th class="p-4 text-right">Actions</th>
@@ -86,6 +87,16 @@
                                         <div class="font-bold text-gray-900">{{ number_format($camp->hits_delivered) }} / {{ number_format($camp->total_limit) }}</div>
                                         <div class="w-20 h-1.5 rounded-full bg-gray-200 mt-1 overflow-hidden">
                                             <div class="h-full bg-orange-500" style="width: {{ $camp->delivery_percentage }}%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="p-4 whitespace-nowrap">
+                                        <div class="inline-flex flex-col gap-0.5">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-600 font-extrabold text-xs">
+                                                {{ number_format($camp->hits_delivered) }} Pts Consumed
+                                            </span>
+                                            <span class="text-[11px] text-gray-500 font-medium">
+                                                Budget: {{ number_format($camp->points_deducted) }} Pts
+                                            </span>
                                         </div>
                                     </td>
                                     <td class="p-4 whitespace-nowrap">

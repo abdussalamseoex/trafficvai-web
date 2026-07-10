@@ -214,32 +214,85 @@
                     </div>
 
                     <!-- Client Traffic Points Ledger / Top-up History -->
-                    <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
-                        <div class="flex items-center justify-between mb-6">
+                    <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8" x-data="{ activeTab: 'topups', limitTopups: 10, limitUsage: 10 }">
+                        @php
+                            $topupLogs = $user->trafficPointLogs->where('type', 'credit')->values();
+                            $usageLogs = $user->trafficPointLogs->where('type', 'debit')->values();
+                        @endphp
+
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                             <h4 class="text-lg font-bold text-gray-900">Traffic Points & Top-up Ledger</h4>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600">{{ $user->trafficPointLogs->count() }} Transactions</span>
-                        </div>
-                        <div class="space-y-4">
-                            @forelse($user->trafficPointLogs as $ledger)
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                <div>
-                                    <p class="font-bold text-gray-900 text-sm">{{ $ledger->description }}</p>
-                                    <p class="text-xs text-gray-500 mt-0.5">
-                                        @if($ledger->cost_usd > 0)
-                                            USD Spent: <strong class="text-emerald-600">${{ number_format($ledger->cost_usd, 2) }}</strong>
-                                        @endif
-                                    </p>
-                                </div>
-                                <div class="text-right">
-                                    <span class="font-extrabold text-sm {{ $ledger->type === 'credit' ? 'text-emerald-600' : 'text-orange-500' }}">
-                                        {{ $ledger->type === 'credit' ? '+' : '-' }}{{ number_format($ledger->points) }} Pts
-                                    </span>
-                                    <p class="text-[10px] text-gray-400 mt-0.5">{{ $ledger->created_at->format('M d, Y h:i A') }}</p>
-                                </div>
+                            <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-xl">
+                                <button type="button" @click="activeTab = 'topups'" 
+                                        :class="activeTab === 'topups' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                                        class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition">
+                                    Top-ups ({{ $topupLogs->count() }})
+                                </button>
+                                <button type="button" @click="activeTab = 'usage'" 
+                                        :class="activeTab === 'usage' ? 'bg-white text-orange-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                                        class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition">
+                                    Usage Deductions ({{ $usageLogs->count() }})
+                                </button>
                             </div>
+                        </div>
+
+                        <!-- Top-ups Tab -->
+                        <div x-show="activeTab === 'topups'" x-cloak class="space-y-4">
+                            @forelse($topupLogs as $index => $ledger)
+                                <div class="flex items-center justify-between p-4 bg-emerald-50/40 rounded-2xl border border-emerald-100/60"
+                                     x-show="{{ $index }} < limitTopups">
+                                    <div>
+                                        <p class="font-bold text-gray-900 text-sm">{{ $ledger->description }}</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            USD Spent: <strong class="text-emerald-600">${{ number_format($ledger->cost_usd, 2) }}</strong>
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="font-black text-sm text-emerald-600">
+                                            +{{ number_format($ledger->points) }} Pts
+                                        </span>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">{{ $ledger->created_at->format('M d, Y h:i A') }}</p>
+                                    </div>
+                                </div>
                             @empty
-                            <p class="text-center py-6 text-gray-500 italic text-sm">No point ledger records found.</p>
+                                <p class="text-center py-6 text-gray-500 italic text-sm">No top-up purchase records found.</p>
                             @endforelse
+
+                            @if($topupLogs->count() > 10)
+                                <div class="text-center pt-3" x-show="limitTopups < {{ $topupLogs->count() }}">
+                                    <button type="button" @click="limitTopups += 20" class="px-5 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-gray-800 transition">
+                                        Load More Top-ups
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Usage Deductions Tab -->
+                        <div x-show="activeTab === 'usage'" x-cloak class="space-y-4">
+                            @forelse($usageLogs as $index => $ledger)
+                                <div class="flex items-center justify-between p-4 bg-orange-50/40 rounded-2xl border border-orange-100/60"
+                                     x-show="{{ $index }} < limitUsage">
+                                    <div>
+                                        <p class="font-bold text-gray-900 text-sm">{{ $ledger->description }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="font-black text-sm text-orange-600">
+                                            -{{ number_format($ledger->points) }} Pts
+                                        </span>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">{{ $ledger->created_at->format('M d, Y h:i A') }}</p>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-center py-6 text-gray-500 italic text-sm">No point deduction records found.</p>
+                            @endforelse
+
+                            @if($usageLogs->count() > 10)
+                                <div class="text-center pt-3" x-show="limitUsage < {{ $usageLogs->count() }}">
+                                    <button type="button" @click="limitUsage += 20" class="px-5 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-gray-800 transition">
+                                        Load More Deductions
+                                    </button>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
