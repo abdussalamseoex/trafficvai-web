@@ -338,7 +338,7 @@
                     </span>
                 </x-sidebar-link>
 
-                <p class="px-4 text-[10px] font-bold text-orange-400 uppercase tracking-wider mb-2 mt-6">Core Automation</p>
+                <p class="px-4 text-[10px] font-extrabold text-orange-500 uppercase tracking-wider mb-2 mt-6">⚡ Premium Traffic Suite</p>
                 <x-sidebar-dropdown title="Website Traffic" :active="request()->routeIs('client.traffic_campaign.*')">
                     <x-slot name="icon">
                         <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>

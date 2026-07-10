@@ -79,9 +79,9 @@
             </div>
         </div>
 
-        <!-- FEATURED AUTOMATED & INSTANT SERVICES HIGHLIGHT BOXES -->
+        <!-- FEATURED INSTANT & PREMIUM SERVICES HIGHLIGHT BOXES -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Automated Website Traffic Highlight Card -->
+            <!-- Website Traffic Highlight Card -->
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-[#111827] to-gray-900 p-7 sm:p-8 text-white border-2 border-orange-500/40 shadow-2xl shadow-orange-500/10 hover:border-orange-500/70 transition duration-300">
                 <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-orange-500/15 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute -left-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -91,7 +91,7 @@
                         <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 text-xs font-black uppercase tracking-wider">
                                 <span class="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
-                                🔥 AUTOMATED SYSTEM • INSTANT LAUNCH
+                                🔥 PREMIUM SYSTEM • INSTANT LAUNCH
                             </span>
                             @if(($activeTrafficCampaigns ?? 0) > 0)
                                 <span class="px-2.5 py-1 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-bold">
@@ -100,7 +100,7 @@
                             @endif
                         </div>
                         <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                            Real Automated Website Traffic
+                            Real Website Traffic (Direct & Organic)
                         </h3>
                         <p class="text-sm sm:text-base text-gray-300 mt-2 font-medium leading-relaxed">
                             Drive high-retention human-like visitors from Direct & Organic Google/Bing Search. Control stay durations (60s+), geo-targeting, and internal link clicks.
