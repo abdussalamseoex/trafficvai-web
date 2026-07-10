@@ -71,7 +71,16 @@
                                         <td class="px-8 py-6 uppercase text-[10px] font-bold text-gray-500 tracking-wider">
                                             {{ str_replace('_', ' ', $pending->payment_method) }}
                                         </td>
-                                        <td class="px-8 py-6 text-right font-black text-gray-900"><span class="price-convert" data-base-price="{{ $pending->amount }}">${{ number_format($pending->amount, 2) }}</span></td>
+                                        <td class="px-8 py-6 text-right font-black text-gray-900">
+                                            @php
+                                                $isPendingBdt = in_array(strtolower($pending->payment_method), ['bkash', 'nagad', 'rocket']) || strtoupper($pending->currency ?? ($pending->meta['currency'] ?? '')) === 'BDT';
+                                            @endphp
+                                            @if($isPendingBdt)
+                                                <span class="text-emerald-600">৳{{ number_format($pending->amount, 2) }}</span> <span class="text-[10px] font-bold text-gray-400">BDT</span>
+                                            @else
+                                                <span class="price-convert" data-base-price="{{ $pending->amount }}">${{ number_format($pending->amount, 2) }}</span>
+                                            @endif
+                                        </td>
                                         <td class="px-8 py-6">
                                             <span class="px-3 py-1 bg-yellow-100 text-yellow-700 text-[10px] font-black uppercase tracking-widest rounded-full">Pending</span>
                                         </td>

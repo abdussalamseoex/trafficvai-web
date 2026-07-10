@@ -839,10 +839,24 @@ class TrafficCampaignController extends Controller
             return back()->with('error', "Insufficient Main Account USD balance! You need $" . number_format($costUsd, 2) . " USD, but your Main Account balance is $" . number_format($user->balance, 2) . " USD. Please add funds to your Main Account first.");
         }
 
-        // Deduct USD from main balance wallet
-        $wallet = $user->wallet;
-        if ($wallet) {
-            $wallet->decrement('balance', $costUsd);
+        $desc = $package === 'custom'
+            ? "Purchased Custom Package (" . number_format($points) . " Pts)"
+            : "Purchased " . ucfirst($package) . " Pack (" . number_format($points) . " Pts)";
+
+        // Deduct USD from main balance wallet via WalletService so it records in Client Transaction History
+        try {
+            app(\App\Services\Payments\WalletService::class)->debit(
+                $user,
+                $costUsd,
+                'Traffic Points Purchase',
+                $desc,
+                ['points' => $points, 'package' => $package]
+            );
+        } catch (\Throwable $e) {
+            $wallet = $user->wallet;
+            if ($wallet) {
+                $wallet->decrement('balance', $costUsd);
+            }
         }
 
         // Credit points to user's traffic_points balance
@@ -854,9 +868,7 @@ class TrafficCampaignController extends Controller
                 'type' => 'purchase',
                 'points' => $points,
                 'cost_usd' => $costUsd,
-                'description' => $package === 'custom'
-                    ? "Purchased Custom Package ({$points} Pts)"
-                    : "Purchased " . ucfirst($package) . " Pack (" . number_format($points) . " Pts)",
+                'description' => $desc,
                 'status' => 'completed',
             ]);
         } catch (\Throwable $e) {
