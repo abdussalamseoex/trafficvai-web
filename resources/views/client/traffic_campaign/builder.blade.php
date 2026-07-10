@@ -439,16 +439,53 @@
                                         @php
                                             $fallbackList = ['Worldwide', 'United States (US)', 'United Kingdom (GB)', 'Canada (CA)', 'Australia (AU)', 'Germany (DE)', 'France (FR)', 'Netherlands (NL)', 'Singapore (SG)', 'India (IN)', 'Bangladesh (BD)', 'Brazil (BR)', 'Japan (JP)', 'Spain (ES)', 'Italy (IT)', 'Switzerland (CH)', 'Sweden (SE)', 'Poland (PL)', 'Mexico (MX)', 'South Korea (KR)', 'Turkey (TR)', 'United Arab Emirates (AE)', 'Saudi Arabia (SA)', 'South Africa (ZA)', 'Indonesia (ID)', 'Malaysia (MY)', 'Vietnam (VN)', 'Thailand (TH)', 'Philippines (PH)', 'Pakistan (PK)', 'Egypt (EG)', 'Nigeria (NG)', 'Argentina (AR)', 'Colombia (CO)', 'Chile (CL)', 'New Zealand (NZ)'];
                                             $countryNamesMap = [
-                                                'US' => 'United States (US)', 'GB' => 'United Kingdom (GB)', 'UK' => 'United Kingdom (GB)',
-                                                'CA' => 'Canada (CA)', 'AU' => 'Australia (AU)', 'DE' => 'Germany (DE)', 'FR' => 'France (FR)',
-                                                'NL' => 'Netherlands (NL)', 'SG' => 'Singapore (SG)', 'IN' => 'India (IN)', 'BD' => 'Bangladesh (BD)',
-                                                'BR' => 'Brazil (BR)', 'JP' => 'Japan (JP)', 'ES' => 'Spain (ES)', 'IT' => 'Italy (IT)',
-                                                'CH' => 'Switzerland (CH)', 'SE' => 'Sweden (SE)', 'PL' => 'Poland (PL)', 'MX' => 'Mexico (MX)',
-                                                'KR' => 'South Korea (KR)', 'TR' => 'Turkey (TR)', 'AE' => 'United Arab Emirates (AE)',
-                                                'SA' => 'Saudi Arabia (SA)', 'ZA' => 'South Africa (ZA)', 'ID' => 'Indonesia (ID)',
-                                                'MY' => 'Malaysia (MY)', 'VN' => 'Vietnam (VN)', 'TH' => 'Thailand (TH)', 'PH' => 'Philippines (PH)',
-                                                'PK' => 'Pakistan (PK)', 'EG' => 'Egypt (EG)', 'NG' => 'Nigeria (NG)', 'AR' => 'Argentina (AR)',
-                                                'CO' => 'Colombia (CO)', 'CL' => 'Chile (CL)', 'NZ' => 'New Zealand (NZ)'
+                                                'AF' => 'Afghanistan (AF)', 'AL' => 'Albania (AL)', 'DZ' => 'Algeria (DZ)', 'AS' => 'American Samoa (AS)',
+                                                'AD' => 'Andorra (AD)', 'AO' => 'Angola (AO)', 'AI' => 'Anguilla (AI)', 'AG' => 'Antigua & Barbuda (AG)',
+                                                'AR' => 'Argentina (AR)', 'AM' => 'Armenia (AM)', 'AW' => 'Aruba (AW)', 'AU' => 'Australia (AU)',
+                                                'AT' => 'Austria (AT)', 'AZ' => 'Azerbaijan (AZ)', 'BS' => 'Bahamas (BS)', 'BH' => 'Bahrain (BH)',
+                                                'BD' => 'Bangladesh (BD)', 'BB' => 'Barbados (BB)', 'BY' => 'Belarus (BY)', 'BE' => 'Belgium (BE)',
+                                                'BZ' => 'Belize (BZ)', 'BJ' => 'Benin (BJ)', 'BM' => 'Bermuda (BM)', 'BT' => 'Bhutan (BT)',
+                                                'BO' => 'Bolivia (BO)', 'BA' => 'Bosnia & Herzegovina (BA)', 'BW' => 'Botswana (BW)', 'BR' => 'Brazil (BR)',
+                                                'BN' => 'Brunei (BN)', 'BG' => 'Bulgaria (BG)', 'BF' => 'Burkina Faso (BF)', 'BI' => 'Burundi (BI)',
+                                                'KH' => 'Cambodia (KH)', 'CM' => 'Cameroon (CM)', 'CA' => 'Canada (CA)', 'CV' => 'Cape Verde (CV)',
+                                                'KY' => 'Cayman Islands (KY)', 'CF' => 'Central African Republic (CF)', 'TD' => 'Chad (TD)', 'CL' => 'Chile (CL)',
+                                                'CN' => 'China (CN)', 'CO' => 'Colombia (CO)', 'KM' => 'Comoros (KM)', 'CG' => 'Congo - Brazzaville (CG)',
+                                                'CD' => 'Congo - Kinshasa (CD)', 'CR' => 'Costa Rica (CR)', 'HR' => 'Croatia (HR)', 'CU' => 'Cuba (CU)',
+                                                'CY' => 'Cyprus (CY)', 'CZ' => 'Czechia (CZ)', 'CI' => 'Côte d’Ivoire (CI)', 'DK' => 'Denmark (DK)',
+                                                'DJ' => 'Djibouti (DJ)', 'DM' => 'Dominica (DM)', 'DO' => 'Dominican Republic (DO)', 'EC' => 'Ecuador (EC)',
+                                                'EG' => 'Egypt (EG)', 'SV' => 'El Salvador (SV)', 'GQ' => 'Equatorial Guinea (GQ)', 'ER' => 'Eritrea (ER)',
+                                                'EE' => 'Estonia (EE)', 'SZ' => 'Eswatini (SZ)', 'ET' => 'Ethiopia (ET)', 'FJ' => 'Fiji (FJ)',
+                                                'FI' => 'Finland (FI)', 'FR' => 'France (FR)', 'GA' => 'Gabon (GA)', 'GM' => 'Gambia (GM)',
+                                                'GE' => 'Georgia (GE)', 'DE' => 'Germany (DE)', 'GH' => 'Ghana (GH)', 'GR' => 'Greece (GR)',
+                                                'GD' => 'Grenada (GD)', 'GT' => 'Guatemala (GT)', 'GN' => 'Guinea (GN)', 'GW' => 'Guinea-Bissau (GW)',
+                                                'GY' => 'Guyana (GY)', 'HT' => 'Haiti (HT)', 'HN' => 'Honduras (HN)', 'HK' => 'Hong Kong (HK)',
+                                                'HU' => 'Hungary (HU)', 'IS' => 'Iceland (IS)', 'IN' => 'India (IN)', 'ID' => 'Indonesia (ID)',
+                                                'IR' => 'Iran (IR)', 'IQ' => 'Iraq (IQ)', 'IE' => 'Ireland (IE)', 'IL' => 'Israel (IL)',
+                                                'IT' => 'Italy (IT)', 'JM' => 'Jamaica (JM)', 'JP' => 'Japan (JP)', 'JO' => 'Jordan (JO)',
+                                                'KZ' => 'Kazakhstan (KZ)', 'KE' => 'Kenya (KE)', 'KW' => 'Kuwait (KW)', 'KG' => 'Kyrgyzstan (KG)',
+                                                'LA' => 'Laos (LA)', 'LV' => 'Latvia (LV)', 'LB' => 'Lebanon (LB)', 'LS' => 'Lesotho (LS)',
+                                                'LR' => 'Liberia (LR)', 'LY' => 'Libya (LY)', 'LI' => 'Liechtenstein (LI)', 'LT' => 'Lithuania (LT)',
+                                                'LU' => 'Luxembourg (LU)', 'MO' => 'Macao (MO)', 'MG' => 'Madagascar (MG)', 'MW' => 'Malawi (MW)',
+                                                'MY' => 'Malaysia (MY)', 'MV' => 'Maldives (MV)', 'ML' => 'Mali (ML)', 'MT' => 'Malta (MT)',
+                                                'MR' => 'Mauritania (MR)', 'MU' => 'Mauritius (MU)', 'MX' => 'Mexico (MX)', 'MD' => 'Moldova (MD)',
+                                                'MC' => 'Monaco (MC)', 'MN' => 'Mongolia (MN)', 'ME' => 'Montenegro (ME)', 'MA' => 'Morocco (MA)',
+                                                'MZ' => 'Mozambique (MZ)', 'MM' => 'Myanmar (MM)', 'NA' => 'Namibia (NA)', 'NP' => 'Nepal (NP)',
+                                                'NL' => 'Netherlands (NL)', 'NZ' => 'New Zealand (NZ)', 'NI' => 'Nicaragua (NI)', 'NE' => 'Niger (NE)',
+                                                'NG' => 'Nigeria (NG)', 'KP' => 'North Korea (KP)', 'MK' => 'North Macedonia (MK)', 'NO' => 'Norway (NO)',
+                                                'OM' => 'Oman (OM)', 'PK' => 'Pakistan (PK)', 'PS' => 'Palestine (PS)', 'PA' => 'Panama (PA)',
+                                                'PG' => 'Papua New Guinea (PG)', 'PY' => 'Paraguay (PY)', 'PE' => 'Peru (PE)', 'PH' => 'Philippines (PH)',
+                                                'PL' => 'Poland (PL)', 'PT' => 'Portugal (PT)', 'PR' => 'Puerto Rico (PR)', 'QA' => 'Qatar (QA)',
+                                                'RO' => 'Romania (RO)', 'RU' => 'Russia (RU)', 'RW' => 'Rwanda (RW)', 'SA' => 'Saudi Arabia (SA)',
+                                                'SN' => 'Senegal (SN)', 'RS' => 'Serbia (RS)', 'SC' => 'Seychelles (SC)', 'SL' => 'Sierra Leone (SL)',
+                                                'SG' => 'Singapore (SG)', 'SK' => 'Slovakia (SK)', 'SI' => 'Slovenia (SI)', 'SO' => 'Somalia (SO)',
+                                                'ZA' => 'South Africa (ZA)', 'KR' => 'South Korea (KR)', 'ES' => 'Spain (ES)', 'LK' => 'Sri Lanka (LK)',
+                                                'SD' => 'Sudan (SD)', 'SR' => 'Suriname (SR)', 'SE' => 'Sweden (SE)', 'CH' => 'Switzerland (CH)',
+                                                'SY' => 'Syria (SY)', 'TW' => 'Taiwan (TW)', 'TJ' => 'Tajikistan (TJ)', 'TZ' => 'Tanzania (TZ)',
+                                                'TH' => 'Thailand (TH)', 'TL' => 'Timor-Leste (TL)', 'TG' => 'Togo (TG)', 'TO' => 'Tonga (TO)',
+                                                'TT' => 'Trinidad & Tobago (TT)', 'TN' => 'Tunisia (TN)', 'TR' => 'Turkey (TR)', 'TM' => 'Turkmenistan (TM)',
+                                                'UG' => 'Uganda (UG)', 'UA' => 'Ukraine (UA)', 'AE' => 'United Arab Emirates (AE)', 'GB' => 'United Kingdom (GB)',
+                                                'UK' => 'United Kingdom (GB)', 'US' => 'United States (US)', 'UY' => 'Uruguay (UY)', 'UZ' => 'Uzbekistan (UZ)',
+                                                'VE' => 'Venezuela (VE)', 'VN' => 'Vietnam (VN)', 'YE' => 'Yemen (YE)', 'ZM' => 'Zambia (ZM)', 'ZW' => 'Zimbabwe (ZW)'
                                             ];
                                             $countryItems = [];
                                             if (!empty($availableCountries) && is_array($availableCountries)) {
@@ -457,7 +494,9 @@
                                                     $name = is_array($ac) ? ($ac['country'] ?? '') : $ac;
                                                     $cnt = is_array($ac) ? ($ac['count'] ?? null) : null;
                                                     if ($name && strtolower($name) !== 'worldwide') {
-                                                        $countryItems[] = ['name' => $name, 'display' => $countryNamesMap[$name] ?? $name, 'count' => $cnt];
+                                                        $codeKey = strtoupper(trim($name));
+                                                        $displayName = $countryNamesMap[$codeKey] ?? $countryNamesMap[$name] ?? $name;
+                                                        $countryItems[] = ['name' => $name, 'display' => $displayName, 'count' => $cnt];
                                                     }
                                                 }
                                             } else {
@@ -477,7 +516,20 @@
                                                     <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $displayName }}</span>
                                                 </div>
                                                 @if($cItem['count'] !== null)
-                                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 font-bold">{{ $cItem['count'] }}</span>
+                                                    @php
+                                                        $cntVal = (int) $cItem['count'];
+                                                        if ($cntVal <= 5) {
+                                                            $badgeText = 'Low';
+                                                            $badgeClass = 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400';
+                                                        } elseif ($cntVal <= 50) {
+                                                            $badgeText = 'Medium';
+                                                            $badgeClass = 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400';
+                                                        } else {
+                                                            $badgeText = 'High';
+                                                            $badgeClass = 'bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400';
+                                                        }
+                                                    @endphp
+                                                    <span class="text-[10px] px-2 py-0.5 rounded font-bold {{ $badgeClass }}">{{ $badgeText }}</span>
                                                 @endif
                                             </label>
                                         @endforeach
