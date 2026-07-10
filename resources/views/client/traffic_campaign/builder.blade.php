@@ -300,14 +300,14 @@
                                     <span class="text-xs text-orange-500 font-bold">Select Preset or Type Custom Seconds</span>
                                 </div>
                                 <div class="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
-                                    @foreach([20, 30, 60, 90, 120] as $dur)
+                                    @foreach([60, 90, 120, 180, 300] as $dur)
                                         <div onclick="selectDuration({{ $dur }})" id="durationCard{{ $dur }}"
                                             class="cursor-pointer p-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm {{ old('duration', 60) == $dur ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200' }}">
                                             {{ $dur }}s
                                         </div>
                                     @endforeach
                                     <div>
-                                        <input type="number" id="customDurationInput" placeholder="Custom Sec" min="10" max="600"
+                                        <input type="number" id="customDurationInput" placeholder="Custom Sec" min="60" max="600"
                                             oninput="setCustomDuration(this.value)"
                                             class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-2 py-2.5 text-center text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500 transition">
                                     </div>
@@ -782,7 +782,7 @@
 
         function selectDuration(dur) {
             document.getElementById('durationInput').value = dur;
-            [20, 30, 60, 90, 120].forEach(d => {
+            [60, 90, 120, 180, 300].forEach(d => {
                 const card = document.getElementById('durationCard' + d);
                 if (card) {
                     card.className = (d === dur)
@@ -797,10 +797,10 @@
 
         function setCustomDuration(val) {
             let dur = parseInt(val) || 60;
-            if (dur < 10) dur = 10;
+            if (dur < 60) dur = 60;
             if (dur > 600) dur = 600;
             document.getElementById('durationInput').value = dur;
-            [20, 30, 60, 90, 120].forEach(d => {
+            [60, 90, 120, 180, 300].forEach(d => {
                 const card = document.getElementById('durationCard' + d);
                 if (card) {
                     card.className = 'cursor-pointer p-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/40 text-gray-800 dark:text-gray-200';
