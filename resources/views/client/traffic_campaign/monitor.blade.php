@@ -167,7 +167,7 @@
                         <div class="w-full h-2.5 rounded-full bg-gray-200 overflow-hidden">
                             <div class="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full" style="width: 100%"></div>
                         </div>
-                        <p class="text-[11px] text-gray-500">100% visits strictly allocated from <span class="text-gray-900 font-bold uppercase">{{ $campaign->target_country }}</span> residential & clean proxy IPs.</p>
+                        <p class="text-[11px] text-gray-500">100% visits strictly allocated from <span class="text-gray-900 font-bold uppercase">{{ $campaign->target_country }}</span> targeted regions.</p>
                     </div>
 
                     <!-- Device Breakdown -->
@@ -211,7 +211,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h3 class="text-xl font-black text-gray-900">Overall Order Fulfillment</h3>
-                        <p class="text-xs text-gray-500 mt-1">Live hit counter synchronization from Core Automation Engine</p>
+                        <p class="text-xs text-gray-500 mt-1">Live hit counter synchronization from Real-Time Delivery Server</p>
                     </div>
                     <div class="text-3xl font-black text-orange-500" id="progressPercentageText">
                         {{ $campaign->delivery_percentage }}%
@@ -254,7 +254,7 @@
                     <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200">
                         <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Target Country</span>
                         <span class="font-extrabold text-orange-500 uppercase">{{ $campaign->target_country }}</span>
-                        <div class="text-xs text-gray-500 mt-0.5">Residential residential IPs</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Targeted real audience</div>
                     </div>
 
                     @if($campaign->campaign_type === 'search')

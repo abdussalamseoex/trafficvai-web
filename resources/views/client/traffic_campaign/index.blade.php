@@ -5,7 +5,7 @@
             <div class="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-gray-200 pb-8">
                 <div>
                     <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">My Traffic Campaigns</h1>
-                    <p class="text-gray-500 mt-2 text-sm sm:text-base">Real-time status and delivery logs for your active automated traffic orders.</p>
+                    <p class="text-gray-500 mt-2 text-sm sm:text-base">Real-time status and delivery logs for your active organic traffic campaigns.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <a href="{{ route('client.traffic_campaign.history') }}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold text-sm transition">

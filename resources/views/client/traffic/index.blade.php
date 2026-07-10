@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <p class="text-xl text-gray-500">
-                    Choose from our result-driven website traffic packages & automated campaigns.
+                    Choose from our result-driven website traffic packages & organic campaigns.
                 </p>
                 <a href="{{ route('client.traffic_campaign.index') }}" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-gray-900 text-white font-bold text-sm hover:bg-brand transition shadow-sm">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -20,7 +20,7 @@
             <!-- Premium Interactive Traffic Campaigns (surf.abguestpost.net integration) -->
             <div class="mb-16">
                 <div class="flex items-center gap-3 mb-6">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 border border-orange-500/20">Automated Engine</span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 border border-orange-500/20">Organic Delivery</span>
                     <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Interactive Traffic Builders</h2>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -34,7 +34,7 @@
                             </div>
                             <h3 class="text-2xl font-black mb-3 text-white group-hover:text-orange-400 transition">Real Website Traffic GOAT Package</h3>
                             <p class="text-gray-300 text-sm leading-relaxed mb-6">
-                                Launch high-retention direct website traffic with custom hourly pacing, sub-page navigation, and multi-device targeting powered by our core automation engine.
+                                Launch high-retention direct website traffic with custom hourly pacing, sub-page navigation, and multi-device targeting powered by our high-performance traffic network.
                             </p>
                             <div class="flex flex-wrap gap-2 mb-8 text-xs font-medium text-gray-300">
                                 <span class="px-3 py-1 rounded-lg bg-white/5 border border-white/10">Up to 120s Duration</span>
