@@ -49,14 +49,25 @@ class PaymentController extends Controller
         ]);
 
         try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('topup_requests') && !\Illuminate\Support\Facades\Schema::hasColumn('topup_requests', 'currency')) {
+                \Illuminate\Support\Facades\Schema::table('topup_requests', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('currency', 10)->default('USD')->after('amount');
+                });
+            }
+
+            $isBdtMethod = in_array(strtolower($request->payment_method), ['bkash', 'nagad', 'rocket']) || strtoupper($request->input('currency', '')) === 'BDT';
+            $currency = $isBdtMethod ? 'BDT' : 'USD';
+
             $gateway = $gatewayManager->resolve($request->payment_method);
 
             // Create TopupRequest for ALL methods with 'initiated' status
             $topup = TopupRequest::create([
                 'user_id' => auth()->id(),
                 'amount' => $request->amount,
+                'currency' => $currency,
                 'payment_method' => $request->payment_method,
-                'status' => 'initiated'
+                'status' => 'initiated',
+                'meta' => ['currency' => $currency]
             ]);
 
             // Handle manual redirection for bKash, Nagad, Rocket, Bank Transfer

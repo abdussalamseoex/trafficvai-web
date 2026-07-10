@@ -42,7 +42,19 @@
                                     <div class="text-sm font-bold text-gray-900">{{ $topup->user->name }}</div>
                                     <div class="text-[10px] text-gray-400">{{ $topup->user->email }}</div>
                                 </td>
-                                <td class="px-6 py-4 font-black text-indigo-600">${{ number_format($topup->amount, 2) }}</td>
+                                <td class="px-6 py-4 font-black">
+                                    @php
+                                        $isBdtReq = in_array(strtolower($topup->payment_method), ['bkash', 'nagad', 'rocket']) || strtoupper($topup->currency ?? ($topup->meta['currency'] ?? '')) === 'BDT';
+                                        $rate = (float) \App\Models\Setting::get('bdt_exchange_rate', 120);
+                                        if ($rate <= 0) $rate = 120;
+                                    @endphp
+                                    @if($isBdtReq)
+                                        <div class="text-emerald-600">৳{{ number_format($topup->amount, 2) }} <span class="text-[10px] font-bold text-gray-400">BDT</span></div>
+                                        <div class="text-[10px] font-bold text-gray-400">≈ ${{ number_format($topup->amount / $rate, 2) }} USD</div>
+                                    @else
+                                        <div class="text-indigo-600">${{ number_format($topup->amount, 2) }} <span class="text-[10px] font-bold text-gray-400">USD</span></div>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 uppercase text-[10px] font-bold text-gray-500 tracking-wider">
                                     {{ str_replace('_', ' ', $topup->payment_method) }}
                                 </td>
@@ -84,7 +96,11 @@
                                                         <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                     </div>
                                                     <h3 class="text-xl font-black text-gray-900 mb-2">Approve Top-up</h3>
-                                                    <p class="text-sm text-gray-500 mb-8">Confirm approval for <span class="font-bold text-green-600">${{ number_format($topup->amount, 2) }}</span>? This credits the user wallet immediately.</p>
+                                                    @if($isBdtReq)
+                                                        <p class="text-sm text-gray-500 mb-8">Confirm approval for <span class="font-bold text-emerald-600">৳{{ number_format($topup->amount, 2) }} BDT</span>? This credits <span class="font-bold text-indigo-600">${{ number_format($topup->amount / $rate, 2) }} USD</span> equivalent to user wallet immediately.</p>
+                                                    @else
+                                                        <p class="text-sm text-gray-500 mb-8">Confirm approval for <span class="font-bold text-green-600">${{ number_format($topup->amount, 2) }} USD</span>? This credits the user wallet immediately.</p>
+                                                    @endif
                                                     
                                                     <form action="{{ route('admin.payments.topups.approve', $topup) }}" method="POST">
                                                         @csrf

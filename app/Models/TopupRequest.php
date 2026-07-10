@@ -10,6 +10,7 @@ class TopupRequest extends Model
     protected $fillable = [
         'user_id',
         'amount',
+        'currency',
         'payment_method',
         'proof',
         'transaction_id',

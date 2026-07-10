@@ -68,19 +68,28 @@ class PaymentController extends Controller
         DB::transaction(function () use ($topupRequest) {
             $topupRequest->update(['status' => 'approved']);
 
+            $isBdt = in_array(strtolower($topupRequest->payment_method), ['bkash', 'nagad', 'rocket'])
+                  || strtoupper($topupRequest->currency ?? ($topupRequest->meta['currency'] ?? '')) === 'BDT';
+
+            $rate = (float) \App\Models\Setting::get('bdt_exchange_rate', 120);
+            if ($rate <= 0) $rate = 120;
+
+            $creditAmount = $isBdt ? round($topupRequest->amount / $rate, 2) : $topupRequest->amount;
+            $currencyStr = $isBdt ? "৳" . number_format($topupRequest->amount, 2) . " BDT" : "$" . number_format($topupRequest->amount, 2) . " USD";
+
             $this->walletService->credit(
                 $topupRequest->user,
-                $topupRequest->amount,
+                $creditAmount,
                 'topup',
-                'Manual Top-up approved by admin',
-            ['request_id' => $topupRequest->id]
+                "Manual Top-up approved by admin ({$currencyStr})",
+                ['request_id' => $topupRequest->id, 'original_amount' => $topupRequest->amount, 'currency' => $isBdt ? 'BDT' : 'USD']
             );
 
             try {
                 app(\App\Services\NotificationService::class)->send('topup_approved', $topupRequest->user, [
                     'amount' => $topupRequest->amount,
                     'title' => 'Top-up Approved',
-                    'message' => "Your manual top-up of \${$topupRequest->amount} has been approved and added to your wallet.",
+                    'message' => "Your manual top-up of {$currencyStr} has been approved and added to your wallet.",
                     'link' => url('/client/payments')
                 ]);
             }
