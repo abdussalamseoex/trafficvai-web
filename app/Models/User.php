@@ -83,6 +83,11 @@ class User extends Authenticatable
         return $this->hasMany(TrafficCampaign::class);
     }
 
+    public function trafficPointLedgers()
+    {
+        return $this->hasMany(TrafficPointLedger::class);
+    }
+
     /**
      * Check if user has a specific role
      */
