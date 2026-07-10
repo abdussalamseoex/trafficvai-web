@@ -69,7 +69,7 @@
                 <p class="text-gray-500 text-base max-w-2xl mx-auto">Adjust the sliders below. Switch tabs to compare Direct and Organic Search pricing.</p>
             </div>
 
-            <div x-data="{
+            <div x-cloak x-data="{
                 activeCalc: 'direct',
                 dVisitors: 5000, dDuration: 60, dCountry: 'worldwide',
                 sVisitors: 3000, sDuration: 60, sEngine: 'google', sCountry: 'worldwide',
@@ -87,170 +87,202 @@
                 <div class="grid grid-cols-2 border-b border-gray-200">
                     <button @click="activeCalc='direct'"
                         :class="activeCalc==='direct' ? 'bg-orange-50 border-b-2 border-orange-500 text-orange-700 font-black' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
-                        class="flex items-center justify-center gap-2 py-4 px-4 text-xs sm:text-sm font-semibold transition-all duration-200 leading-tight text-center">
+                        class="flex items-center justify-center gap-2 py-4 px-4 text-xs sm:text-sm font-semibold transition-all duration-200">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        <span>Direct & Referral</span>
+                        Direct &amp; Referral
                     </button>
                     <button @click="activeCalc='search'"
                         :class="activeCalc==='search' ? 'bg-indigo-50 border-b-2 border-indigo-600 text-indigo-700 font-black' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
-                        class="flex items-center justify-center gap-2 py-4 px-4 text-xs sm:text-sm font-semibold transition-all duration-200 leading-tight text-center">
+                        class="flex items-center justify-center gap-2 py-4 px-4 text-xs sm:text-sm font-semibold transition-all duration-200">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        <span>Organic Search</span>
+                        Organic Search
                     </button>
                 </div>
 
-                <div class="p-6 md:p-10">
-                    <div class="flex flex-col lg:flex-row gap-8 items-stretch">
+                {{-- Calculator Body --}}
+                <div class="flex flex-col lg:flex-row">
 
-                        {{-- Controls Column --}}
-                        <div class="w-full lg:w-3/5 shrink-0 space-y-6">
+                    {{-- ===== LEFT: Controls ===== --}}
+                    <div class="w-full lg:w-3/5 p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-gray-100 space-y-6">
 
-                            {{-- DIRECT CONTROLS --}}
-                            <div x-show="activeCalc==='direct'" x-transition>
-                                <div class="space-y-6">
-                                    {{-- Visitors Slider --}}
-                                    <div>
-                                        <div class="flex justify-between items-center mb-2">
-                                            <label class="text-gray-700 font-semibold text-sm">Number of Visitors</label>
-                                            <span class="text-orange-600 font-black text-sm bg-orange-50 px-3 py-1 rounded-full" x-text="Number(dVisitors).toLocaleString()"></span>
-                                        </div>
-                                        <input type="range" min="500" max="100000" step="500" x-model="dVisitors"
-                                            class="w-full cursor-pointer accent-orange-500" style="appearance: auto; height: 6px;">
-                                        <div class="flex justify-between text-xs text-gray-400 mt-1"><span>500</span><span>100,000+</span></div>
-                                    </div>
-                                    {{-- Duration --}}
-                                    <div>
-                                        <label class="text-gray-700 font-semibold text-sm block mb-2">Visit Duration per Visitor</label>
-                                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                            <button type="button" @click="dDuration=30"
-                                                :class="dDuration===30 ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'"
-                                                class="py-2 px-2 rounded-xl border text-xs font-bold transition-all text-center">30 sec</button>
-                                            <button type="button" @click="dDuration=60"
-                                                :class="dDuration===60 ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'"
-                                                class="py-2 px-2 rounded-xl border text-xs font-bold transition-all text-center">1 min</button>
-                                            <button type="button" @click="dDuration=120"
-                                                :class="dDuration===120 ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'"
-                                                class="py-2 px-2 rounded-xl border text-xs font-bold transition-all text-center">2 min</button>
-                                            <button type="button" @click="dDuration=180"
-                                                :class="dDuration===180 ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'"
-                                                class="py-2 px-2 rounded-xl border text-xs font-bold transition-all text-center">3 min</button>
-                                        </div>
-                                    </div>
-                                    {{-- Country --}}
-                                    <div>
-                                        <label class="text-gray-700 font-semibold text-sm block mb-2">Country Targeting</label>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <button type="button" @click="dCountry='worldwide'"
-                                                :class="dCountry==='worldwide' ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'"
-                                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">🌍 Worldwide</button>
-                                            <button type="button" @click="dCountry='targeted'"
-                                                :class="dCountry==='targeted' ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'"
-                                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">🎯 Specific Country</button>
-                                        </div>
-                                    </div>
+                        {{-- DIRECT TRAFFIC CONTROLS --}}
+                        <div x-show="activeCalc==='direct'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="space-y-6">
+
+                            {{-- Visitors Slider --}}
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="text-gray-700 font-semibold text-sm">Number of Visitors</label>
+                                    <span class="text-orange-600 font-black text-sm bg-orange-50 px-3 py-1 rounded-full border border-orange-100" x-text="Number(dVisitors).toLocaleString()"></span>
+                                </div>
+                                <input type="range" min="500" max="100000" step="500" x-model="dVisitors"
+                                    class="w-full cursor-pointer accent-orange-500" style="height: 6px;">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1"><span>500</span><span>100,000+</span></div>
+                            </div>
+
+                            {{-- Visit Duration --}}
+                            <div>
+                                <label class="text-gray-700 font-semibold text-sm block mb-2">Visit Duration per Visitor</label>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button type="button" @click="dDuration=30"
+                                        :class="dDuration===30 ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-orange-300 hover:bg-orange-50'"
+                                        class="py-2.5 rounded-xl border text-xs font-bold transition-all text-center">30 sec</button>
+                                    <button type="button" @click="dDuration=60"
+                                        :class="dDuration===60 ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-orange-300 hover:bg-orange-50'"
+                                        class="py-2.5 rounded-xl border text-xs font-bold transition-all text-center">1 min</button>
+                                    <button type="button" @click="dDuration=120"
+                                        :class="dDuration===120 ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-orange-300 hover:bg-orange-50'"
+                                        class="py-2.5 rounded-xl border text-xs font-bold transition-all text-center">2 min</button>
+                                    <button type="button" @click="dDuration=180"
+                                        :class="dDuration===180 ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-orange-300 hover:bg-orange-50'"
+                                        class="py-2.5 rounded-xl border text-xs font-bold transition-all text-center">3 min</button>
                                 </div>
                             </div>
 
-                            {{-- SEARCH CONTROLS --}}
-                            <div x-show="activeCalc==='search'" x-transition>
-                                <div class="space-y-6">
-                                    {{-- Visitors Slider --}}
-                                    <div>
-                                        <div class="flex justify-between items-center mb-2">
-                                            <label class="text-gray-700 font-semibold text-sm">Keyword Search Visitors</label>
-                                            <span class="text-indigo-600 font-black text-sm bg-indigo-50 px-3 py-1 rounded-full" x-text="Number(sVisitors).toLocaleString()"></span>
-                                        </div>
-                                        <input type="range" min="500" max="50000" step="500" x-model="sVisitors"
-                                            class="w-full cursor-pointer accent-indigo-600" style="appearance: auto; height: 6px;">
-                                        <div class="flex justify-between text-xs text-gray-400 mt-1"><span>500</span><span>50,000+</span></div>
-                                    </div>
-                                    {{-- Search Engine --}}
-                                    <div>
-                                        <label class="text-gray-700 font-semibold text-sm block mb-2">Search Engine</label>
-                                        <div class="grid grid-cols-3 gap-2">
-                                            <button type="button" @click="sEngine='google'"
-                                                :class="sEngine==='google' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2 px-3 rounded-xl border text-xs font-bold transition-all">Google</button>
-                                            <button type="button" @click="sEngine='bing'"
-                                                :class="sEngine==='bing' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2 px-3 rounded-xl border text-xs font-bold transition-all">Bing</button>
-                                            <button type="button" @click="sEngine='yahoo'"
-                                                :class="sEngine==='yahoo' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2 px-3 rounded-xl border text-xs font-bold transition-all">Yahoo</button>
-                                        </div>
-                                    </div>
-                                    {{-- Duration --}}
-                                    <div>
-                                        <label class="text-gray-700 font-semibold text-sm block mb-2">Visit Duration per Visitor</label>
-                                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                            <button type="button" @click="sDuration=30"
-                                                :class="sDuration===30 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2 px-2 rounded-xl border text-xs font-bold transition-all text-center">30 sec</button>
-                                            <button type="button" @click="sDuration=60"
-                                                :class="sDuration===60 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2 px-2 rounded-xl border text-xs font-bold transition-all text-center">1 min</button>
-                                            <button type="button" @click="sDuration=120"
-                                                :class="sDuration===120 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2 px-2 rounded-xl border text-xs font-bold transition-all text-center">2 min</button>
-                                            <button type="button" @click="sDuration=180"
-                                                :class="sDuration===180 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2 px-2 rounded-xl border text-xs font-bold transition-all text-center">3 min</button>
-                                        </div>
-                                    </div>
-                                    {{-- Country --}}
-                                    <div>
-                                        <label class="text-gray-700 font-semibold text-sm block mb-2">Country Targeting</label>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <button type="button" @click="sCountry='worldwide'"
-                                                :class="sCountry==='worldwide' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">🌍 Worldwide</button>
-                                            <button type="button" @click="sCountry='targeted'"
-                                                :class="sCountry==='targeted' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'"
-                                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">🎯 Specific Country</button>
-                                        </div>
-                                    </div>
+                            {{-- Country Targeting --}}
+                            <div>
+                                <label class="text-gray-700 font-semibold text-sm block mb-2">Country Targeting</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" @click="dCountry='worldwide'"
+                                        :class="dCountry==='worldwide' ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-orange-300 hover:bg-orange-50'"
+                                        class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">🌍 Worldwide</button>
+                                    <button type="button" @click="dCountry='targeted'"
+                                        :class="dCountry==='targeted' ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-orange-300 hover:bg-orange-50'"
+                                        class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">🎯 Specific Country</button>
                                 </div>
-                            </div>
-
-                            <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                                <p class="text-xs text-blue-800 leading-relaxed">
-                                    <span class="font-bold">How Points Work:</span> 1 Traffic Point = 1 visitor per 60 seconds. A 2-min visit costs 2 Points/visitor. 1,000 Points = $1.00 USD.
-                                </p>
                             </div>
                         </div>
 
-                        {{-- Live Output Panel --}}
-                        <div class="w-full lg:flex-1 flex flex-col">
-                            <div class="bg-gray-900 rounded-2xl p-6 flex flex-col gap-4 flex-1 w-full">
-                                <div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Estimated Cost</div>
-                                <div>
-                                    <div class="text-gray-400 text-xs mb-1">Traffic Points Required</div>
-                                    <div class="text-3xl font-black text-white" x-text="Number(activePoints).toLocaleString() + ' Pts'"></div>
+                        {{-- ORGANIC SEARCH CONTROLS --}}
+                        <div x-show="activeCalc==='search'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="space-y-6">
+
+                            {{-- Visitors Slider --}}
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="text-gray-700 font-semibold text-sm">Keyword Search Visitors</label>
+                                    <span class="text-indigo-600 font-black text-sm bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100" x-text="Number(sVisitors).toLocaleString()"></span>
                                 </div>
-                                <div class="bg-orange-500/20 border border-orange-500/30 rounded-2xl p-4">
-                                    <div class="text-xs text-orange-300 mb-1">Total Cost</div>
-                                    <div class="text-3xl font-black text-white" x-text="displayCost"></div>
-                                    <div class="text-xs text-gray-400 mt-1" x-text="currency === 'BDT' ? '≈ $' + activeUsd + ' USD' : '≈ ৳' + Number(activeBdt).toLocaleString() + ' BDT'"></div>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button @click="currency='USD'" :class="currency==='USD' ? 'bg-white text-gray-900 font-black' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 font-semibold'" class="flex-1 text-xs py-2 rounded-xl transition-all">$ USD</button>
-                                    <button @click="currency='BDT'" :class="currency==='BDT' ? 'bg-white text-gray-900 font-black' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 font-semibold'" class="flex-1 text-xs py-2 rounded-xl transition-all">৳ BDT</button>
-                                </div>
-                                @auth
-                                <a href="{{ route('client.traffic_campaign.builder') }}" class="block w-full text-center bg-[#E8470A] hover:bg-orange-600 text-white font-black py-4 rounded-2xl transition-all text-sm shadow-lg shadow-orange-600/30 mt-auto">
-                                    Launch This Campaign →
-                                </a>
-                                @else
-                                <a href="{{ route('register') }}" class="block w-full text-center bg-[#E8470A] hover:bg-orange-600 text-white font-black py-4 rounded-2xl transition-all text-sm shadow-lg shadow-orange-600/30">
-                                    Sign Up Free & Launch →
-                                </a>
-                                <a href="{{ route('login') }}" class="block w-full text-center text-gray-400 hover:text-white text-xs font-semibold transition-colors text-center">
-                                    Already have an account? Log In
-                                </a>
-                                @endauth
+                                <input type="range" min="500" max="50000" step="500" x-model="sVisitors"
+                                    class="w-full cursor-pointer accent-indigo-600" style="height: 6px;">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1"><span>500</span><span>50,000+</span></div>
                             </div>
+
+                            {{-- Search Engine --}}
+                            <div>
+                                <label class="text-gray-700 font-semibold text-sm block mb-2">Search Engine</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button type="button" @click="sEngine='google'"
+                                        :class="sEngine==='google' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">Google</button>
+                                    <button type="button" @click="sEngine='bing'"
+                                        :class="sEngine==='bing' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">Bing</button>
+                                    <button type="button" @click="sEngine='yahoo'"
+                                        :class="sEngine==='yahoo' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">Yahoo</button>
+                                </div>
+                            </div>
+
+                            {{-- Visit Duration --}}
+                            <div>
+                                <label class="text-gray-700 font-semibold text-sm block mb-2">Visit Duration per Visitor</label>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button type="button" @click="sDuration=30"
+                                        :class="sDuration===30 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 rounded-xl border text-xs font-bold transition-all text-center">30 sec</button>
+                                    <button type="button" @click="sDuration=60"
+                                        :class="sDuration===60 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 rounded-xl border text-xs font-bold transition-all text-center">1 min</button>
+                                    <button type="button" @click="sDuration=120"
+                                        :class="sDuration===120 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 rounded-xl border text-xs font-bold transition-all text-center">2 min</button>
+                                    <button type="button" @click="sDuration=180"
+                                        :class="sDuration===180 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 rounded-xl border text-xs font-bold transition-all text-center">3 min</button>
+                                </div>
+                            </div>
+
+                            {{-- Country Targeting --}}
+                            <div>
+                                <label class="text-gray-700 font-semibold text-sm block mb-2">Country Targeting</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" @click="sCountry='worldwide'"
+                                        :class="sCountry==='worldwide' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">🌍 Worldwide</button>
+                                    <button type="button" @click="sCountry='targeted'"
+                                        :class="sCountry==='targeted' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'"
+                                        class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all">🎯 Specific Country</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- How Points Work Info --}}
+                        <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                            <p class="text-xs text-blue-800 leading-relaxed">
+                                <span class="font-bold">How Points Work:</span> 1 Traffic Point = 1 visitor per 60 seconds. A 2-min visit costs 2 Points/visitor. 1,000 Points = $1.00 USD.
+                            </p>
                         </div>
                     </div>
+
+                    {{-- ===== RIGHT: Live Cost Output ===== --}}
+                    <div class="w-full lg:flex-1 bg-gray-900 flex flex-col p-6 md:p-8 gap-5">
+                        <div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Estimated Cost</div>
+
+                        {{-- Points --}}
+                        <div>
+                            <div class="text-gray-400 text-xs mb-1">Traffic Points Required</div>
+                            <div class="text-3xl font-black text-white" x-text="Number(activePoints).toLocaleString() + ' Pts'"></div>
+                        </div>
+
+                        {{-- Cost Box --}}
+                        <div class="bg-orange-500/20 border border-orange-500/30 rounded-2xl p-5">
+                            <div class="text-xs text-orange-300 mb-1">Total Cost</div>
+                            <div class="text-4xl font-black text-white" x-text="displayCost"></div>
+                            <div class="text-xs text-gray-400 mt-2" x-text="currency === 'BDT' ? '≈ $' + activeUsd + ' USD' : '≈ ৳' + Number(activeBdt).toLocaleString() + ' BDT'"></div>
+                        </div>
+
+                        {{-- Currency Toggle --}}
+                        <div class="flex gap-2">
+                            <button @click="currency='USD'" :class="currency==='USD' ? 'bg-white text-gray-900 font-black' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 font-semibold'" class="flex-1 text-xs py-2.5 rounded-xl transition-all">$ USD</button>
+                            <button @click="currency='BDT'" :class="currency==='BDT' ? 'bg-white text-gray-900 font-black' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 font-semibold'" class="flex-1 text-xs py-2.5 rounded-xl transition-all">৳ BDT</button>
+                        </div>
+
+                        {{-- Breakdown --}}
+                        <div class="bg-gray-800 rounded-xl p-4 space-y-2 text-xs">
+                            <div class="flex justify-between text-gray-400">
+                                <span>Visitors</span>
+                                <span class="text-white font-bold" x-text="activeCalc === 'direct' ? Number(dVisitors).toLocaleString() : Number(sVisitors).toLocaleString()"></span>
+                            </div>
+                            <div class="flex justify-between text-gray-400">
+                                <span>Duration per visit</span>
+                                <span class="text-white font-bold" x-text="(activeCalc === 'direct' ? dDuration : sDuration) + ' sec'"></span>
+                            </div>
+                            <div class="flex justify-between text-gray-400">
+                                <span>Points per visitor</span>
+                                <span class="text-white font-bold" x-text="Math.ceil((activeCalc === 'direct' ? dDuration : sDuration) / 60) + ' pt'"></span>
+                            </div>
+                            <div class="border-t border-gray-700 pt-2 flex justify-between text-gray-300">
+                                <span>Total Points</span>
+                                <span class="text-orange-400 font-black" x-text="Number(activePoints).toLocaleString() + ' pts'"></span>
+                            </div>
+                        </div>
+
+                        {{-- CTA --}}
+                        <div class="mt-auto pt-2">
+                            @auth
+                            <a href="{{ route('client.traffic_campaign.builder') }}" class="block w-full text-center bg-[#E8470A] hover:bg-orange-600 text-white font-black py-4 rounded-2xl transition-all text-sm shadow-lg shadow-orange-500/20">
+                                Launch This Campaign →
+                            </a>
+                            @else
+                            <a href="{{ route('register') }}" class="block w-full text-center bg-[#E8470A] hover:bg-orange-600 text-white font-black py-4 rounded-2xl transition-all text-sm shadow-lg shadow-orange-500/20 mb-3">
+                                Sign Up Free &amp; Launch →
+                            </a>
+                            <a href="{{ route('login') }}" class="block w-full text-center text-gray-400 hover:text-white text-xs font-semibold transition-colors">
+                                Already have an account? Log In
+                            </a>
+                            @endauth
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
