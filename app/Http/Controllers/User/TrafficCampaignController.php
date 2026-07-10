@@ -283,8 +283,10 @@ class TrafficCampaignController extends Controller
             'distribution' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
             'speed' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
             'delivery_speed' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
-            'target_country' => $campaign->target_country ?: 'Worldwide',
-            'country' => $campaign->target_country ?: 'Worldwide',
+            'target_country' => in_array(strtolower(trim($campaign->target_country)), ['worldwide', 'all', 'random', 'all countries', '']) ? 'ALL' : $campaign->target_country,
+            'country' => in_array(strtolower(trim($campaign->target_country)), ['worldwide', 'all', 'random', 'all countries', '']) ? 'ALL' : $campaign->target_country,
+            'countries' => in_array(strtolower(trim($campaign->target_country)), ['worldwide', 'all', 'random', 'all countries', '']) ? 'ALL' : $campaign->target_country,
+            'geo_targeting' => in_array(strtolower(trim($campaign->target_country)), ['worldwide', 'all', 'random', 'all countries', '']) ? 'RANDOM' : $campaign->target_country,
             'total_limit' => (int) $campaign->total_limit,
             'hourly_limit' => (int) $campaign->hourly_limit,
             'daily_limit' => (int) $campaign->daily_limit,
@@ -498,8 +500,10 @@ class TrafficCampaignController extends Controller
             'distribution' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
             'speed' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
             'delivery_speed' => in_array(strtolower($campaign->distribution_type), ['burst', 'asap']) ? 'burst' : 'spread',
-            'target_country' => $campaign->target_country ?: 'Worldwide',
-            'country' => $campaign->target_country ?: 'Worldwide',
+            'target_country' => in_array(strtolower(trim($campaign->target_country)), ['worldwide', 'all', 'random', 'all countries', '']) ? 'ALL' : $campaign->target_country,
+            'country' => in_array(strtolower(trim($campaign->target_country)), ['worldwide', 'all', 'random', 'all countries', '']) ? 'ALL' : $campaign->target_country,
+            'countries' => in_array(strtolower(trim($campaign->target_country)), ['worldwide', 'all', 'random', 'all countries', '']) ? 'ALL' : $campaign->target_country,
+            'geo_targeting' => in_array(strtolower(trim($campaign->target_country)), ['worldwide', 'all', 'random', 'all countries', '']) ? 'RANDOM' : $campaign->target_country,
             'total_limit' => (int) $campaign->total_limit,
             'hourly_limit' => (int) $campaign->hourly_limit,
             'daily_limit' => (int) $campaign->daily_limit,
@@ -618,24 +622,40 @@ class TrafficCampaignController extends Controller
             return response()->json($graphResponse['data']);
         }
 
+        $createdAt = $campaign->created_at ?: now();
+
         // Proportional realistic delivery graph distribution when Core API graph returns 0 or fallback
         if (in_array($view, ['daily', '7d', '14d'])) {
             $labels = [];
             $data = [];
             $daysCount = 14;
-            $remainingHits = $hitsDelivered;
+            $activeDayIndices = [];
 
             for ($i = $daysCount - 1; $i >= 0; $i--) {
-                $labels[] = now()->subDays($i)->format('M d');
-                if ($i === 0) {
-                    $data[] = max(0, $remainingHits);
-                } else {
-                    $share = ($remainingHits > 0 && $i < 3) ? (int) round($hitsDelivered / 3) : 0;
-                    $share = min($remainingHits, $share);
-                    $data[] = $share;
-                    $remainingHits -= $share;
+                $dayDate = now()->subDays($i)->startOfDay();
+                $labels[] = $dayDate->format('M d');
+                if ($dayDate->greaterThanOrEqualTo($createdAt->startOfDay())) {
+                    $activeDayIndices[] = count($labels) - 1;
                 }
             }
+
+            $data = array_fill(0, count($labels), 0);
+            $activeCount = count($activeDayIndices);
+            $remainingHits = $hitsDelivered;
+
+            if ($activeCount > 0 && $hitsDelivered > 0) {
+                foreach ($activeDayIndices as $idxPos => $targetIdx) {
+                    if ($idxPos === $activeCount - 1) {
+                        $data[$targetIdx] = $remainingHits;
+                    } else {
+                        $share = (int) round($hitsDelivered / $activeCount);
+                        $share = min($remainingHits, $share);
+                        $data[$targetIdx] = $share;
+                        $remainingHits -= $share;
+                    }
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'labels' => $labels,
@@ -643,23 +663,33 @@ class TrafficCampaignController extends Controller
             ]);
         }
 
-        // Hourly 24h realistic distribution curve
+        // Hourly 24h realistic distribution curve strictly on/after created_at
         $labels = [];
         $data = [];
+        $activeHourIndices = [];
+
         for ($i = 22; $i >= 0; $i -= 2) {
-            $labels[] = now()->subHours($i)->format('H:00');
+            $hourDate = now()->subHours($i)->startOfHour();
+            $labels[] = $hourDate->format('H:00');
+            if ($hourDate->greaterThanOrEqualTo($createdAt->copy()->subHour())) {
+                $activeHourIndices[] = count($labels) - 1;
+            }
         }
-        $count = count($labels);
+
+        $data = array_fill(0, count($labels), 0);
+        $activeCount = count($activeHourIndices);
         $remainingHits = $hitsDelivered;
-        for ($idx = 0; $idx < $count; $idx++) {
-            if ($idx === $count - 1) {
-                $data[] = max(0, $remainingHits);
-            } elseif ($hitsDelivered > 0) {
-                $portion = (int) round($hitsDelivered / $count);
-                $data[] = min($remainingHits, $portion);
-                $remainingHits -= end($data);
-            } else {
-                $data[] = 0;
+
+        if ($activeCount > 0 && $hitsDelivered > 0) {
+            foreach ($activeHourIndices as $idxPos => $targetIdx) {
+                if ($idxPos === $activeCount - 1) {
+                    $data[$targetIdx] = $remainingHits;
+                } else {
+                    $portion = (int) round($hitsDelivered / $activeCount);
+                    $portion = min($remainingHits, $portion);
+                    $data[$targetIdx] = $portion;
+                    $remainingHits -= $portion;
+                }
             }
         }
 

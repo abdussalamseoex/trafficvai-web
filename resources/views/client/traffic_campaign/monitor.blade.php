@@ -102,11 +102,15 @@
 
                 <!-- Validity / Points Card -->
                 <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl">
-                    <div class="text-xs font-extrabold uppercase text-gray-500 mb-2">Points Allocated & Expiry</div>
+                    <div class="text-xs font-extrabold uppercase text-gray-500 mb-2">Points Consumed / Total</div>
+                    @php
+                        $consumedPts = $campaign->total_limit > 0 ? (int) round(($campaign->hits_delivered / max(1, $campaign->total_limit)) * $campaign->points_deducted) : 0;
+                    @endphp
                     <div class="text-2xl font-black text-gray-900">
-                        {{ number_format($campaign->points_deducted) }} <span class="text-sm font-bold text-orange-500">Pts</span>
+                        <span class="text-orange-500">{{ number_format($consumedPts) }}</span>
+                        <span class="text-base font-bold text-gray-500">/ {{ number_format($campaign->points_deducted) }} Pts</span>
                     </div>
-                    <div class="text-xs text-gray-500 mt-2">Expiry: <span class="text-gray-900 font-bold">{{ $campaign->expires_at ? $campaign->expires_at->format('M d, Y') : '30 Days' }}</span></div>
+                    <div class="text-xs text-gray-500 mt-2">Consumed: <span class="text-orange-500 font-bold">{{ number_format($consumedPts) }} Pts</span></div>
                 </div>
             </div>
 
@@ -137,8 +141,8 @@
 
                     <div class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200 mt-6 text-center">
                         <div class="p-3 rounded-2xl bg-gray-50 border border-gray-200">
-                            <div class="text-[11px] font-bold uppercase text-gray-500">Peak Hourly Flow</div>
-                            <div class="text-lg font-black text-orange-500 mt-0.5">{{ max(1, min($campaign->hourly_limit, max(10, intval($campaign->hits_delivered / 6)))) }} visits/hr</div>
+                            <div class="text-[11px] font-bold uppercase text-gray-500">Hourly Speed Limit</div>
+                            <div class="text-lg font-black text-orange-500 mt-0.5">{{ number_format($campaign->hourly_limit) }} visits/hr</div>
                         </div>
                         <div class="p-3 rounded-2xl bg-gray-50 border border-gray-200">
                             <div class="text-[11px] font-bold uppercase text-gray-500">Avg Stay Duration</div>
