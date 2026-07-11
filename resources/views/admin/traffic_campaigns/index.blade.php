@@ -93,10 +93,10 @@
                             <thead>
                                 <tr class="bg-gray-50/80 border-b border-gray-100 text-xs font-bold uppercase tracking-wider text-gray-500">
                                     <th class="p-4">Order / Client</th>
-                                    <th class="p-4">Target URL & Engine</th>
+                                    <th class="p-4">Target URL & Geo / Engine</th>
                                     <th class="p-4">Delivery & Points Budget</th>
                                     <th class="p-4">Status & Expiry</th>
-                                    <th class="p-4 text-right">Actions</th>
+                                    <th class="p-4 text-right">Admin Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
@@ -104,21 +104,31 @@
                                     <tr class="hover:bg-gray-50/50 transition">
                                         <td class="p-4">
                                             <div class="font-black text-gray-900">{{ $camp->external_order_id }}</div>
-                                            <div class="text-xs text-gray-500">{{ $camp->user->name ?? 'N/A' }}</div>
+                                            <div class="text-xs font-bold text-gray-700 mt-0.5">{{ $camp->user->name ?? 'N/A' }}</div>
                                             <div class="text-[11px] text-gray-400">{{ $camp->user->email ?? '' }}</div>
+                                            <div class="mt-1">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-orange-50 text-orange-700 border border-orange-200">
+                                                    Balance: {{ number_format($camp->user->traffic_points ?? 0) }} Pts
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td class="p-4 max-w-[200px]">
+                                        <td class="p-4 max-w-[240px]">
                                             <a href="{{ $camp->url }}" target="_blank" class="text-blue-600 hover:underline font-medium block truncate" title="{{ $camp->url }}">{{ $camp->url }}</a>
-                                            <div class="flex items-center gap-1.5 mt-1.5">
+                                            <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $camp->campaign_type === 'search' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700' }}">
                                                     {{ $camp->campaign_type === 'search' ? 'Google Search' : 'Direct GOAT' }}
                                                 </span>
-                                                <span class="text-xs text-gray-400">Rate: {{ $camp->hourly_limit }}/hr</span>
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700">
+                                                    {{ $camp->hourly_limit }}/hr
+                                                </span>
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700 max-w-[120px] truncate" title="{{ is_array($camp->countries) ? implode(', ', $camp->countries) : ($camp->countries ?: 'Worldwide') }}">
+                                                    🌍 {{ is_array($camp->countries) ? implode(', ', $camp->countries) : ($camp->countries ?: 'Worldwide') }}
+                                                </span>
                                             </div>
                                         </td>
                                         @php
                                             $consumedPts = $camp->total_limit > 0
-                                                ? (int) round(($camp->hits_delivered / $camp->total_limit) * $camp->points_deducted)
+                                                ? (int) round(($camp->hits_delivered / max(1, $camp->total_limit)) * $camp->points_deducted)
                                                 : 0;
                                         @endphp
                                         <td class="p-4 whitespace-nowrap">
@@ -138,29 +148,35 @@
                                                 <span class="text-[10px] text-gray-400">Exp: {{ $camp->expires_at ? $camp->expires_at->format('M d, Y') : '30 Days' }}</span>
                                             </div>
                                         </td>
-                                        <td class="p-5 text-right space-x-2">
-                                            <form action="{{ route('admin.traffic_campaigns.sync', $camp) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition" title="Sync from Core Engine">
-                                                    Sync
-                                                </button>
-                                            </form>
+                                        <td class="p-4 text-right whitespace-nowrap">
+                                            <div class="flex items-center justify-end gap-1.5">
+                                                <a href="{{ route('traffic_campaigns.monitor', $camp) }}" class="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold text-xs shadow-md hover:opacity-95 transition" title="View Executive Realtime Live Dashboard">
+                                                    📊 Live Dashboard
+                                                </a>
 
-                                            <form action="{{ route('admin.traffic_campaigns.toggle', $camp) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('POST')
-                                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200 transition">
-                                                    {{ $camp->status === 'active' ? 'Pause' : 'Resume' }}
-                                                </button>
-                                            </form>
+                                                <form action="{{ route('traffic_campaigns.sync', $camp) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition" title="Sync from Core Engine">
+                                                        Sync
+                                                    </button>
+                                                </form>
 
-                                            <form action="{{ route('admin.traffic_campaigns.destroy', $camp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition" title="Delete Campaign">
-                                                    Delete
-                                                </button>
-                                            </form>
+                                                <form action="{{ route('traffic_campaigns.toggle', $camp) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('POST')
+                                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200 transition">
+                                                        {{ $camp->status === 'active' ? 'Pause' : 'Resume' }}
+                                                    </button>
+                                                </form>
+
+                                                <form action="{{ route('traffic_campaigns.destroy', $camp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition" title="Delete Campaign">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

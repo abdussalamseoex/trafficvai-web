@@ -178,4 +178,41 @@ class TrafficCampaignAdminController extends Controller
 
         return back()->with('success', "Campaign {$orderId} deleted successfully and delivery stopped on Core Server.");
     }
+
+    /**
+     * Display live monitoring screen for any client's campaign (Admin Executive View)
+     */
+    public function monitor(TrafficCampaign $campaign)
+    {
+        return view('admin.traffic_campaigns.monitor', compact('campaign'));
+    }
+
+    /**
+     * Live JSON status poller for Admin Monitoring Page
+     */
+    public function liveStatus(TrafficCampaign $campaign, SurfEngineApiService $apiService)
+    {
+        // Fetch live status from Core Automation Engine
+        $statusResponse = $apiService->getCampaignStatus($campaign->external_order_id);
+
+        if ($statusResponse['success'] ?? false) {
+            $data = $statusResponse['data'];
+            if (isset($data['hits_delivered'])) {
+                $newHits = (int) $data['hits_delivered'];
+                $campaign->hits_delivered = max($campaign->hits_delivered, $newHits);
+                $campaign->save();
+            }
+            if (isset($data['status'])) {
+                $campaign->status = strtolower($data['status']);
+                $campaign->save();
+            }
+        }
+
+        return response()->json([
+            'hits_delivered' => (int) $campaign->hits_delivered,
+            'total_limit'    => (int) $campaign->total_limit,
+            'percentage'     => $campaign->delivery_percentage,
+            'status'         => ucfirst($campaign->status),
+        ]);
+    }
 }
