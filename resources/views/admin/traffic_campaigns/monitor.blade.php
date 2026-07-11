@@ -162,24 +162,51 @@
             </div>
 
             <!-- Detailed Targeting Configuration Strip -->
+            <!-- Detailed Client Targeting & Configuration Strip -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Geo & Device Box -->
                 <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl space-y-4">
-                    <h3 class="font-black text-base text-gray-900">Geo & Device Targeting</h3>
-                    <div class="space-y-3 text-xs font-bold">
+                    <h3 class="font-black text-base text-gray-900">Client Geo, Device & Behavior Settings</h3>
+                    <div class="space-y-2.5 text-xs font-bold">
                         <div class="flex justify-between py-2 border-b border-gray-100">
                             <span class="text-gray-500">Targeted Countries</span>
-                            <span class="text-gray-900 text-right max-w-[200px] truncate" title="{{ is_array($campaign->countries) ? implode(', ', $campaign->countries) : ($campaign->countries ?: 'Worldwide') }}">
-                                {{ is_array($campaign->countries) ? implode(', ', $campaign->countries) : ($campaign->countries ?: 'Worldwide') }}
+                            <span class="text-gray-900 text-right max-w-[220px] truncate" title="{{ $campaign->target_country ?: 'Worldwide' }}">
+                                🌍 {{ $campaign->target_country ?: 'Worldwide' }}
                             </span>
                         </div>
                         <div class="flex justify-between py-2 border-b border-gray-100">
                             <span class="text-gray-500">Device Platform</span>
-                            <span class="text-gray-900 capitalize">{{ $campaign->device_targeting ?: 'All Devices' }}</span>
+                            <span class="text-gray-900 capitalize">{{ $campaign->device_type ?: 'All Devices' }}</span>
+                        </div>
+                        @if(strtolower($campaign->campaign_type) === 'search')
+                            <div class="flex justify-between py-2 border-b border-gray-100">
+                                <span class="text-gray-500">Search Engine</span>
+                                <span class="text-blue-600 uppercase font-black">{{ $campaign->search_engine ?: 'google' }}</span>
+                            </div>
+                        @endif
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Main Stay Duration</span>
+                            <span class="text-gray-900">{{ $campaign->duration ?: 60 }}s</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Sub-Page Visits</span>
+                            <span class="text-gray-900">
+                                @if($campaign->sub_page_visits > 0)
+                                    {{ $campaign->sub_page_visits }} pages ({{ $campaign->sub_page_duration ?: 20 }}s stay)
+                                @else
+                                    Direct / No Sub-page
+                                @endif
+                            </span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-gray-500">Behavior Simulation</span>
+                            <span class="text-emerald-600">
+                                Scroll: {{ ucfirst($campaign->behavior_scroll ?: 'Enabled') }} | Click: {{ ucfirst($campaign->behavior_click ?: 'Enabled') }}
+                            </span>
                         </div>
                         <div class="flex justify-between py-2">
-                            <span class="text-gray-500">Visitor Behavior Simulation</span>
-                            <span class="text-emerald-600">Natural Scroll & Random Internal Click</span>
+                            <span class="text-gray-500">Delivery Distribution</span>
+                            <span class="text-orange-600 uppercase font-extrabold">{{ $campaign->distribution_type ?: 'Spread' }}</span>
                         </div>
                     </div>
                 </div>
@@ -187,34 +214,56 @@
                 <!-- Keywords or Referrer Box -->
                 <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl space-y-4">
                     <h3 class="font-black text-base text-gray-900">
-                        {{ $campaign->campaign_type === 'search' ? 'Targeted Search Keywords' : 'Referrer Source' }}
+                        {{ strtolower($campaign->campaign_type) === 'search' ? 'Targeted Search Keywords & Percentages' : 'Referrer Source / Custom Referrers' }}
                     </h3>
-                    <div class="text-xs font-bold space-y-2">
-                        @if($campaign->campaign_type === 'search' && !empty($campaign->keywords))
+                    <div class="text-xs font-bold">
+                        @if(strtolower($campaign->campaign_type) === 'search')
                             @php
-                                $kwList = is_array($campaign->keywords) ? $campaign->keywords : json_decode($campaign->keywords, true);
+                                $kwList = is_array($campaign->keywords)
+                                    ? $campaign->keywords
+                                    : (is_string($campaign->keywords) ? json_decode($campaign->keywords, true) : []);
                             @endphp
                             @if(is_array($kwList) && count($kwList) > 0)
-                                <div class="flex flex-wrap gap-2">
+                                <div class="flex flex-wrap gap-2.5">
                                     @foreach($kwList as $kw)
                                         @php
-                                            $kwText = is_array($kw) ? ($kw['keyword'] ?? $kw['text'] ?? '') : $kw;
-                                            $kwPct = is_array($kw) ? ($kw['percent'] ?? '') : '';
+                                            $kwText = is_array($kw)
+                                                ? ($kw['kw'] ?? $kw['keyword'] ?? $kw['text'] ?? $kw['name'] ?? '')
+                                                : (is_string($kw) ? $kw : '');
+                                            $kwPct = is_array($kw)
+                                                ? ($kw['weight'] ?? $kw['percent'] ?? $kw['pct'] ?? '')
+                                                : '';
                                         @endphp
-                                        @if($kwText)
-                                            <span class="px-3 py-1.5 rounded-xl bg-orange-50 text-orange-700 border border-orange-200">
-                                                {{ $kwText }} {{ $kwPct ? "({$kwPct}%)" : '' }}
-                                            </span>
+                                        @if($kwText !== '')
+                                            <div class="inline-flex items-center px-3.5 py-2 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 text-gray-900 border border-orange-200 shadow-sm">
+                                                <span class="text-orange-600 mr-1.5">🔍</span>
+                                                <span class="font-extrabold">{{ $kwText }}</span>
+                                                @if($kwPct !== '')
+                                                    <span class="ml-2 px-2 py-0.5 rounded-lg bg-orange-500 text-white font-black text-[10px]">{{ $kwPct }}%</span>
+                                                @endif
+                                            </div>
                                         @endif
                                     @endforeach
                                 </div>
                             @else
-                                <span class="text-gray-400">Standard Organic Keyword</span>
+                                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-500">
+                                    Standard Organic Search Engine Referrer
+                                </div>
                             @endif
                         @else
-                            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-700">
-                                Direct / Bookmark / Clean Referrer Flow
-                            </div>
+                            @if(!empty($campaign->custom_referrers))
+                                <div class="space-y-1.5">
+                                    @foreach(array_filter(array_map('trim', explode("\n", $campaign->custom_referrers))) as $ref)
+                                        <div class="p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 break-all">
+                                            🔗 {{ $ref }}
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-700">
+                                    Direct GOAT / Clean Referrer Flow
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>

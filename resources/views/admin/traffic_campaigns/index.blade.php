@@ -112,19 +112,61 @@
                                                 </span>
                                             </div>
                                         </td>
-                                        <td class="p-4 max-w-[240px]">
-                                            <a href="{{ $camp->url }}" target="_blank" class="text-blue-600 hover:underline font-medium block truncate" title="{{ $camp->url }}">{{ $camp->url }}</a>
+                                        <td class="p-4 max-w-[340px]">
+                                            <a href="{{ $camp->url }}" target="_blank" class="text-blue-600 hover:underline font-bold block truncate text-sm" title="{{ $camp->url }}">{{ $camp->url }}</a>
                                             <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $camp->campaign_type === 'search' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700' }}">
-                                                    {{ $camp->campaign_type === 'search' ? 'Google Search' : 'Direct GOAT' }}
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase {{ strtolower($camp->campaign_type) === 'search' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-orange-50 text-orange-700 border border-orange-200' }}">
+                                                    {{ strtolower($camp->campaign_type) === 'search' ? 'Search Engine (' . strtoupper($camp->search_engine ?: 'GOOGLE') . ')' : 'Direct GOAT' }}
                                                 </span>
                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700">
-                                                    {{ $camp->hourly_limit }}/hr
+                                                    Rate: {{ $camp->hourly_limit }}/hr
                                                 </span>
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700 max-w-[120px] truncate" title="{{ is_array($camp->countries) ? implode(', ', $camp->countries) : ($camp->countries ?: 'Worldwide') }}">
-                                                    🌍 {{ is_array($camp->countries) ? implode(', ', $camp->countries) : ($camp->countries ?: 'Worldwide') }}
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700 max-w-[140px] truncate" title="{{ $camp->target_country ?: 'Worldwide' }}">
+                                                    🌍 {{ $camp->target_country ?: 'Worldwide' }}
                                                 </span>
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700">
+                                                    ⏱ {{ $camp->duration ?: 60 }}s stay
+                                                </span>
+                                                @if($camp->sub_page_visits > 0)
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                                        📑 {{ $camp->sub_page_visits }} sub-pages
+                                                    </span>
+                                                @endif
                                             </div>
+
+                                            @if(strtolower($camp->campaign_type) === 'search')
+                                                @php
+                                                    $kwList = is_array($camp->keywords)
+                                                        ? $camp->keywords
+                                                        : (is_string($camp->keywords) ? json_decode($camp->keywords, true) : []);
+                                                @endphp
+                                                @if(is_array($kwList) && count($kwList) > 0)
+                                                    <div class="mt-2 flex flex-wrap gap-1.5">
+                                                        @foreach($kwList as $kw)
+                                                            @php
+                                                                $kwText = is_array($kw)
+                                                                    ? ($kw['kw'] ?? $kw['keyword'] ?? $kw['text'] ?? $kw['name'] ?? '')
+                                                                    : (is_string($kw) ? $kw : '');
+                                                                $kwPct = is_array($kw)
+                                                                    ? ($kw['weight'] ?? $kw['percent'] ?? $kw['pct'] ?? '')
+                                                                    : '';
+                                                            @endphp
+                                                            @if($kwText !== '')
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-extrabold">
+                                                                    🔍 {{ $kwText }}
+                                                                    @if($kwPct !== '')
+                                                                        <span class="ml-1 px-1.5 py-0.2 rounded bg-amber-600 text-white font-black text-[9px]">{{ $kwPct }}%</span>
+                                                                    @endif
+                                                                </span>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            @elseif(!empty($camp->custom_referrers))
+                                                <div class="mt-2 text-[11px] text-gray-500 font-medium truncate" title="{{ str_replace(\"\n\", ', ', $camp->custom_referrers) }}">
+                                                    🔗 Referrers: {{ str_replace("\n", ", ", trim($camp->custom_referrers)) }}
+                                                </div>
+                                            @endif
                                         </td>
                                         @php
                                             $consumedPts = $camp->total_limit > 0
