@@ -293,7 +293,7 @@
                                 </div>
                             </div>
 
-                            <!-- MAIN DURATION SELECTION (Presets 20s, 30s, 60s, 90s, 120s + Custom) -->
+                            <!-- MAIN DURATION SELECTION -->
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">Main Page Duration (Seconds)</label>
@@ -309,14 +309,14 @@
                                     <div>
                                         <input type="number" id="customDurationInput" placeholder="Custom Sec" min="60" max="600"
                                             oninput="setCustomDuration(this.value)"
-                                            class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-2 py-2.5 text-center text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500 transition">
+                                            class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2.5 text-center text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500 transition">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- BEHAVIOR CLICKS: SCROLL & CLICK LINK ON/OFF BUTTON CARD -->
+                            <!-- BEHAVIOR CLICKS: SCROLL & CLICK INTERNAL LINK -->
                             <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 transition">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between flex-wrap gap-4">
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <label class="font-extrabold text-gray-900 dark:text-white text-sm">Behavior Clicks: Scroll & Click Internal Link</label>
@@ -335,9 +335,9 @@
                                 </div>
                             </div>
 
-                            <!-- SUB-PAGE VISITS ON/OFF BUTTON CARD -->
-                            <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 transition space-y-4">
-                                <div class="flex items-center justify-between">
+                            <!-- SUB-PAGE VISITS (MULTI-PAGE NAVIGATION) -->
+                            <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 transition space-y-5">
+                                <div class="flex items-center justify-between flex-wrap gap-4">
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <label class="font-extrabold text-gray-900 dark:text-white text-sm">Sub-Page Visits (Multi-Page Navigation)</label>
@@ -353,187 +353,217 @@
                                     </div>
                                 </div>
 
-                                <!-- SUB-PAGE OPTIONS (VISIBLE ONLY WHEN TOGGLED ON) -->
-                                <div id="subPageOptionsBox" class="hidden pt-4 border-t border-gray-200 dark:border-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Number of Sub-Pages to Visit</label>
-                                        <div class="grid grid-cols-3 gap-2">
-                                            @foreach([1, 2, 3] as $sp)
-                                                <div onclick="selectSubPageCount({{ $sp }})" id="subPageCard{{ $sp }}"
-                                                    class="cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs {{ $sp == 1 ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200' }}">
-                                                    {{ $sp }} {{ $sp == 1 ? 'Page' : 'Pages' }}
-                                                </div>
-                                            @endforeach
+                                <!-- SPACIOUS SUB-PAGE OPTIONS (VISIBLE ONLY WHEN TOGGLED ON) -->
+                                <div id="subPageOptionsBox" class="hidden pt-5 border-t border-gray-200 dark:border-gray-800 space-y-5">
+                                    <!-- ROW 1: NUMBER OF SUB-PAGES & LINK CLICK TYPE -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Number of Sub-Pages to Visit</label>
+                                            <div class="grid grid-cols-3 gap-2.5">
+                                                @foreach([1, 2, 3] as $sp)
+                                                    <div onclick="selectSubPageCount({{ $sp }})" id="subPageCard{{ $sp }}"
+                                                        class="cursor-pointer py-3 px-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm {{ $sp == 1 ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200' }}">
+                                                        {{ $sp }} {{ $sp == 1 ? 'Page' : 'Pages' }}
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Link Click Type</label>
+                                            <select name="link_click_type" id="linkClickTypeSelect"
+                                                class="w-full bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500 transition">
+                                                <option value="Both" selected>Both (Internal & External Links)</option>
+                                                <option value="Internal">Internal Links Only</option>
+                                                <option value="External">External Links Only</option>
+                                            </select>
                                         </div>
                                     </div>
 
+                                    <!-- ROW 2: SUB-PAGE STAY DURATION (WITH SPACIOUS PRESETS + ALWAYS VISIBLE CUSTOM INPUT) -->
                                     <div>
                                         <div class="flex items-center justify-between mb-2">
-                                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Sub-Page Stay Duration</label>
-                                            <span class="text-[10px] text-orange-500 font-bold">Preset/Custom</span>
+                                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">Sub-Page Stay Duration (Seconds)</label>
+                                            <span class="text-xs text-orange-500 font-bold">Select Preset or Enter Custom Seconds</span>
                                         </div>
-                                        <div class="grid grid-cols-4 gap-2">
-                                            @foreach([10, 20, 30] as $spd)
+                                        <div class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-6 gap-2.5">
+                                            @foreach([10, 20, 30, 45, 60] as $spd)
                                                 <div onclick="selectSubPageDuration({{ $spd }})" id="subPageDurCard{{ $spd }}"
-                                                    class="cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs {{ $spd == 20 ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200' }}">
+                                                    class="cursor-pointer py-2.5 px-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm {{ $spd == 20 ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400' : 'border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200' }}">
                                                     {{ $spd }}s
                                                 </div>
                                             @endforeach
-                                            <div>
-                                                <input type="number" id="customSubPageDurationInput" placeholder="Custom s" min="5" max="300"
+                                            <div class="col-span-2 sm:col-span-1">
+                                                <input type="number" id="customSubPageDurationInput" placeholder="Custom Sec" min="5" max="300"
                                                     oninput="setCustomSubPageDuration(this.value)"
-                                                    class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-2 py-2 text-center text-gray-900 dark:text-white font-bold text-xs focus:border-orange-500 transition">
+                                                    class="w-full bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2.5 text-center text-gray-900 dark:text-white font-bold text-xs sm:text-sm focus:border-orange-500 transition">
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Link Click Type</label>
-                                        <select name="link_click_type" id="linkClickTypeSelect"
-                                            class="w-full bg-white dark:bg-gray-950 border-2 border-gray-300 dark:border-gray-800 rounded-xl px-3 py-2.5 text-gray-900 dark:text-white font-bold text-xs focus:border-orange-500 transition">
-                                            <option value="Both" selected>Both (Internal & External)</option>
-                                            <option value="Internal">Internal Links Only</option>
-                                            <option value="External">External Links Only</option>
-                                        </select>
-                                    </div>
                                 </div>
                             </div>
-
                         </div>
 
-                        <!-- STEP 3: DEVICE, COUNTRY & VISIT QUANTITY LIMITS -->
+                        <!-- STEP 3: DEDICATED TARGETED COUNTRY & GEOLOCATION -->
                         <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
                             <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
                                 <span class="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-extrabold flex items-center justify-center text-sm">3</span>
                                 <div>
-                                    <h3 class="font-bold text-gray-900 dark:text-white text-base">Targeting & Delivery Limits</h3>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Device filtering, country geolocation, and delivery caps</p>
+                                    <h3 class="font-bold text-gray-900 dark:text-white text-base">Targeted Country & Geolocation</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Select Worldwide for global traffic or choose specific countries to target your desired demographic</p>
                                 </div>
                             </div>
 
-                            <!-- DEVICE, DISTRIBUTION SPEED & TARGET COUNTRY -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Device Targeting</label>
-                                        <select name="device_type" id="deviceType" 
-                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                            <option value="random">All Devices (Desktop + Mobile)</option>
-                                            <option value="desktop">Desktop Only</option>
-                                            <option value="mobile">Mobile Only</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Visit Distribution Speed</label>
-                                        <select name="distribution_type" id="distributionType" 
-                                            class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
-                                            <option value="spread" selected>Spread out evenly (24 Hours)</option>
-                                            <option value="burst">Deliver As Fast As Possible (ASAP)</option>
-                                        </select>
-                                    </div>
+                            <!-- SEARCH AND QUICK COUNTRY SELECT BAR -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-gray-50 dark:bg-gray-950/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-xs font-bold text-gray-500 mr-1">Quick Select:</span>
+                                    <button type="button" onclick="quickSelectCountry('Worldwide')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30 hover:bg-orange-500 hover:text-white transition">🌍 Worldwide</button>
+                                    <button type="button" onclick="quickSelectCountry('United States (US)')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇺🇸 USA</button>
+                                    <button type="button" onclick="quickSelectCountry('United Kingdom (GB)')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇬🇧 UK</button>
+                                    <button type="button" onclick="quickSelectCountry('Canada (CA)')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇨🇦 Canada</button>
+                                    <button type="button" onclick="quickSelectCountry('Germany (DE)')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇩🇪 Germany</button>
                                 </div>
+                                <div class="relative w-full sm:w-64">
+                                    <input type="text" id="countrySearchInput" oninput="filterCountryList(this.value)" placeholder="Search country name..."
+                                        class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl pl-9 pr-3 py-2 text-xs font-bold text-gray-800 dark:text-gray-200 focus:border-orange-500 transition">
+                                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                            </div>
 
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Target Country (Select Multiple)</label>
-                                    <div class="grid grid-cols-2 gap-2 h-36 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl">
-                                        @php
-                                            $fallbackList = ['Worldwide', 'United States (US)', 'United Kingdom (GB)', 'Canada (CA)', 'Australia (AU)', 'Germany (DE)', 'France (FR)', 'Netherlands (NL)', 'Singapore (SG)', 'India (IN)', 'Bangladesh (BD)', 'Brazil (BR)', 'Japan (JP)', 'Spain (ES)', 'Italy (IT)', 'Switzerland (CH)', 'Sweden (SE)', 'Poland (PL)', 'Mexico (MX)', 'South Korea (KR)', 'Turkey (TR)', 'United Arab Emirates (AE)', 'Saudi Arabia (SA)', 'South Africa (ZA)', 'Indonesia (ID)', 'Malaysia (MY)', 'Vietnam (VN)', 'Thailand (TH)', 'Philippines (PH)', 'Pakistan (PK)', 'Egypt (EG)', 'Nigeria (NG)', 'Argentina (AR)', 'Colombia (CO)', 'Chile (CL)', 'New Zealand (NZ)'];
-                                            $countryNamesMap = [
-                                                'AF' => 'Afghanistan (AF)', 'AL' => 'Albania (AL)', 'DZ' => 'Algeria (DZ)', 'AS' => 'American Samoa (AS)',
-                                                'AD' => 'Andorra (AD)', 'AO' => 'Angola (AO)', 'AI' => 'Anguilla (AI)', 'AG' => 'Antigua & Barbuda (AG)',
-                                                'AR' => 'Argentina (AR)', 'AM' => 'Armenia (AM)', 'AW' => 'Aruba (AW)', 'AU' => 'Australia (AU)',
-                                                'AT' => 'Austria (AT)', 'AZ' => 'Azerbaijan (AZ)', 'BS' => 'Bahamas (BS)', 'BH' => 'Bahrain (BH)',
-                                                'BD' => 'Bangladesh (BD)', 'BB' => 'Barbados (BB)', 'BY' => 'Belarus (BY)', 'BE' => 'Belgium (BE)',
-                                                'BZ' => 'Belize (BZ)', 'BJ' => 'Benin (BJ)', 'BM' => 'Bermuda (BM)', 'BT' => 'Bhutan (BT)',
-                                                'BO' => 'Bolivia (BO)', 'BA' => 'Bosnia & Herzegovina (BA)', 'BW' => 'Botswana (BW)', 'BR' => 'Brazil (BR)',
-                                                'BN' => 'Brunei (BN)', 'BG' => 'Bulgaria (BG)', 'BF' => 'Burkina Faso (BF)', 'BI' => 'Burundi (BI)',
-                                                'KH' => 'Cambodia (KH)', 'CM' => 'Cameroon (CM)', 'CA' => 'Canada (CA)', 'CV' => 'Cape Verde (CV)',
-                                                'KY' => 'Cayman Islands (KY)', 'CF' => 'Central African Republic (CF)', 'TD' => 'Chad (TD)', 'CL' => 'Chile (CL)',
-                                                'CN' => 'China (CN)', 'CO' => 'Colombia (CO)', 'KM' => 'Comoros (KM)', 'CG' => 'Congo - Brazzaville (CG)',
-                                                'CD' => 'Congo - Kinshasa (CD)', 'CR' => 'Costa Rica (CR)', 'HR' => 'Croatia (HR)', 'CU' => 'Cuba (CU)',
-                                                'CY' => 'Cyprus (CY)', 'CZ' => 'Czechia (CZ)', 'CI' => 'Côte d’Ivoire (CI)', 'DK' => 'Denmark (DK)',
-                                                'DJ' => 'Djibouti (DJ)', 'DM' => 'Dominica (DM)', 'DO' => 'Dominican Republic (DO)', 'EC' => 'Ecuador (EC)',
-                                                'EG' => 'Egypt (EG)', 'SV' => 'El Salvador (SV)', 'GQ' => 'Equatorial Guinea (GQ)', 'ER' => 'Eritrea (ER)',
-                                                'EE' => 'Estonia (EE)', 'SZ' => 'Eswatini (SZ)', 'ET' => 'Ethiopia (ET)', 'FJ' => 'Fiji (FJ)',
-                                                'FI' => 'Finland (FI)', 'FR' => 'France (FR)', 'GA' => 'Gabon (GA)', 'GM' => 'Gambia (GM)',
-                                                'GE' => 'Georgia (GE)', 'DE' => 'Germany (DE)', 'GH' => 'Ghana (GH)', 'GR' => 'Greece (GR)',
-                                                'GD' => 'Grenada (GD)', 'GT' => 'Guatemala (GT)', 'GN' => 'Guinea (GN)', 'GW' => 'Guinea-Bissau (GW)',
-                                                'GY' => 'Guyana (GY)', 'HT' => 'Haiti (HT)', 'HN' => 'Honduras (HN)', 'HK' => 'Hong Kong (HK)',
-                                                'HU' => 'Hungary (HU)', 'IS' => 'Iceland (IS)', 'IN' => 'India (IN)', 'ID' => 'Indonesia (ID)',
-                                                'IR' => 'Iran (IR)', 'IQ' => 'Iraq (IQ)', 'IE' => 'Ireland (IE)', 'IL' => 'Israel (IL)',
-                                                'IT' => 'Italy (IT)', 'JM' => 'Jamaica (JM)', 'JP' => 'Japan (JP)', 'JO' => 'Jordan (JO)',
-                                                'KZ' => 'Kazakhstan (KZ)', 'KE' => 'Kenya (KE)', 'KW' => 'Kuwait (KW)', 'KG' => 'Kyrgyzstan (KG)',
-                                                'LA' => 'Laos (LA)', 'LV' => 'Latvia (LV)', 'LB' => 'Lebanon (LB)', 'LS' => 'Lesotho (LS)',
-                                                'LR' => 'Liberia (LR)', 'LY' => 'Libya (LY)', 'LI' => 'Liechtenstein (LI)', 'LT' => 'Lithuania (LT)',
-                                                'LU' => 'Luxembourg (LU)', 'MO' => 'Macao (MO)', 'MG' => 'Madagascar (MG)', 'MW' => 'Malawi (MW)',
-                                                'MY' => 'Malaysia (MY)', 'MV' => 'Maldives (MV)', 'ML' => 'Mali (ML)', 'MT' => 'Malta (MT)',
-                                                'MR' => 'Mauritania (MR)', 'MU' => 'Mauritius (MU)', 'MX' => 'Mexico (MX)', 'MD' => 'Moldova (MD)',
-                                                'MC' => 'Monaco (MC)', 'MN' => 'Mongolia (MN)', 'ME' => 'Montenegro (ME)', 'MA' => 'Morocco (MA)',
-                                                'MZ' => 'Mozambique (MZ)', 'MM' => 'Myanmar (MM)', 'NA' => 'Namibia (NA)', 'NP' => 'Nepal (NP)',
-                                                'NL' => 'Netherlands (NL)', 'NZ' => 'New Zealand (NZ)', 'NI' => 'Nicaragua (NI)', 'NE' => 'Niger (NE)',
-                                                'NG' => 'Nigeria (NG)', 'KP' => 'North Korea (KP)', 'MK' => 'North Macedonia (MK)', 'NO' => 'Norway (NO)',
-                                                'OM' => 'Oman (OM)', 'PK' => 'Pakistan (PK)', 'PS' => 'Palestine (PS)', 'PA' => 'Panama (PA)',
-                                                'PG' => 'Papua New Guinea (PG)', 'PY' => 'Paraguay (PY)', 'PE' => 'Peru (PE)', 'PH' => 'Philippines (PH)',
-                                                'PL' => 'Poland (PL)', 'PT' => 'Portugal (PT)', 'PR' => 'Puerto Rico (PR)', 'QA' => 'Qatar (QA)',
-                                                'RO' => 'Romania (RO)', 'RU' => 'Russia (RU)', 'RW' => 'Rwanda (RW)', 'SA' => 'Saudi Arabia (SA)',
-                                                'SN' => 'Senegal (SN)', 'RS' => 'Serbia (RS)', 'SC' => 'Seychelles (SC)', 'SL' => 'Sierra Leone (SL)',
-                                                'SG' => 'Singapore (SG)', 'SK' => 'Slovakia (SK)', 'SI' => 'Slovenia (SI)', 'SO' => 'Somalia (SO)',
-                                                'ZA' => 'South Africa (ZA)', 'KR' => 'South Korea (KR)', 'ES' => 'Spain (ES)', 'LK' => 'Sri Lanka (LK)',
-                                                'SD' => 'Sudan (SD)', 'SR' => 'Suriname (SR)', 'SE' => 'Sweden (SE)', 'CH' => 'Switzerland (CH)',
-                                                'SY' => 'Syria (SY)', 'TW' => 'Taiwan (TW)', 'TJ' => 'Tajikistan (TJ)', 'TZ' => 'Tanzania (TZ)',
-                                                'TH' => 'Thailand (TH)', 'TL' => 'Timor-Leste (TL)', 'TG' => 'Togo (TG)', 'TO' => 'Tonga (TO)',
-                                                'TT' => 'Trinidad & Tobago (TT)', 'TN' => 'Tunisia (TN)', 'TR' => 'Turkey (TR)', 'TM' => 'Turkmenistan (TM)',
-                                                'UG' => 'Uganda (UG)', 'UA' => 'Ukraine (UA)', 'AE' => 'United Arab Emirates (AE)', 'GB' => 'United Kingdom (GB)',
-                                                'UK' => 'United Kingdom (GB)', 'US' => 'United States (US)', 'UY' => 'Uruguay (UY)', 'UZ' => 'Uzbekistan (UZ)',
-                                                'VE' => 'Venezuela (VE)', 'VN' => 'Vietnam (VN)', 'YE' => 'Yemen (YE)', 'ZM' => 'Zambia (ZM)', 'ZW' => 'Zimbabwe (ZW)'
-                                            ];
-                                            $countryItems = [];
-                                            if (!empty($availableCountries) && is_array($availableCountries)) {
-                                                $countryItems[] = ['name' => 'Worldwide', 'display' => 'Worldwide (All Countries)', 'count' => null];
-                                                foreach ($availableCountries as $ac) {
-                                                    $name = is_array($ac) ? ($ac['country'] ?? '') : $ac;
-                                                    $cnt = is_array($ac) ? ($ac['count'] ?? null) : null;
-                                                    if ($name && strtolower($name) !== 'worldwide') {
-                                                        $codeKey = strtoupper(trim($name));
-                                                        $displayName = $countryNamesMap[$codeKey] ?? $countryNamesMap[$name] ?? $name;
-                                                        $countryItems[] = ['name' => $name, 'display' => $displayName, 'count' => $cnt];
-                                                    }
-                                                }
-                                            } else {
-                                                foreach ($fallbackList as $fc) {
-                                                    $countryItems[] = ['name' => $fc, 'display' => $fc, 'count' => null];
+                            <!-- SPACIOUS MULTI-COLUMN COUNTRY LIST -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2.5">Available Targeted Countries (Select Multiple)</label>
+                                <div id="countryListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto p-3 bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 rounded-2xl">
+                                    @php
+                                        $fallbackList = ['Worldwide', 'United States (US)', 'United Kingdom (GB)', 'Canada (CA)', 'Australia (AU)', 'Germany (DE)', 'France (FR)', 'Netherlands (NL)', 'Singapore (SG)', 'India (IN)', 'Bangladesh (BD)', 'Brazil (BR)', 'Japan (JP)', 'Spain (ES)', 'Italy (IT)', 'Switzerland (CH)', 'Sweden (SE)', 'Poland (PL)', 'Mexico (MX)', 'South Korea (KR)', 'Turkey (TR)', 'United Arab Emirates (AE)', 'Saudi Arabia (SA)', 'South Africa (ZA)', 'Indonesia (ID)', 'Malaysia (MY)', 'Vietnam (VN)', 'Thailand (TH)', 'Philippines (PH)', 'Pakistan (PK)', 'Egypt (EG)', 'Nigeria (NG)', 'Argentina (AR)', 'Colombia (CO)', 'Chile (CL)', 'New Zealand (NZ)'];
+                                        $countryNamesMap = [
+                                            'AF' => 'Afghanistan (AF)', 'AL' => 'Albania (AL)', 'DZ' => 'Algeria (DZ)', 'AS' => 'American Samoa (AS)',
+                                            'AD' => 'Andorra (AD)', 'AO' => 'Angola (AO)', 'AI' => 'Anguilla (AI)', 'AG' => 'Antigua & Barbuda (AG)',
+                                            'AR' => 'Argentina (AR)', 'AM' => 'Armenia (AM)', 'AW' => 'Aruba (AW)', 'AU' => 'Australia (AU)',
+                                            'AT' => 'Austria (AT)', 'AZ' => 'Azerbaijan (AZ)', 'BS' => 'Bahamas (BS)', 'BH' => 'Bahrain (BH)',
+                                            'BD' => 'Bangladesh (BD)', 'BB' => 'Barbados (BB)', 'BY' => 'Belarus (BY)', 'BE' => 'Belgium (BE)',
+                                            'BZ' => 'Belize (BZ)', 'BJ' => 'Benin (BJ)', 'BM' => 'Bermuda (BM)', 'BT' => 'Bhutan (BT)',
+                                            'BO' => 'Bolivia (BO)', 'BA' => 'Bosnia & Herzegovina (BA)', 'BW' => 'Botswana (BW)', 'BR' => 'Brazil (BR)',
+                                            'BN' => 'Brunei (BN)', 'BG' => 'Bulgaria (BG)', 'BF' => 'Burkina Faso (BF)', 'BI' => 'Burundi (BI)',
+                                            'KH' => 'Cambodia (KH)', 'CM' => 'Cameroon (CM)', 'CA' => 'Canada (CA)', 'CV' => 'Cape Verde (CV)',
+                                            'KY' => 'Cayman Islands (KY)', 'CF' => 'Central African Republic (CF)', 'TD' => 'Chad (TD)', 'CL' => 'Chile (CL)',
+                                            'CN' => 'China (CN)', 'CO' => 'Colombia (CO)', 'KM' => 'Comoros (KM)', 'CG' => 'Congo - Brazzaville (CG)',
+                                            'CD' => 'Congo - Kinshasa (CD)', 'CR' => 'Costa Rica (CR)', 'HR' => 'Croatia (HR)', 'CU' => 'Cuba (CU)',
+                                            'CY' => 'Cyprus (CY)', 'CZ' => 'Czechia (CZ)', 'CI' => 'Côte d’Ivoire (CI)', 'DK' => 'Denmark (DK)',
+                                            'DJ' => 'Djibouti (DJ)', 'DM' => 'Dominica (DM)', 'DO' => 'Dominican Republic (DO)', 'EC' => 'Ecuador (EC)',
+                                            'EG' => 'Egypt (EG)', 'SV' => 'El Salvador (SV)', 'GQ' => 'Equatorial Guinea (GQ)', 'ER' => 'Eritrea (ER)',
+                                            'EE' => 'Estonia (EE)', 'SZ' => 'Eswatini (SZ)', 'ET' => 'Ethiopia (ET)', 'FJ' => 'Fiji (FJ)',
+                                            'FI' => 'Finland (FI)', 'FR' => 'France (FR)', 'GA' => 'Gabon (GA)', 'GM' => 'Gambia (GM)',
+                                            'GE' => 'Georgia (GE)', 'DE' => 'Germany (DE)', 'GH' => 'Ghana (GH)', 'GR' => 'Greece (GR)',
+                                            'GD' => 'Grenada (GD)', 'GT' => 'Guatemala (GT)', 'GN' => 'Guinea (GN)', 'GW' => 'Guinea-Bissau (GW)',
+                                            'GY' => 'Guyana (GY)', 'HT' => 'Haiti (HT)', 'HN' => 'Honduras (HN)', 'HK' => 'Hong Kong (HK)',
+                                            'HU' => 'Hungary (HU)', 'IS' => 'Iceland (IS)', 'IN' => 'India (IN)', 'ID' => 'Indonesia (ID)',
+                                            'IR' => 'Iran (IR)', 'IQ' => 'Iraq (IQ)', 'IE' => 'Ireland (IE)', 'IL' => 'Israel (IL)',
+                                            'IT' => 'Italy (IT)', 'JM' => 'Jamaica (JM)', 'JP' => 'Japan (JP)', 'JO' => 'Jordan (JO)',
+                                            'KZ' => 'Kazakhstan (KZ)', 'KE' => 'Kenya (KE)', 'KW' => 'Kuwait (KW)', 'KG' => 'Kyrgyzstan (KG)',
+                                            'LA' => 'Laos (LA)', 'LV' => 'Latvia (LV)', 'LB' => 'Lebanon (LB)', 'LS' => 'Lesotho (LS)',
+                                            'LR' => 'Liberia (LR)', 'LY' => 'Libya (LY)', 'LI' => 'Liechtenstein (LI)', 'LT' => 'Lithuania (LT)',
+                                            'LU' => 'Luxembourg (LU)', 'MO' => 'Macao (MO)', 'MG' => 'Madagascar (MG)', 'MW' => 'Malawi (MW)',
+                                            'MY' => 'Malaysia (MY)', 'MV' => 'Maldives (MV)', 'ML' => 'Mali (ML)', 'MT' => 'Malta (MT)',
+                                            'MR' => 'Mauritania (MR)', 'MU' => 'Mauritius (MU)', 'MX' => 'Mexico (MX)', 'MD' => 'Moldova (MD)',
+                                            'MC' => 'Monaco (MC)', 'MN' => 'Mongolia (MN)', 'ME' => 'Montenegro (ME)', 'MA' => 'Morocco (MA)',
+                                            'MZ' => 'Mozambique (MZ)', 'MM' => 'Myanmar (MM)', 'NA' => 'Namibia (NA)', 'NP' => 'Nepal (NP)',
+                                            'NL' => 'Netherlands (NL)', 'NZ' => 'New Zealand (NZ)', 'NI' => 'Nicaragua (NI)', 'NE' => 'Niger (NE)',
+                                            'NG' => 'Nigeria (NG)', 'KP' => 'North Korea (KP)', 'MK' => 'North Macedonia (MK)', 'NO' => 'Norway (NO)',
+                                            'OM' => 'Oman (OM)', 'PK' => 'Pakistan (PK)', 'PS' => 'Palestine (PS)', 'PA' => 'Panama (PA)',
+                                            'PG' => 'Papua New Guinea (PG)', 'PY' => 'Paraguay (PY)', 'PE' => 'Peru (PE)', 'PH' => 'Philippines (PH)',
+                                            'PL' => 'Poland (PL)', 'PT' => 'Portugal (PT)', 'PR' => 'Puerto Rico (PR)', 'QA' => 'Qatar (QA)',
+                                            'RO' => 'Romania (RO)', 'RU' => 'Russia (RU)', 'RW' => 'Rwanda (RW)', 'SA' => 'Saudi Arabia (SA)',
+                                            'SN' => 'Senegal (SN)', 'RS' => 'Serbia (RS)', 'SC' => 'Seychelles (SC)', 'SL' => 'Sierra Leone (SL)',
+                                            'SG' => 'Singapore (SG)', 'SK' => 'Slovakia (SK)', 'SI' => 'Slovenia (SI)', 'SO' => 'Somalia (SO)',
+                                            'ZA' => 'South Africa (ZA)', 'KR' => 'South Korea (KR)', 'ES' => 'Spain (ES)', 'LK' => 'Sri Lanka (LK)',
+                                            'SD' => 'Sudan (SD)', 'SR' => 'Suriname (SR)', 'SE' => 'Sweden (SE)', 'CH' => 'Switzerland (CH)',
+                                            'SY' => 'Syria (SY)', 'TW' => 'Taiwan (TW)', 'TJ' => 'Tajikistan (TJ)', 'TZ' => 'Tanzania (TZ)',
+                                            'TH' => 'Thailand (TH)', 'TL' => 'Timor-Leste (TL)', 'TG' => 'Togo (TG)', 'TO' => 'Tonga (TO)',
+                                            'TT' => 'Trinidad & Tobago (TT)', 'TN' => 'Tunisia (TN)', 'TR' => 'Turkey (TR)', 'TM' => 'Turkmenistan (TM)',
+                                            'UG' => 'Uganda (UG)', 'UA' => 'Ukraine (UA)', 'AE' => 'United Arab Emirates (AE)', 'GB' => 'United Kingdom (GB)',
+                                            'UK' => 'United Kingdom (GB)', 'US' => 'United States (US)', 'UY' => 'Uruguay (UY)', 'UZ' => 'Uzbekistan (UZ)',
+                                            'VE' => 'Venezuela (VE)', 'VN' => 'Vietnam (VN)', 'YE' => 'Yemen (YE)', 'ZM' => 'Zambia (ZM)', 'ZW' => 'Zimbabwe (ZW)'
+                                        ];
+                                        $countryItems = [];
+                                        if (!empty($availableCountries) && is_array($availableCountries)) {
+                                            $countryItems[] = ['name' => 'Worldwide', 'display' => 'Worldwide (All Countries)', 'count' => null];
+                                            foreach ($availableCountries as $ac) {
+                                                $name = is_array($ac) ? ($ac['country'] ?? '') : $ac;
+                                                $cnt = is_array($ac) ? ($ac['count'] ?? null) : null;
+                                                if ($name && strtolower($name) !== 'worldwide') {
+                                                    $codeKey = strtoupper(trim($name));
+                                                    $displayName = $countryNamesMap[$codeKey] ?? $countryNamesMap[$name] ?? $name;
+                                                    $countryItems[] = ['name' => $name, 'display' => $displayName, 'count' => $cnt];
                                                 }
                                             }
+                                        } else {
+                                            foreach ($fallbackList as $fc) {
+                                                $countryItems[] = ['name' => $fc, 'display' => $fc, 'count' => null];
+                                            }
+                                        }
+                                    @endphp
+                                    @foreach($countryItems as $cItem)
+                                        @php 
+                                            $countryName = $cItem['name']; 
+                                            $displayName = $cItem['display'];
                                         @endphp
-                                        @foreach($countryItems as $cItem)
-                                            @php 
-                                                $countryName = $cItem['name']; 
-                                                $displayName = $cItem['display'];
-                                            @endphp
-                                            <label class="flex items-center justify-between gap-2 p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-900 cursor-pointer transition">
-                                                <div class="flex items-center gap-2">
-                                                    <input type="checkbox" name="target_country[]" value="{{ $countryName }}" {{ $countryName === 'Worldwide' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-800 w-4 h-4">
-                                                    <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $displayName }}</span>
-                                                </div>
-                                                @if($cItem['count'] !== null)
-                                                    @php
-                                                        $cntVal = (int) $cItem['count'];
-                                                        if ($cntVal <= 5) {
-                                                            $badgeText = 'Low';
-                                                            $badgeClass = 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400';
-                                                        } elseif ($cntVal <= 50) {
-                                                            $badgeText = 'Medium';
-                                                            $badgeClass = 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400';
-                                                        } else {
-                                                            $badgeText = 'High';
-                                                            $badgeClass = 'bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400';
-                                                        }
-                                                    @endphp
-                                                    <span class="text-[10px] px-2 py-0.5 rounded font-bold {{ $badgeClass }}">{{ $badgeText }}</span>
-                                                @endif
-                                            </label>
-                                        @endforeach
-                                    </div>
+                                        <label class="country-item flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-orange-500 cursor-pointer transition shadow-xs" data-country="{{ strtolower($displayName) }}">
+                                            <div class="flex items-center gap-2.5">
+                                                <input type="checkbox" name="target_country[]" value="{{ $countryName }}" {{ $countryName === 'Worldwide' ? 'checked' : '' }} class="country-checkbox rounded border-gray-300 text-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-800 w-4 h-4">
+                                                <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $displayName }}</span>
+                                            </div>
+                                            @if($cItem['count'] !== null)
+                                                @php
+                                                    $cntVal = (int) $cItem['count'];
+                                                    if ($cntVal <= 5) {
+                                                        $badgeText = 'Low';
+                                                        $badgeClass = 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400';
+                                                    } elseif ($cntVal <= 50) {
+                                                        $badgeText = 'Medium';
+                                                        $badgeClass = 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400';
+                                                    } else {
+                                                        $badgeText = 'High';
+                                                        $badgeClass = 'bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400';
+                                                    }
+                                                @endphp
+                                                <span class="text-[10px] px-2 py-0.5 rounded font-bold {{ $badgeClass }}">{{ $badgeText }}</span>
+                                            @endif
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: DEVICE TARGETING & VISIT QUANTITY LIMITS -->
+                        <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800/80 shadow-xl space-y-6">
+                            <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
+                                <span class="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-extrabold flex items-center justify-center text-sm">4</span>
+                                <div>
+                                    <h3 class="font-bold text-gray-900 dark:text-white text-base">Device Targeting & Delivery Limits</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Device filtering, visit distribution speed, and daily / hourly delivery caps</p>
+                                </div>
+                            </div>
+
+                            <!-- DEVICE & DISTRIBUTION SPEED -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Device Targeting</label>
+                                    <select name="device_type" id="deviceType" 
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                        <option value="random">All Devices (Desktop + Mobile)</option>
+                                        <option value="desktop">Desktop Only</option>
+                                        <option value="mobile">Mobile Only</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Visit Distribution Speed</label>
+                                    <select name="distribution_type" id="distributionType" 
+                                        class="w-full bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-800 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white focus:border-brand transition font-bold">
+                                        <option value="spread" selected>Spread out evenly (24 Hours)</option>
+                                        <option value="burst">Deliver As Fast As Possible (ASAP)</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -769,15 +799,56 @@
 
         function selectSubPageDuration(spd) {
             document.getElementById('subPageDurationInput').value = spd;
-            [10, 20, 30].forEach(d => {
+            [10, 20, 30, 45, 60].forEach(d => {
                 const card = document.getElementById('subPageDurCard' + d);
                 if (card) {
                     card.className = (d === spd)
-                        ? 'cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400'
-                        : 'cursor-pointer p-2.5 text-center rounded-xl border-2 transition font-bold text-xs border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200';
+                        ? 'cursor-pointer py-2.5 px-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                        : 'cursor-pointer py-2.5 px-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200';
+                }
+            });
+            const customSubInput = document.getElementById('customSubPageDurationInput');
+            if (customSubInput) customSubInput.value = '';
+            triggerRecalculate();
+        }
+
+        function setCustomSubPageDuration(val) {
+            let spd = parseInt(val) || 10;
+            if (spd < 5) spd = 5;
+            if (spd > 300) spd = 300;
+            document.getElementById('subPageDurationInput').value = spd;
+            [10, 20, 30, 45, 60].forEach(d => {
+                const card = document.getElementById('subPageDurCard' + d);
+                if (card) {
+                    card.className = 'cursor-pointer py-2.5 px-3 text-center rounded-xl border-2 transition font-bold text-xs sm:text-sm border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200';
                 }
             });
             triggerRecalculate();
+        }
+
+        function filterCountryList(query) {
+            const items = document.querySelectorAll('.country-item');
+            const q = (query || '').toLowerCase().trim();
+            items.forEach(item => {
+                const name = item.getAttribute('data-country') || '';
+                if (!q || name.includes(q)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function quickSelectCountry(targetName) {
+            const checkboxes = document.querySelectorAll('.country-checkbox');
+            checkboxes.forEach(cb => {
+                if (targetName === 'Worldwide') {
+                    cb.checked = (cb.value === 'Worldwide');
+                } else {
+                    if (cb.value === 'Worldwide') cb.checked = false;
+                    if (cb.value === targetName) cb.checked = true;
+                }
+            });
         }
 
         function selectDuration(dur) {
