@@ -163,8 +163,8 @@
                                                     </div>
                                                 @endif
                                             @elseif(!empty($camp->custom_referrers))
-                                                <div class="mt-2 text-[11px] text-gray-500 font-medium truncate" title="{{ str_replace(\"\n\", ', ', $camp->custom_referrers) }}">
-                                                    🔗 Referrers: {{ str_replace("\n", ", ", trim($camp->custom_referrers)) }}
+                                                <div class="mt-2 text-[11px] text-gray-500 font-medium truncate" title="{{ str_replace(PHP_EOL, ', ', $camp->custom_referrers) }}">
+                                                    🔗 Referrers: {{ str_replace(PHP_EOL, ", ", trim($camp->custom_referrers)) }}
                                                 </div>
                                             @endif
                                         </td>
