@@ -30,7 +30,17 @@
         if (!this.messages) {
             this.messages = [];
         }
+
+        this.$watch('supportMenuOpen', value => {
+            if (value) {
+                this.positionArcItems();
+            }
+        });
         
+        this.$nextTick(() => {
+            this.positionArcItems();
+        });
+
         this.$watch('chatOpen', value => {
             localStorage.setItem('trafficvai_support_chat', value);
             if (value) {
@@ -51,6 +61,31 @@
                     }, 500);
                 }
             }
+        });
+    },
+
+    positionArcItems() {
+        this.$nextTick(() => {
+            const container = this.$refs.arcContainer;
+            if (!container) return;
+            const items = Array.from(container.querySelectorAll('[data-arc-item]')).filter(el => el.style.display !== 'none');
+            const count = items.length;
+            if (count === 0) return;
+
+            const radius = count <= 2 ? 78 : (count === 3 ? 90 : (count === 4 ? 108 : 135));
+            const startAngle = 90;
+            const endAngle = count === 1 ? 90 : (count === 2 ? 135 : 180);
+
+            items.forEach((item, index) => {
+                const angleDeg = count === 1 ? 90 : startAngle + (index * (endAngle - startAngle) / (count - 1));
+                const angleRad = angleDeg * (Math.PI / 180);
+
+                const rightOffset = Math.round(6 + radius * Math.cos((180 - angleDeg) * Math.PI / 180));
+                const bottomOffset = Math.round(6 + radius * Math.sin(angleRad));
+
+                item.style.right = rightOffset + 'px';
+                item.style.bottom = bottomOffset + 'px';
+            });
         });
     },
 
@@ -252,6 +287,7 @@ class="fixed flex flex-col items-end" style="position: fixed !important; bottom:
 
     <!-- Curved Radial Arc Semicircle Support Menu -->
     <div 
+        x-ref="arcContainer"
         x-show="supportMenuOpen && !chatOpen"
         x-transition:enter="transition ease-out duration-300 transform"
         x-transition:enter-start="opacity-0 scale-50"
@@ -263,137 +299,153 @@ class="fixed flex flex-col items-end" style="position: fixed !important; bottom:
         x-cloak
     >
         @if(!$isDashboard)
-            <!-- 1. Email Support (Leftmost curve) -->
+            <!-- 1. Email Support -->
             @if($supportEmail)
             <a 
+                data-arc-item
                 href="{{ $supportEmail }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(234,67,53,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 12px; right: 78px; background-color: #EA4335; color: #ffffff;"
+                style="background-color: #EA4335; color: #ffffff;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Email Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <svg class="w-6 h-6" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
             </a>
             @endif
 
-            <!-- 2. WhatsApp Official (Diagonal up-left) -->
+            <!-- 2. WhatsApp Official -->
             @if($supportWhatsapp)
             <a 
+                data-arc-item
                 href="{{ $supportWhatsapp }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(37,211,102,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 64px; right: 64px; background-color: #25D366; color: #ffffff;"
+                style="background-color: #25D366; color: #ffffff;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">WhatsApp Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.28.072.383-.043c.103-.116.442-.513.56-.689.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/></svg>
+                <svg class="w-6 h-6" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.28.072.383-.043c.103-.116.442-.513.56-.689.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/></svg>
             </a>
             @endif
 
-            <!-- 3. Facebook Messenger Official (Higher diagonal) -->
+            <!-- 3. Facebook Messenger Official -->
             @if($supportMessenger)
             <a 
+                data-arc-item
                 href="{{ $supportMessenger }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(0,132,255,0.35)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 110px; right: 36px; background-color: #ffffff; color: #0084FF; border: 2px solid #0084FF;"
+                style="background-color: #ffffff; color: #0084FF; border: 2px solid #0084FF;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Facebook Messenger</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.558-6.962 3.13 3.259 5.888-3.26-6.558 6.963z"/></svg>
+                <svg class="w-6 h-6" fill="#0084FF" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.558-6.962 3.13 3.259 5.888-3.26-6.558 6.963z"/></svg>
             </a>
             @endif
 
-            <!-- 4. Telegram Official (Top above) -->
+            <!-- 4. Telegram Official -->
             @if($supportTelegram)
             <a 
+                data-arc-item
                 href="{{ $supportTelegram }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(42,171,238,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 138px; right: 4px; background-color: #2AABEE; color: #ffffff;"
+                style="background-color: #2AABEE; color: #ffffff;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Telegram Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                <svg class="w-6 h-6" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
             </a>
             @endif
         @else
-            <!-- CLIENT DASHBOARD ONLY: Full 6-Icon Curved Arc -->
+            <!-- CLIENT DASHBOARD ONLY -->
             @if(Route::has('client.support.index'))
             <!-- 1. Direct Support -->
             <a 
+                data-arc-item
                 href="{{ route('client.support.index') }}"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 12px; right: 80px; background-color: #111827; color: #ffffff;"
+                style="background-color: #111827; color: #ffffff;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Direct Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                <svg class="w-6 h-6" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
             </a>
             @endif
 
             <!-- 2. Universal Inbox -->
             <button 
+                data-arc-item
                 type="button"
                 @click="supportMenuOpen = false; chatOpen = true;"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(79,70,229,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 65px; right: 72px; background-color: #4F46E5; color: #ffffff;"
+                style="background-color: #4F46E5; color: #ffffff;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Universal Inbox</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+                <svg class="w-6 h-6" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
             </button>
 
             <!-- 3. Email Support -->
             @if($supportEmail)
             <a 
+                data-arc-item
                 href="{{ $supportEmail }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(234,67,53,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 116px; right: 52px; background-color: #EA4335; color: #ffffff;"
+                style="background-color: #EA4335; color: #ffffff;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Email Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <svg class="w-6 h-6" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
             </a>
             @endif
 
             <!-- 4. WhatsApp Official -->
             @if($supportWhatsapp)
             <a 
+                data-arc-item
                 href="{{ $supportWhatsapp }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(37,211,102,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 158px; right: 24px; background-color: #25D366; color: #ffffff;"
+                style="background-color: #25D366; color: #ffffff;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">WhatsApp Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.28.072.383-.043c.103-.116.442-.513.56-.689.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/></svg>
+                <svg class="w-6 h-6" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.28.072.383-.043c.103-.116.442-.513.56-.689.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/></svg>
             </a>
             @endif
 
             <!-- 5. Facebook Messenger Official -->
             @if($supportMessenger)
             <a 
+                data-arc-item
                 href="{{ $supportMessenger }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(0,132,255,0.35)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 186px; right: -6px; background-color: #ffffff; color: #0084FF; border: 2px solid #0084FF;"
+                style="background-color: #ffffff; color: #0084FF; border: 2px solid #0084FF;"
             >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Facebook Messenger</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.558-6.962 3.13 3.259 5.888-3.26-6.558 6.963z"/></svg>
+                <svg class="w-6 h-6" fill="#0084FF" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.558-6.962 3.13 3.259 5.888-3.26-6.558 6.963z"/></svg>
             </a>
             @endif
 
             <!-- 6. Telegram Official -->
             @if($supportTelegram)
             <a 
+                data-arc-item
                 href="{{ $supportTelegram }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
                 class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(42,171,238,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
-                style="bottom: 215px; right: 4px; background-color: #2AABEE; color: #ffffff;"
+                style="background-color: #2AABEE; color: #ffffff;"
             >
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Telegram Support</span>
+                <svg class="w-6 h-6" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            </a>
+            @endif
+        @endif
+    </div>            >
                 <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Telegram Support</span>
                 <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
             </a>
