@@ -1,6 +1,6 @@
 @props(['dashboard' => false])
 @php
-    $isDashboard = $dashboard || (auth()->check() && (request()->is('dashboard*') || request()->routeIs('client.*') || request()->routeIs('support.*') || request()->routeIs('invoices.*') || request()->routeIs('traffic.*') || request()->routeIs('campaigns.*')));
+    $isDashboard = (bool) $dashboard;
 
     $supportWhatsapp = \App\Models\Setting::get('support_whatsapp', '');
     if (!$supportWhatsapp) {
@@ -270,94 +270,152 @@ class="fixed flex flex-col items-end" style="position: fixed !important; bottom:
         </div>
     </div>
 
-    <!-- Circular Floating Action Support Menu (Screenshot Arc Layout) -->
+    <!-- Curved Radial Arc Semicircle Support Menu -->
     <div 
         x-show="supportMenuOpen && !chatOpen"
         x-transition:enter="transition ease-out duration-300 transform"
-        x-transition:enter-start="opacity-0 translate-y-8 scale-75"
-        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+        x-transition:enter-start="opacity-0 scale-50"
+        x-transition:enter-end="opacity-100 scale-100"
         x-transition:leave="transition ease-in duration-200 transform"
-        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-        x-transition:leave-end="opacity-0 translate-y-8 scale-75"
-        class="mb-3 flex flex-col items-end space-y-3 pr-2"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-50"
+        class="relative w-0 h-0 overflow-visible"
         x-cloak
     >
-        <!-- 1. Telegram Official -->
-        @if($supportTelegram)
-            <a 
-                href="{{ $supportTelegram }}"
-                target="_blank"
-                @click="supportMenuOpen = false"
-                class="w-13 h-13 rounded-full bg-[#2AABEE] text-white shadow-[0_8px_20px_rgba(42,171,238,0.4)] flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
-                style="width: 52px; height: 52px;"
-            >
-                <span class="absolute right-14 whitespace-nowrap px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs font-bold rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Telegram Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-            </a>
-        @endif
-
-        <!-- 2. Facebook Messenger Official -->
-        @if($supportMessenger)
-            <a 
-                href="{{ $supportMessenger }}"
-                target="_blank"
-                @click="supportMenuOpen = false"
-                class="w-13 h-13 rounded-full bg-white border-2 border-[#0084FF] text-[#0084FF] shadow-[0_8px_20px_rgba(0,132,255,0.3)] flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
-                style="width: 52px; height: 52px;"
-            >
-                <span class="absolute right-14 whitespace-nowrap px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs font-bold rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Facebook Messenger</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.558-6.962 3.13 3.259 5.888-3.26-6.558 6.963z"/></svg>
-            </a>
-        @endif
-
-        <!-- 3. WhatsApp Official -->
-        @if($supportWhatsapp)
-            <a 
-                href="{{ $supportWhatsapp }}"
-                target="_blank"
-                @click="supportMenuOpen = false"
-                class="w-13 h-13 rounded-full bg-[#25D366] text-white shadow-[0_8px_20px_rgba(37,211,102,0.4)] flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
-                style="width: 52px; height: 52px;"
-            >
-                <span class="absolute right-14 whitespace-nowrap px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs font-bold rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">WhatsApp Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.28.072.383-.043c.103-.116.442-.513.56-.689.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/></svg>
-            </a>
-        @endif
-
-        <!-- 4. Email / Contact Support -->
-        @if($supportEmail)
+        @if(!$isDashboard)
+            <!-- 1. Email Support (Leftmost curve) -->
+            @if($supportEmail)
             <a 
                 href="{{ $supportEmail }}"
                 target="_blank"
                 @click="supportMenuOpen = false"
-                class="w-13 h-13 rounded-full bg-[#EA4335] text-white shadow-[0_8px_20px_rgba(234,67,53,0.4)] flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
-                style="width: 52px; height: 52px;"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(234,67,53,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 12px; right: 78px; background-color: #EA4335; color: #ffffff;"
             >
-                <span class="absolute right-14 whitespace-nowrap px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs font-bold rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Email Support</span>
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Email Support</span>
                 <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
             </a>
-        @endif
+            @endif
 
-        <!-- 5. Universal Inbox & Direct Support (ONLY ON CLIENT DASHBOARD) -->
-        @if($isDashboard)
+            <!-- 2. WhatsApp Official (Diagonal up-left) -->
+            @if($supportWhatsapp)
+            <a 
+                href="{{ $supportWhatsapp }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(37,211,102,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 64px; right: 64px; background-color: #25D366; color: #ffffff;"
+            >
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">WhatsApp Support</span>
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.28.072.383-.043c.103-.116.442-.513.56-.689.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/></svg>
+            </a>
+            @endif
+
+            <!-- 3. Facebook Messenger Official (Higher diagonal) -->
+            @if($supportMessenger)
+            <a 
+                href="{{ $supportMessenger }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(0,132,255,0.35)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 110px; right: 36px; background-color: #ffffff; color: #0084FF; border: 2px solid #0084FF;"
+            >
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Facebook Messenger</span>
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.558-6.962 3.13 3.259 5.888-3.26-6.558 6.963z"/></svg>
+            </a>
+            @endif
+
+            <!-- 4. Telegram Official (Top above) -->
+            @if($supportTelegram)
+            <a 
+                href="{{ $supportTelegram }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(42,171,238,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 138px; right: 4px; background-color: #2AABEE; color: #ffffff;"
+            >
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Telegram Support</span>
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            </a>
+            @endif
+        @else
+            <!-- CLIENT DASHBOARD ONLY: Full 6-Icon Curved Arc -->
+            @if(Route::has('client.support.index'))
+            <!-- 1. Direct Support -->
+            <a 
+                href="{{ route('client.support.index') }}"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 12px; right: 80px; background-color: #111827; color: #ffffff;"
+            >
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Direct Support</span>
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+            </a>
+            @endif
+
+            <!-- 2. Universal Inbox -->
             <button 
                 type="button"
                 @click="supportMenuOpen = false; chatOpen = true;"
-                class="w-13 h-13 rounded-full bg-indigo-600 text-white shadow-[0_8px_20px_rgba(79,70,229,0.4)] flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
-                style="width: 52px; height: 52px;"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(79,70,229,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 65px; right: 72px; background-color: #4F46E5; color: #ffffff;"
             >
-                <span class="absolute right-14 whitespace-nowrap px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs font-bold rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Universal Inbox</span>
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Universal Inbox</span>
                 <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
             </button>
 
-            @if(Route::has('client.support.index'))
+            <!-- 3. Email Support -->
+            @if($supportEmail)
             <a 
-                href="{{ route('client.support.index') }}"
-                class="w-13 h-13 rounded-full bg-white border-2 border-indigo-600 text-indigo-600 shadow-[0_8px_20px_rgba(0,0,0,0.12)] flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
-                style="width: 52px; height: 52px;"
+                href="{{ $supportEmail }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(234,67,53,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 116px; right: 52px; background-color: #EA4335; color: #ffffff;"
             >
-                <span class="absolute right-14 whitespace-nowrap px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs font-bold rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Direct Support</span>
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Email Support</span>
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            </a>
+            @endif
+
+            <!-- 4. WhatsApp Official -->
+            @if($supportWhatsapp)
+            <a 
+                href="{{ $supportWhatsapp }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(37,211,102,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 158px; right: 24px; background-color: #25D366; color: #ffffff;"
+            >
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">WhatsApp Support</span>
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.28.072.383-.043c.103-.116.442-.513.56-.689.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/></svg>
+            </a>
+            @endif
+
+            <!-- 5. Facebook Messenger Official -->
+            @if($supportMessenger)
+            <a 
+                href="{{ $supportMessenger }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(0,132,255,0.35)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 186px; right: -6px; background-color: #ffffff; color: #0084FF; border: 2px solid #0084FF;"
+            >
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Facebook Messenger</span>
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.558-6.962 3.13 3.259 5.888-3.26-6.558 6.963z"/></svg>
+            </a>
+            @endif
+
+            <!-- 6. Telegram Official -->
+            @if($supportTelegram)
+            <a 
+                href="{{ $supportTelegram }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="absolute w-12 h-12 rounded-full shadow-[0_6px_16px_rgba(42,171,238,0.45)] flex items-center justify-center hover:scale-110 transition-all duration-300 group z-50"
+                style="bottom: 215px; right: 4px; background-color: #2AABEE; color: #ffffff;"
+            >
+                <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">Telegram Support</span>
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
             </a>
             @endif
         @endif
