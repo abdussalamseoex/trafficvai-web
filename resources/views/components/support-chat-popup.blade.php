@@ -2,24 +2,19 @@
 @php
     $isDashboard = (bool) $dashboard;
 
-    $supportWhatsapp = \App\Models\Setting::get('support_whatsapp', '');
-    if (!$supportWhatsapp) {
-        $contactPhone = preg_replace('/[^0-9]/', '', \App\Models\Setting::get('contact_phone', '8801700000000'));
-        $supportWhatsapp = 'https://wa.me/' . ($contactPhone ?: '8801700000000');
-    } elseif (!str_starts_with($supportWhatsapp, 'http')) {
+    $supportWhatsapp = trim(\App\Models\Setting::get('support_whatsapp', ''));
+    if ($supportWhatsapp && !str_starts_with($supportWhatsapp, 'http')) {
         $waNum = preg_replace('/[^0-9]/', '', $supportWhatsapp);
         $supportWhatsapp = 'https://wa.me/' . $waNum;
     }
 
-    $supportTelegram = \App\Models\Setting::get('support_telegram', '');
-    if (!$supportTelegram) {
-        $supportTelegram = 'https://t.me/trafficvai';
-    } elseif (!str_starts_with($supportTelegram, 'http')) {
+    $supportTelegram = trim(\App\Models\Setting::get('support_telegram', ''));
+    if ($supportTelegram && !str_starts_with($supportTelegram, 'http')) {
         $supportTelegram = 'https://t.me/' . ltrim($supportTelegram, '@');
     }
 
-    $supportMessenger = \App\Models\Setting::get('support_messenger', 'https://m.me/trafficvai');
-    $supportEmail = \App\Models\Setting::get('support_email', '') ?: 'mailto:' . (\App\Models\Setting::get('contact_email', 'support@trafficvai.com'));
+    $supportMessenger = trim(\App\Models\Setting::get('support_messenger', ''));
+    $supportEmail = trim(\App\Models\Setting::get('support_email', ''));
 @endphp
 
 <div x-data="{ 
@@ -133,21 +128,6 @@ x-on:toggle-support-chat.window="chatOpen = !chatOpen"
 x-on:open-support-chat.window="chatOpen = true"
 class="fixed flex flex-col items-end" style="position: fixed !important; bottom: 24px !important; right: 24px !important; z-index: 999999 !important; top: auto !important; left: auto !important;">
     
-    <!-- Floating Quick Actions -->
-    <div x-show="!chatOpen" class="flex flex-col items-end space-y-3 mb-4 pr-1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
-        <!-- Messages Button -->
-        <a href="{{ route('inbox') }}" class="flex items-center space-x-2 bg-white px-5 py-2.5 rounded-full shadow-lg border border-gray-100 font-bold text-sm text-gray-600 hover:text-brand hover:-translate-x-1 transition-all duration-300 whitespace-nowrap">
-            <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)] animate-pulse"></span>
-            <span>Universal Inbox</span>
-        </a>
-
-        <!-- Customer Support Button -->
-        <button @click="chatOpen = true" class="flex items-center space-x-2 bg-white px-5 py-2.5 rounded-full shadow-lg border border-gray-100 font-bold text-sm text-gray-600 hover:text-brand hover:-translate-x-1 transition-all duration-300 whitespace-nowrap focus:outline-none">
-            <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)] animate-pulse"></span>
-            <span>Direct Support</span>
-        </button>
-    </div>
-
     <!-- Support Chat Window -->
     <div 
         x-show="chatOpen" 
