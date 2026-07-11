@@ -152,21 +152,26 @@
                             <div class="pt-6 border-t border-gray-100 mt-4">
                                 <h3 class="text-lg font-bold text-gray-900 mb-1">Multi-Channel Support Hub & Floating Widget</h3>
                                 <p class="text-sm text-gray-500 mb-4">Configure channels shown in the bottom-right interactive support menu for clients. Leaving a channel blank hides its icon.</p>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number / Link</label>
                                         <input type="text" name="support_whatsapp" value="{{ \App\Models\Setting::get('support_whatsapp', '') }}" placeholder="e.g. +8801700000000 or https://wa.me/8801700000000" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                        <p class="text-[11px] text-gray-400 mt-1">Directly opens WhatsApp chat when clicked.</p>
+                                        <p class="text-[11px] text-gray-400 mt-1">Opens WhatsApp chat when clicked.</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Telegram Support URL</label>
                                         <input type="text" name="support_telegram" value="{{ \App\Models\Setting::get('support_telegram', '') }}" placeholder="e.g. https://t.me/trafficvai" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                        <p class="text-[11px] text-gray-400 mt-1">Directly opens Telegram channel/chat.</p>
+                                        <p class="text-[11px] text-gray-400 mt-1">Opens Telegram channel/chat.</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Facebook Messenger URL</label>
                                         <input type="text" name="support_messenger" value="{{ \App\Models\Setting::get('support_messenger', '') }}" placeholder="e.g. https://m.me/trafficvai or page link" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                        <p class="text-[11px] text-gray-400 mt-1">Directly opens Facebook Messenger chat.</p>
+                                        <p class="text-[11px] text-gray-400 mt-1">Opens Facebook Messenger chat.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Email / Contact Link</label>
+                                        <input type="text" name="support_email" value="{{ \App\Models\Setting::get('support_email', '') }}" placeholder="e.g. mailto:support@trafficvai.com or /contact" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                        <p class="text-[11px] text-gray-400 mt-1">Opens Mail app or Contact page.</p>
                                     </div>
                                 </div>
                             </div>

@@ -148,4 +148,5 @@
             </div>
         </div>
     </div>
+    <x-support-chat-popup :dashboard="false" />
 </footer>

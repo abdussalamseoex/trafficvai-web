@@ -30,7 +30,7 @@
         </div>
 
         @if(!auth()->user()->is_admin)
-            <x-support-chat-popup />
+            <x-support-chat-popup :dashboard="true" />
         @endif
 
         <!-- Footer Scripts -->
