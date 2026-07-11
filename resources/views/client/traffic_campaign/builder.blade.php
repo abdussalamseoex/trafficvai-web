@@ -419,10 +419,10 @@
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-xs font-bold text-gray-500 mr-1">Quick Select:</span>
                                     <button type="button" onclick="quickSelectCountry('Worldwide')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30 hover:bg-orange-500 hover:text-white transition">🌍 Worldwide</button>
-                                    <button type="button" onclick="quickSelectCountry('United States (US)')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇺🇸 USA</button>
-                                    <button type="button" onclick="quickSelectCountry('United Kingdom (GB)')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇬🇧 UK</button>
-                                    <button type="button" onclick="quickSelectCountry('Canada (CA)')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇨🇦 Canada</button>
-                                    <button type="button" onclick="quickSelectCountry('Germany (DE)')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇩🇪 Germany</button>
+                                    <button type="button" onclick="quickSelectCountry('United States')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇺🇸 USA</button>
+                                    <button type="button" onclick="quickSelectCountry('United Kingdom')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇬🇧 UK</button>
+                                    <button type="button" onclick="quickSelectCountry('Canada')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇨🇦 Canada</button>
+                                    <button type="button" onclick="quickSelectCountry('Germany')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-500 transition">🇩🇪 Germany</button>
                                 </div>
                                 <div class="relative w-full sm:w-64">
                                     <input type="text" id="countrySearchInput" oninput="filterCountryList(this.value)" placeholder="Search country name..."
@@ -434,7 +434,7 @@
                             <!-- SPACIOUS MULTI-COLUMN COUNTRY LIST -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2.5">Available Targeted Countries (Select Multiple)</label>
-                                <div id="countryListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto p-3 bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 rounded-2xl">
+                                <div id="countryListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto overflow-x-hidden p-3 bg-gray-50 dark:bg-gray-950/60 border border-gray-200 dark:border-gray-800 rounded-2xl">
                                     @php
                                         $fallbackList = ['Worldwide', 'United States (US)', 'United Kingdom (GB)', 'Canada (CA)', 'Australia (AU)', 'Germany (DE)', 'France (FR)', 'Netherlands (NL)', 'Singapore (SG)', 'India (IN)', 'Bangladesh (BD)', 'Brazil (BR)', 'Japan (JP)', 'Spain (ES)', 'Italy (IT)', 'Switzerland (CH)', 'Sweden (SE)', 'Poland (PL)', 'Mexico (MX)', 'South Korea (KR)', 'Turkey (TR)', 'United Arab Emirates (AE)', 'Saudi Arabia (SA)', 'South Africa (ZA)', 'Indonesia (ID)', 'Malaysia (MY)', 'Vietnam (VN)', 'Thailand (TH)', 'Philippines (PH)', 'Pakistan (PK)', 'Egypt (EG)', 'Nigeria (NG)', 'Argentina (AR)', 'Colombia (CO)', 'Chile (CL)', 'New Zealand (NZ)'];
                                         $countryNamesMap = [
@@ -509,10 +509,10 @@
                                             $countryName = $cItem['name']; 
                                             $displayName = $cItem['display'];
                                         @endphp
-                                        <label class="country-item flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-orange-500 cursor-pointer transition shadow-xs" data-country="{{ strtolower($displayName) }}">
-                                            <div class="flex items-center gap-2.5">
-                                                <input type="checkbox" name="target_country[]" value="{{ $countryName }}" {{ $countryName === 'Worldwide' ? 'checked' : '' }} class="country-checkbox rounded border-gray-300 text-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-800 w-4 h-4">
-                                                <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ $displayName }}</span>
+                                        <label class="country-item flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-orange-500 cursor-pointer transition shadow-xs overflow-hidden" data-country="{{ strtolower($displayName) }}">
+                                            <div class="flex items-center gap-2 min-w-0 flex-1">
+                                                <input type="checkbox" name="target_country[]" value="{{ $countryName }}" {{ $countryName === 'Worldwide' ? 'checked' : '' }} onchange="handleCountryCheckboxChange(this)" class="country-checkbox rounded border-gray-300 text-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-800 w-4 h-4 flex-shrink-0">
+                                                <span class="text-xs font-bold text-gray-800 dark:text-gray-200 truncate" title="{{ $displayName }}">{{ $displayName }}</span>
                                             </div>
                                             @if($cItem['count'] !== null)
                                                 @php
@@ -528,7 +528,7 @@
                                                         $badgeClass = 'bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400';
                                                     }
                                                 @endphp
-                                                <span class="text-[10px] px-2 py-0.5 rounded font-bold {{ $badgeClass }}">{{ $badgeText }}</span>
+                                                <span class="text-[10px] px-2 py-0.5 rounded font-extrabold flex-shrink-0 ml-1.5 {{ $badgeClass }}">{{ $badgeText }}</span>
                                             @endif
                                         </label>
                                     @endforeach
@@ -839,16 +839,39 @@
             });
         }
 
-        function quickSelectCountry(targetName) {
+        function handleCountryCheckboxChange(changedCb) {
             const checkboxes = document.querySelectorAll('.country-checkbox');
-            checkboxes.forEach(cb => {
-                if (targetName === 'Worldwide') {
-                    cb.checked = (cb.value === 'Worldwide');
-                } else {
-                    if (cb.value === 'Worldwide') cb.checked = false;
-                    if (cb.value === targetName) cb.checked = true;
+            if (changedCb.value === 'Worldwide') {
+                if (changedCb.checked) {
+                    checkboxes.forEach(cb => {
+                        if (cb !== changedCb) cb.checked = false;
+                    });
                 }
-            });
+            } else {
+                if (changedCb.checked) {
+                    checkboxes.forEach(cb => {
+                        if (cb.value === 'Worldwide') cb.checked = false;
+                    });
+                }
+            }
+        }
+
+        function quickSelectCountry(keyword) {
+            const checkboxes = document.querySelectorAll('.country-checkbox');
+            if (keyword === 'Worldwide') {
+                checkboxes.forEach(cb => {
+                    cb.checked = (cb.value === 'Worldwide');
+                });
+            } else {
+                checkboxes.forEach(cb => {
+                    if (cb.value === 'Worldwide') cb.checked = false;
+                    const labelItem = cb.closest('.country-item');
+                    const countryText = labelItem ? (labelItem.getAttribute('data-country') || '') : cb.value.toLowerCase();
+                    if (countryText.includes(keyword.toLowerCase())) {
+                        cb.checked = true;
+                    }
+                });
+            }
         }
 
         function selectDuration(dur) {
