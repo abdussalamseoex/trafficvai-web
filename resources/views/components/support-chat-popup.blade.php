@@ -1,4 +1,21 @@
+@php
+    $supportWhatsapp = \App\Models\Setting::get('support_whatsapp', '');
+    if (!$supportWhatsapp) {
+        $contactPhone = preg_replace('/[^0-9]/', '', \App\Models\Setting::get('contact_phone', '8801700000000'));
+        $supportWhatsapp = 'https://wa.me/' . ($contactPhone ?: '8801700000000');
+    } elseif (!str_starts_with($supportWhatsapp, 'http')) {
+        $waNum = preg_replace('/[^0-9]/', '', $supportWhatsapp);
+        $supportWhatsapp = 'https://wa.me/' . $waNum;
+    }
+    $supportTelegram = \App\Models\Setting::get('support_telegram', '');
+    if ($supportTelegram && !str_starts_with($supportTelegram, 'http')) {
+        $supportTelegram = 'https://t.me/' . ltrim($supportTelegram, '@');
+    }
+    $supportMessenger = \App\Models\Setting::get('support_messenger', '');
+@endphp
+
 <div x-data="{ 
+    supportMenuOpen: false,
     chatOpen: localStorage.getItem('trafficvai_support_chat') === 'true',
     hasOpened: localStorage.getItem('trafficvai_support_opened') === 'true',
     messages: @js($messages),
@@ -245,19 +262,106 @@ class="fixed flex flex-col items-end" style="position: fixed !important; bottom:
         </div>
     </div>
 
+    <!-- Interactive Multi-Channel Support Selection Menu -->
+    <div 
+        x-show="supportMenuOpen && !chatOpen"
+        x-transition:enter="transition ease-out duration-300 transform"
+        x-transition:enter-start="opacity-0 translate-y-6 scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+        x-transition:leave="transition ease-in duration-200 transform"
+        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+        x-transition:leave-end="opacity-0 translate-y-6 scale-95"
+        class="mb-4 w-72 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.18)] border border-gray-100/80 overflow-hidden p-4 space-y-2.5"
+        x-cloak
+    >
+        <div class="px-2 py-1.5 border-b border-gray-100/80 mb-1">
+            <h4 class="font-black text-xs uppercase tracking-wider text-gray-900">Choose Support Channel</h4>
+            <p class="text-[11px] text-gray-500 font-medium">We typically reply within minutes</p>
+        </div>
+
+        <!-- 1. Live Helpdesk On-Site Chat -->
+        <button 
+            type="button"
+            @click="supportMenuOpen = false; chatOpen = true;"
+            class="w-full flex items-center p-3 rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 text-left transition-all border border-orange-200/60 group"
+        >
+            <div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-md mr-3 group-hover:scale-105 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            </div>
+            <div>
+                <div class="font-extrabold text-xs text-gray-900">Live Helpdesk Chat</div>
+                <div class="text-[10px] text-orange-600 font-bold">On-Site Direct Messaging</div>
+            </div>
+        </button>
+
+        <!-- 2. WhatsApp Official Support -->
+        @if($supportWhatsapp)
+            <a 
+                href="{{ $supportWhatsapp }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="w-full flex items-center p-3 rounded-2xl bg-emerald-50/70 hover:bg-emerald-100/80 text-left transition-all border border-emerald-200/60 group"
+            >
+                <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md mr-3 group-hover:scale-105 transition-transform">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.28.072.383-.043c.103-.116.442-.513.56-.689.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/></svg>
+                </div>
+                <div>
+                    <div class="font-extrabold text-xs text-gray-900">WhatsApp Support</div>
+                    <div class="text-[10px] text-emerald-600 font-bold">Instant Direct Chat</div>
+                </div>
+            </a>
+        @endif
+
+        <!-- 3. Telegram Official Support -->
+        @if($supportTelegram)
+            <a 
+                href="{{ $supportTelegram }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="w-full flex items-center p-3 rounded-2xl bg-sky-50/70 hover:bg-sky-100/80 text-left transition-all border border-sky-200/60 group"
+            >
+                <div class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center shadow-md mr-3 group-hover:scale-105 transition-transform">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </div>
+                <div>
+                    <div class="font-extrabold text-xs text-gray-900">Telegram Channel</div>
+                    <div class="text-[10px] text-sky-600 font-bold">24/7 Official Support</div>
+                </div>
+            </a>
+        @endif
+
+        <!-- 4. Facebook Messenger Support -->
+        @if($supportMessenger)
+            <a 
+                href="{{ $supportMessenger }}"
+                target="_blank"
+                @click="supportMenuOpen = false"
+                class="w-full flex items-center p-3 rounded-2xl bg-blue-50/70 hover:bg-blue-100/80 text-left transition-all border border-blue-200/60 group"
+            >
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md mr-3 group-hover:scale-105 transition-transform">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.558-6.962 3.13 3.259 5.888-3.26-6.558 6.963z"/></svg>
+                </div>
+                <div>
+                    <div class="font-extrabold text-xs text-gray-900">Facebook Messenger</div>
+                    <div class="text-[10px] text-blue-600 font-bold">Message on Facebook</div>
+                </div>
+            </a>
+        @endif
+    </div>
+
     <!-- Main Support Toggle Button -->
     <button 
-        @click="chatOpen = !chatOpen" 
+        @click="if(chatOpen) { chatOpen = false; supportMenuOpen = false; } else { supportMenuOpen = !supportMenuOpen; }" 
         id="toggle-support-chat"
         class="w-16 h-16 bg-brand rounded-full shadow-[0_10px_25px_rgba(232,71,10,0.4)] flex items-center justify-center text-white hover:bg-brand-600 hover:-translate-y-1 transition-all duration-300 transform active:scale-95 group relative border border-brand-400 focus:outline-none"
         aria-label="Toggle Support Chat"
     >
-        <template x-if="!chatOpen">
+        <template x-if="!chatOpen && !supportMenuOpen">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
             </svg>
         </template>
-        <template x-if="chatOpen">
+        <template x-if="chatOpen || supportMenuOpen">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
