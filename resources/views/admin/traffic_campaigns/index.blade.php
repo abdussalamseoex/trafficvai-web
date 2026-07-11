@@ -150,18 +150,18 @@
                                         </td>
                                         <td class="p-4 text-right whitespace-nowrap">
                                             <div class="flex items-center justify-end gap-1.5">
-                                                <a href="{{ route('traffic_campaigns.monitor', $camp) }}" class="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold text-xs shadow-md hover:opacity-95 transition" title="View Executive Realtime Live Dashboard">
+                                                <a href="{{ route('admin.traffic_campaigns.monitor', $camp) }}" class="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold text-xs shadow-md hover:opacity-95 transition" title="View Executive Realtime Live Dashboard">
                                                     📊 Live Dashboard
                                                 </a>
 
-                                                <form action="{{ route('traffic_campaigns.sync', $camp) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.traffic_campaigns.sync', $camp) }}" method="POST" class="inline">
                                                     @csrf
                                                     <button type="submit" class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition" title="Sync from Core Engine">
                                                         Sync
                                                     </button>
                                                 </form>
 
-                                                <form action="{{ route('traffic_campaigns.toggle', $camp) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.traffic_campaigns.toggle', $camp) }}" method="POST" class="inline">
                                                     @csrf
                                                     @method('POST')
                                                     <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200 transition">
@@ -169,7 +169,7 @@
                                                     </button>
                                                 </form>
 
-                                                <form action="{{ route('traffic_campaigns.destroy', $camp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
+                                                <form action="{{ route('admin.traffic_campaigns.destroy', $camp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition" title="Delete Campaign">

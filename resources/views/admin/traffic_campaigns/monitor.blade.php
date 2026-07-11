@@ -25,7 +25,7 @@
                     <div class="px-4 py-2 rounded-2xl bg-gray-800 border border-gray-700 text-xs font-bold">
                         Client Balance: <span class="text-orange-400 font-extrabold">{{ number_format($campaign->user->traffic_points ?? 0) }} Pts</span>
                     </div>
-                    <a href="{{ route('traffic_campaigns.index') }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs transition">
+                    <a href="{{ route('admin.traffic_campaigns.index') }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs transition">
                         ← Back to All Campaigns
                     </a>
                 </div>
@@ -45,13 +45,13 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <form action="{{ route('traffic_campaigns.sync', $campaign) }}" method="POST">
+                    <form action="{{ route('admin.traffic_campaigns.sync', $campaign) }}" method="POST">
                         @csrf
                         <button type="submit" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs transition shadow-md">
                             ⚡ Force Sync Core Engine
                         </button>
                     </form>
-                    <form action="{{ route('traffic_campaigns.toggle', $campaign) }}" method="POST">
+                    <form action="{{ route('admin.traffic_campaigns.toggle', $campaign) }}" method="POST">
                         @csrf
                         <button type="submit" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-xs transition shadow-md">
                             {{ $campaign->status === 'active' ? '⏸ Pause Delivery' : '▶ Resume Delivery' }}
@@ -284,7 +284,7 @@
             initDeliveryChart();
 
             setInterval(function() {
-                fetch("{{ route('traffic_campaigns.live_status', $campaign) }}")
+                fetch("{{ route('admin.traffic_campaigns.live_status', $campaign) }}")
                     .then(response => response.json())
                     .then(data => {
                         const hitsElem = document.getElementById('hitsDeliveredText');
