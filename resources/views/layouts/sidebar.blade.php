@@ -302,33 +302,16 @@
                 </x-sidebar-link>
             @else
                 <!-- Client Navigation -->
-                <div class="px-5 py-5 mb-4 bg-gradient-to-br from-brand-600 to-brand text-white rounded-2xl mx-4 mt-4 shadow-lg shadow-brand/20 relative overflow-hidden">
-                    <div class="absolute inset-0 opacity-10">
-                        <svg class="h-full w-full" fill="currentColor"><pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="2"></circle></pattern><rect width="100%" height="100%" fill="url(#dots)"></rect></svg>
-                    </div>
-                    <div class="relative z-10 flex flex-col">
-                        <p class="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1">Available Balance</p>
-                        <div class="flex items-center justify-between mt-1">
-                            <h4 class="text-2xl font-heading font-extrabold">
-                                <span class="price-convert" data-base-price="{{ Auth::user()->balance }}">${{ number_format(Auth::user()->balance, 2) }}</span>
-                            </h4>
-                            <a href="{{ route('client.payments.topup') }}" class="w-8 h-8 flex items-center justify-center bg-white/20 rounded-lg hover:bg-white/30 transition backdrop-blur-sm" title="Top-up">
-                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
                 <x-sidebar-link :href="route('client.dashboard')" :active="request()->routeIs('client.dashboard')">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     {{ __('Dashboard') }}
                 </x-sidebar-link>
 
                 <x-sidebar-link :href="route('inbox')" :active="request()->routeIs('inbox')">
-                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 text-gray-400 group-hover:text-amber-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                     <span class="flex-1">{{ __('Messages') }}</span>
                     <span 
-                        class="ml-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full dropdown-badge"
+                        class="ml-2 bg-amber-500 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded-full dropdown-badge shadow-sm"
                         x-data="{ count: {{ $unreadClientMessagesCount ?? 0 }} }"
                         x-show="count > 0"
                         style="display: none;"
@@ -338,10 +321,14 @@
                     </span>
                 </x-sidebar-link>
 
-                <p class="px-4 text-[10px] font-extrabold text-orange-500 uppercase tracking-wider mb-2 mt-6">⚡ Premium Traffic Suite</p>
+                <!-- SECTION 1: TRAFFIC SUITE -->
+                <p class="px-4 text-[10px] font-extrabold text-amber-400 uppercase tracking-wider mb-2 mt-6 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>Premium Traffic Suite</span>
+                </p>
                 <x-sidebar-dropdown title="Website Traffic" :active="request()->routeIs('client.traffic_campaign.*')">
                     <x-slot name="icon">
-                        <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </x-slot>
                     <x-sidebar-link :href="route('client.traffic_campaign.builder', ['tab' => 'direct'])" :active="request()->routeIs('client.traffic_campaign.builder') && request('tab', 'direct') === 'direct'">
                         {{ __('Direct Traffic') }}
@@ -360,44 +347,14 @@
                     </x-sidebar-link>
                 </x-sidebar-dropdown>
 
-                <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Management</p>
-                <x-sidebar-dropdown title="Payments & Billing" :active="request()->routeIs('client.payments.*') || request()->routeIs('client.invoices.*')">
+                <!-- SECTION 2: SERVICES & SEO CAMPAIGNS (COMBINED SLEEK DROPDOWN) -->
+                <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">SEO & Marketplace</p>
+                <x-sidebar-dropdown title="All Services & SEO" :active="request()->routeIs('client.services.*') || request()->routeIs('client.guest_posts.*') || request()->routeIs('client.traffic.*') || request()->routeIs('client.link_building.*') || request()->routeIs('client.seo_campaigns.*') || request()->routeIs('client.campaigns.*')">
                     <x-slot name="icon">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </x-slot>
-                    <x-sidebar-link :href="route('client.payments.index')" :active="request()->routeIs('client.payments.index')">
-                        {{ __('My Wallet') }}
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('client.payments.topup')" :active="request()->routeIs('client.payments.topup')">
-                        {{ __('Add Balance') }}
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('client.payments.index')" :active="request()->routeIs('client.payments.index')">
-                        {{ __('Transaction History') }}
-                    </x-sidebar-link>
-                </x-sidebar-dropdown>
-
-                <x-sidebar-dropdown title="My Workspace" :active="request()->routeIs('client.projects.*') || request()->routeIs('client.orders.*')">
-                    <x-slot name="icon">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                    </x-slot>
-                    <x-sidebar-link :href="route('client.projects.index')" :active="request()->routeIs('client.projects.*')">
-                        {{ __('My Projects') }}
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.index')">
-                        <span class="flex-1">{{ __('My Orders') }}</span>
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('client.orders.running')" :active="request()->routeIs('client.orders.running')">
-                        <span class="flex-1">{{ __('Running Orders') }}</span>
-                    </x-sidebar-link>
-                </x-sidebar-dropdown>
-
-                <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Shop & Services</p>
-                <x-sidebar-dropdown title="Shop & Services" :active="request()->routeIs('client.services.*') || request()->routeIs('client.guest_posts.*') || request()->routeIs('client.traffic.*') || request()->routeIs('client.link_building.*')">
-                    <x-slot name="icon">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </x-slot>
                     <x-sidebar-link :href="route('client.services.index')" :active="request()->routeIs('client.services.*')">
-                        {{ __('Services') }}
+                        {{ __('SEO Packages') }}
                     </x-sidebar-link>
                     <x-sidebar-link :href="route('client.guest_posts.index')" :active="request()->routeIs('client.guest_posts.*')">
                         {{ __('Guest Posts') }}
@@ -408,12 +365,6 @@
                     <x-sidebar-link :href="route('client.link_building.index')" :active="request()->routeIs('client.link_building.*')">
                         {{ __('Link Building') }}
                     </x-sidebar-link>
-                </x-sidebar-dropdown>
-
-                <x-sidebar-dropdown title="SEO Campaigns" :active="request()->routeIs('client.seo_campaigns.*') || request()->routeIs('client.campaigns.*') || in_array(request()->route('type'), ['keyword-research', 'on-page-seo', 'technical-seo', 'local-seo', 'content-seo', 'seo-audit', 'monthly-seo', 'e-commerce-seo'])">
-                    <x-slot name="icon">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </x-slot>
                     @php
                         $seoCampaigns = [
                             'keyword-research' => 'Keyword Research',
@@ -428,15 +379,48 @@
                     @endphp
                     @foreach($seoCampaigns as $slug => $name)
                         <x-sidebar-link :href="route('client.seo_campaigns.index', $slug)" :active="request()->route('type') == $slug">
-                            {{ __($name) }}
+                            <span class="text-xs text-gray-300">↳ {{ __($name) }}</span>
                         </x-sidebar-link>
                     @endforeach
                 </x-sidebar-dropdown>
 
-                <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Support</p>
+                <!-- SECTION 3: WORKSPACE & BILLING -->
+                <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Workspace & Finance</p>
+                <x-sidebar-dropdown title="My Workspace" :active="request()->routeIs('client.projects.*') || request()->routeIs('client.orders.*')">
+                    <x-slot name="icon">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                    </x-slot>
+                    <x-sidebar-link :href="route('client.projects.index')" :active="request()->routeIs('client.projects.*')">
+                        {{ __('My Projects') }}
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.index')">
+                        <span class="flex-1">{{ __('My Orders') }}</span>
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.orders.running')" :active="request()->routeIs('client.orders.running')">
+                        <span class="flex-1">{{ __('Running Orders') }}</span>
+                    </x-sidebar-link>
+                </x-sidebar-dropdown>
+
+                <x-sidebar-dropdown title="Payments & Billing" :active="request()->routeIs('client.payments.*') || request()->routeIs('client.invoices.*')">
+                    <x-slot name="icon">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </x-slot>
+                    <x-sidebar-link :href="route('client.payments.index')" :active="request()->routeIs('client.payments.index')">
+                        {{ __('My Wallet') }}
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.payments.topup')" :active="request()->routeIs('client.payments.topup')">
+                        {{ __('Add Balance') }}
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('client.payments.index')" :active="request()->routeIs('client.payments.index')">
+                        {{ __('Transaction History') }}
+                    </x-sidebar-link>
+                </x-sidebar-dropdown>
+
+                <!-- SECTION 4: HELP & ACCOUNT -->
+                <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Support & Account</p>
                 <x-sidebar-dropdown title="Help & Resources" :active="request()->routeIs('client.support.*') || request()->routeIs('client.faq.*') || request()->routeIs('client.announcements.*') || request()->routeIs('client.tools.*')">
                     <x-slot name="icon">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </x-slot>
                     <x-sidebar-link :href="route('client.support.index')" :active="request()->routeIs('client.support.*')">
                         {{ __('Support Tickets') }}
@@ -452,20 +436,13 @@
                     </x-sidebar-link>
                 </x-sidebar-dropdown>
 
-                <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Account</p>
-                <x-sidebar-dropdown title="Profile" :active="request()->routeIs('profile.edit')">
+                <x-sidebar-dropdown title="Account & Profile" :active="request()->routeIs('profile.edit') || request()->routeIs('client.affiliate.*')">
                     <x-slot name="icon">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </x-slot>
                     <x-sidebar-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
                         {{ __('Profile Settings') }}
                     </x-sidebar-link>
-                </x-sidebar-dropdown>
-
-                <x-sidebar-dropdown title="Earn" :active="request()->routeIs('client.affiliate.*')">
-                    <x-slot name="icon">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </x-slot>
                     <x-sidebar-link :href="route('client.affiliate.index')" :active="request()->routeIs('client.affiliate.*')">
                         {{ __('Affiliate Program') }}
                     </x-sidebar-link>

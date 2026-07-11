@@ -13,26 +13,22 @@
                 ->get();
         @endphp
         @if($activeNotices->count() > 0)
-            <div class="space-y-4 mb-6">
+            <div class="space-y-3 mb-6">
                 @foreach($activeNotices as $notice)
-                <div class="rounded-xl bg-indigo-50 p-4 border border-indigo-200 shadow-sm">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3 flex-1 md:flex md:justify-between items-center">
-                            <p class="text-sm text-indigo-700">
-                                <strong class="font-bold mr-1">{{ $notice->subject }}:</strong>
-                                {{ Str::limit(html_entity_decode(strip_tags($notice->message)), 60) }}
+                <div class="rounded-2xl bg-amber-50/80 p-4 border border-amber-200/60 shadow-sm">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">📢</span>
+                            <p class="text-sm text-slate-800 font-medium">
+                                <strong class="font-bold text-slate-900 mr-1">{{ $notice->subject }}:</strong>
+                                {{ Str::limit(html_entity_decode(strip_tags($notice->message)), 80) }}
                             </p>
-                            <div class="mt-3 flex items-center text-sm md:mt-0 md:ml-6 text-indigo-500 space-x-4">
-                                <span>{{ $notice->created_at->diffForHumans() }}</span>
-                                <a href="{{ route('client.announcements.show', $notice) }}" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-bold rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
-                                    Read More
-                                </a>
-                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="text-slate-500">{{ $notice->created_at->diffForHumans() }}</span>
+                            <a href="{{ route('client.announcements.show', $notice) }}" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800 transition">
+                                Read More
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -57,23 +53,26 @@
         </div>
         @endif
 
-        <!-- Welcome Banner -->
-        <div class="rounded-3xl bg-gradient-to-r from-brand-600 to-brand-400 p-8 md:p-10 text-white shadow-xl shadow-brand/20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
-            <div class="absolute -top-24 -right-24 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-gray-900 opacity-20 rounded-full blur-2xl"></div>
+        <!-- Executive Welcome Header matching Logo Colors (Slate Navy + Warm Amber) -->
+        <div class="rounded-3xl bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] p-7 md:p-9 text-white shadow-xl border border-slate-700/60 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
             <div class="relative z-10 w-full md:w-auto text-center md:text-left">
-                <h2 class="text-3xl lg:text-4xl font-bold mb-2 text-white">Welcome back, {{ auth()->user()->name }}! 👋</h2>
-                <p class="text-brand-50 font-medium text-lg">Here's what's happening with your SEO campaigns today.</p>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-amber-400 text-xs font-bold uppercase tracking-wider mb-3">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>Client Dashboard • Active Portal</span>
+                </div>
+                <h2 class="text-3xl lg:text-4xl font-extrabold text-white tracking-tight">Welcome back, {{ auth()->user()->name }}! 👋</h2>
+                <p class="text-slate-300 font-medium text-sm md:text-base mt-1.5">Manage your SEO campaigns, automated traffic, and high-authority guest posts.</p>
             </div>
-            <div class="relative z-10 mt-6 md:mt-0 flex flex-wrap gap-3 w-full md:w-auto justify-center md:justify-end">
-                <a href="{{ route('client.traffic_campaign.builder') }}" class="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-0.5 transition-all text-center flex items-center justify-center">
+            <div class="relative z-10 flex flex-wrap gap-3 w-full md:w-auto justify-center md:justify-end">
+                <a href="{{ route('client.traffic_campaign.builder') }}" class="px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center">
                     ⚡ Launch Website Traffic <span class="ml-1.5">&rarr;</span>
                 </a>
-                <a href="{{ route('client.services.index') }}" class="px-5 py-3 bg-white text-brand font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all text-center flex items-center justify-center">
+                <a href="{{ route('client.services.index') }}" class="px-5 py-3 bg-white/10 hover:bg-white/15 border border-slate-600/80 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center">
                     Browse Packages <span class="ml-1.5">&rarr;</span>
                 </a>
-                <a href="{{ route('client.guest_posts.index') }}" class="px-5 py-3 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold rounded-xl backdrop-blur-sm transition-all text-center flex items-center justify-center">
+                <a href="{{ route('client.guest_posts.index') }}" class="px-5 py-3 bg-white/10 hover:bg-white/15 border border-slate-600/80 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center">
                     Guest Post Inventory
                 </a>
             </div>
@@ -81,156 +80,149 @@
 
         <!-- FEATURED INSTANT & PREMIUM SERVICES HIGHLIGHT BOXES -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Website Traffic Highlight Card -->
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-[#111827] to-gray-900 p-7 sm:p-8 text-white border-2 border-orange-500/40 shadow-2xl shadow-orange-500/10 hover:border-orange-500/70 transition duration-300">
-                <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-orange-500/15 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -left-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                
-                <div class="relative z-10 flex flex-col h-full justify-between space-y-6">
-                    <div>
-                        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 text-xs font-black uppercase tracking-wider">
-                                <span class="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
-                                🔥 PREMIUM SYSTEM • INSTANT LAUNCH
+            <!-- Website Traffic Suite Card -->
+            <div class="rounded-3xl bg-white p-7 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between space-y-6">
+                <div>
+                    <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold uppercase tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            ⚡ REAL VISITORS ENGINE • INSTANT LAUNCH
+                        </span>
+                        @if(($activeTrafficCampaigns ?? 0) > 0)
+                            <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                                {{ $activeTrafficCampaigns }} Active Campaign{{ $activeTrafficCampaigns > 1 ? 's' : '' }}
                             </span>
-                            @if(($activeTrafficCampaigns ?? 0) > 0)
-                                <span class="px-2.5 py-1 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-bold">
-                                    {{ $activeTrafficCampaigns }} Active Campaign{{ $activeTrafficCampaigns > 1 ? 's' : '' }}
-                                </span>
-                            @endif
-                        </div>
-                        <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                            Real Website Traffic (Direct & Organic)
-                        </h3>
-                        <p class="text-sm sm:text-base text-gray-300 mt-2 font-medium leading-relaxed">
-                            Drive high-retention human-like visitors from Direct & Organic Google/Bing Search. Control stay durations (60s+), geo-targeting, and internal link clicks.
-                        </p>
+                        @endif
                     </div>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Real Website Traffic (Direct & Organic)
+                    </h3>
+                    <p class="text-sm sm:text-base text-slate-600 mt-2.5 font-normal leading-relaxed">
+                        Drive high-retention human-like visitors from Direct & Organic Google/Bing Search. Control stay durations (60s+), geo-targeting, and internal link clicks.
+                    </p>
+                </div>
 
-                    <div class="flex flex-wrap items-center gap-3 pt-2">
-                        <a href="{{ route('client.traffic_campaign.builder') }}"
-                            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-sm shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02] active:scale-95 transition">
-                            <span>+ Launch New Campaign</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
-                        <a href="{{ route('client.traffic_campaign.index') }}"
-                            class="inline-flex items-center justify-center px-5 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition">
-                            Manage Campaigns
-                        </a>
-                    </div>
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <a href="{{ route('client.traffic_campaign.builder') }}"
+                        class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-sm transition">
+                        <span>+ Launch New Campaign</span>
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                    <a href="{{ route('client.traffic_campaign.index') }}"
+                        class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm transition">
+                        Manage Campaigns
+                    </a>
                 </div>
             </div>
 
             <!-- Guest Post Inventory Highlight Card -->
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-[#0F172A] to-gray-900 p-7 sm:p-8 text-white border-2 border-emerald-500/40 shadow-2xl shadow-emerald-500/10 hover:border-emerald-500/70 transition duration-300">
-                <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -left-12 -top-12 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                
-                <div class="relative z-10 flex flex-col h-full justify-between space-y-6">
-                    <div>
-                        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-black uppercase tracking-wider">
-                                ⭐ FEATURED INVENTORY • DOFOLLOW SEO
-                            </span>
-                        </div>
-                        <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                            High-Authority Guest Posts
-                        </h3>
-                        <p class="text-sm sm:text-base text-gray-300 mt-2 font-medium leading-relaxed">
-                            Publish articles on verified, high DA/DR websites with real organic traffic. Build powerful dofollow backlinks and accelerate your Google rankings.
-                        </p>
+            <div class="rounded-3xl bg-white p-7 sm:p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between space-y-6">
+                <div>
+                    <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+                            ⭐ FEATURED INVENTORY • DOFOLLOW SEO
+                        </span>
                     </div>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        High-Authority Guest Posts
+                    </h3>
+                    <p class="text-sm sm:text-base text-slate-600 mt-2.5 font-normal leading-relaxed">
+                        Publish articles on verified, high DA/DR websites with real organic traffic. Build powerful dofollow backlinks and accelerate your Google rankings.
+                    </p>
+                </div>
 
-                    <div class="flex flex-wrap items-center gap-3 pt-2">
-                        <a href="{{ route('client.guest_posts.index') }}"
-                            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.02] active:scale-95 transition">
-                            <span>Browse Guest Post Sites</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
-                        <a href="{{ route('client.services.index') }}"
-                            class="inline-flex items-center justify-center px-5 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition">
-                            SEO Packages
-                        </a>
-                    </div>
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <a href="{{ route('client.guest_posts.index') }}"
+                        class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-sm transition">
+                        <span>Browse Guest Post Sites</span>
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                    <a href="{{ route('client.services.index') }}"
+                        class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm transition">
+                        SEO Packages
+                    </a>
                 </div>
             </div>
         </div>
         
-        <!-- Quick Stats Cards (4 cols) -->
+        <!-- Clean SaaS Metric Cards (4 cols) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Total Orders -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-brand hover:-translate-y-1 transition-transform duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center text-brand">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 hover:border-slate-300 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Orders</span>
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                     </div>
-                    <span class="px-2.5 py-1 bg-brand-50 text-brand text-[10px] font-bold uppercase tracking-wider rounded-lg">Total</span>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-900">{{ $totalOrders }}</h3>
-                <p class="text-sm font-semibold text-gray-400 mt-1">Total Orders</p>
+                <h3 class="text-3xl font-extrabold text-slate-900">{{ $totalOrders }}</h3>
+                <p class="text-xs font-medium text-slate-500 mt-1">All orders placed</p>
             </div>
 
             <!-- Active Orders -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-blue-500 hover:-translate-y-1 transition-transform duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 hover:border-slate-300 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Orders</span>
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
-                    <span class="px-2.5 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg">Active</span>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-900">{{ $activeOrders }}</h3>
-                <p class="text-sm font-semibold text-gray-400 mt-1">Active Orders</p>
+                <h3 class="text-3xl font-extrabold text-slate-900">{{ $activeOrders }}</h3>
+                <p class="text-xs font-medium text-slate-500 mt-1">Currently in progress</p>
             </div>
 
-            <!-- Completed -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-green-400 hover:-translate-y-1 transition-transform duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <!-- Completed Orders -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 hover:border-slate-300 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Completed</span>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <span class="px-2.5 py-1 bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-wider rounded-lg">Done</span>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-900">{{ $completedOrders }}</h3>
-                <p class="text-sm font-semibold text-gray-400 mt-1">Completed</p>
+                <h3 class="text-3xl font-extrabold text-slate-900">{{ $completedOrders }}</h3>
+                <p class="text-xs font-medium text-slate-500 mt-1">Delivered successfully</p>
             </div>
 
             <!-- Wallet Balance -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-amber-400 hover:-translate-y-1 transition-transform duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 hover:border-slate-300 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Account Balance</span>
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     </div>
-                    <span class="px-2.5 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider rounded-lg">Balance</span>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-900"><span class="price-convert" data-base-price="{{ auth()->user()->balance }}">${{ number_format(auth()->user()->balance, 0) }}</span></h3>
-                <p class="text-sm font-semibold text-gray-400 mt-1">Account Balance</p>
+                <h3 class="text-3xl font-extrabold text-slate-900"><span class="price-convert" data-base-price="{{ auth()->user()->balance }}">${{ number_format(auth()->user()->balance, 2) }}</span></h3>
+                <div class="flex items-center justify-between mt-1">
+                    <p class="text-xs font-medium text-slate-500">Wallet funds</p>
+                    <a href="{{ route('client.payments.topup') }}" class="text-xs font-bold text-amber-600 hover:text-amber-700">+ Top Up</a>
+                </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
             <!-- Recent Orders Table -->
-            <div class="xl:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-6 md:p-8 flex justify-between items-center border-b border-gray-50 bg-white">
+            <div class="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-6 md:p-8 flex justify-between items-center border-b border-slate-100 bg-white">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900">Recent Orders</h3>
-                        <p class="text-sm text-gray-500 font-medium mt-1">Your latest 5 order activities</p>
+                        <h3 class="text-lg font-extrabold text-slate-900">Recent Order Activity</h3>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">Your latest 5 active & completed orders</p>
                     </div>
-                    <a href="{{ route('client.orders.index') }}" class="px-4 py-2 bg-brand-50 text-brand text-sm font-bold rounded-xl hover:bg-brand-100 transition whitespace-nowrap">View All &rarr;</a>
+                    <a href="{{ route('client.orders.index') }}" class="px-4 py-2 bg-slate-100 text-slate-800 text-xs font-bold rounded-xl hover:bg-slate-200 transition whitespace-nowrap">View All &rarr;</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-50 border-y border-gray-100">
-                                <th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Order Info</th>
-                                <th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest w-40">Status</th>
-                                <th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest w-24 text-right">Action</th>
+                            <tr class="bg-slate-50/70 border-b border-slate-100">
+                                <th class="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Order Details</th>
+                                <th class="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider w-40">Status</th>
+                                <th class="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider w-24 text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-slate-100">
                             @forelse($recentOrders as $order)
-                            <tr class="hover:bg-gray-50/50 transition duration-150 group">
+                            <tr class="hover:bg-slate-50/60 transition duration-150 group">
                                 <td class="px-8 py-5">
-                                    <div class="text-sm font-bold text-gray-900 line-clamp-1">
+                                    <div class="text-sm font-bold text-slate-900 line-clamp-1">
                                         @if($order->package)
                                             {{ $order->package->service->name ?? 'Package Delivery' }}
                                         @elseif($order->guestPostSite)
@@ -239,10 +231,10 @@
                                             Custom Service
                                         @endif
                                     </div>
-                                    <div class="text-xs font-semibold text-gray-400 mt-1.5 flex items-center">
-                                        Order #{{ $order->id }} • <span class="price-convert" data-base-price="{{ $order->subtotal_display }}">${{ number_format($order->subtotal_display, 2) }}</span>
+                                    <div class="text-xs font-medium text-slate-500 mt-1 flex items-center">
+                                        Order #{{ $order->id }} • <span class="price-convert ml-1" data-base-price="{{ $order->subtotal_display }}">${{ number_format($order->subtotal_display, 2) }}</span>
                                         @if($order->unread_messages_count > 0)
-                                            <span class="ml-2 bg-brand text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">
+                                            <span class="ml-2 bg-amber-500 text-slate-950 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">
                                                 {{ $order->unread_messages_count }}
                                             </span>
                                         @endif
@@ -250,40 +242,40 @@
                                 </td>
                                 <td class="px-8 py-5">
                                     @if($order->status == 'pending_payment')
-                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-wide">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-gray-500 mr-1.5"></span>
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5"></span>
                                             Awaiting Payment
                                         </div>
                                     @elseif($order->status == 'pending_requirements')
-                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 border border-amber-100 text-amber-600 text-[11px] font-bold uppercase tracking-wide">
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 text-xs font-bold">
                                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
                                             Action Required
                                         </div>
                                     @elseif($order->status == 'processing')
-                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[11px] font-bold uppercase tracking-wide">
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60 text-xs font-bold">
                                             <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
                                             Active
                                         </div>
                                     @else
-                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-green-50 border border-green-100 text-green-600 text-[11px] font-bold uppercase tracking-wide">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-bold">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
                                             Completed
                                         </div>
                                     @endif
                                 </td>
                                 <td class="px-8 py-5 text-right">
-                                    <a href="{{ route('client.orders.show', $order) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 border border-gray-200 text-gray-400 group-hover:bg-brand-50 group-hover:text-brand group-hover:border-brand-200 transition">
+                                    <a href="{{ route('client.orders.show', $order) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
                                     </a>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="3" class="px-8 py-16 text-center text-sm text-gray-400 font-medium">
-                                    <div class="w-16 h-16 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                        <svg class="h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                <td colspan="3" class="px-8 py-16 text-center text-sm text-slate-400 font-medium">
+                                    <div class="w-12 h-12 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                                        <svg class="h-6 w-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                     </div>
-                                    You haven't placed any orders yet.
+                                    No orders found yet.
                                 </td>
                             </tr>
                             @endforelse
@@ -294,75 +286,74 @@
 
             <!-- Right Column Widgets -->
             <div class="xl:col-span-1 flex flex-col gap-6">
-                <!-- Ready to Grow Card -->
-                <div class="bg-gradient-to-br from-[#1a0f0a] to-[#26160f] rounded-3xl shadow-xl shadow-gray-900/10 overflow-hidden relative p-8 border border-white/5">
-                    <div class="absolute inset-0 opacity-20">
-                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-500 rounded-full blur-3xl"></div>
+                <!-- Quick Launch & Growth Hub -->
+                <div class="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                            <span>⚡ Quick Navigation</span>
+                        </span>
                     </div>
-                    <div class="relative z-10">
-                        <span class="inline-flex px-3 py-1 rounded-full bg-brand-900/50 border border-brand-500/30 text-brand-400 text-[10px] font-bold uppercase tracking-widest mb-4"><span class="mr-1">🚀</span> Grow Faster</span>
-                        <h3 class="text-2xl font-bold text-white mb-3 leading-tight">Ready to Grow Your Rankings?</h3>
-                        <p class="text-gray-400 text-sm font-medium mb-8 leading-relaxed">Explore premium SEO services and high-quality guest post placements to boost your visibility today.</p>
-                        
-                        <div class="space-y-3">
-                            <a href="{{ route('client.traffic_campaign.builder') }}" class="flex items-center justify-between w-full px-5 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 transition-all">
-                                ⚡ Launch Website Traffic
-                                <span>&rarr;</span>
-                            </a>
-                            <a href="{{ route('client.services.index') }}" class="flex items-center justify-between w-full px-5 py-4 bg-brand text-white font-bold rounded-xl shadow-md hover:bg-brand-600 transition-all">
-                                Browse Packages
-                                <span>&rarr;</span>
-                            </a>
-                            <a href="{{ route('client.guest_posts.index') }}" class="flex items-center justify-between w-full px-5 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-all">
-                                Guest Post Inventory
-                                <span class="text-gray-400">&rarr;</span>
-                            </a>
-                        </div>
+                    <h3 class="text-xl font-extrabold text-slate-900 mb-2">Ready to Boost Your Rankings?</h3>
+                    <p class="text-slate-600 text-xs font-normal mb-6 leading-relaxed">Launch website traffic campaigns or browse premium SEO guest post inventory anytime.</p>
+                    
+                    <div class="space-y-3">
+                        <a href="{{ route('client.traffic_campaign.builder') }}" class="flex items-center justify-between w-full px-5 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-sm transition-all">
+                            <span>⚡ Launch Website Traffic</span>
+                            <span>&rarr;</span>
+                        </a>
+                        <a href="{{ route('client.services.index') }}" class="flex items-center justify-between w-full px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-sm rounded-xl transition-all">
+                            <span>Browse SEO Packages</span>
+                            <span>&rarr;</span>
+                        </a>
+                        <a href="{{ route('client.guest_posts.index') }}" class="flex items-center justify-between w-full px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-sm rounded-xl transition-all">
+                            <span>Guest Post Inventory</span>
+                            <span class="text-slate-500">&rarr;</span>
+                        </a>
                     </div>
                 </div>
                 
-                <!-- Account Summary -->
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex-1">
-                    <h3 class="text-lg font-bold text-gray-900 mb-6">Account Summary</h3>
+                <!-- Account Summary Card -->
+                <div class="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-sm flex-1">
+                    <h3 class="text-lg font-extrabold text-slate-900 mb-6">Account Overview</h3>
                     
-                    <div class="space-y-6">
-                        <div class="flex items-center justify-between pb-6 border-b border-gray-50">
+                    <div class="space-y-5">
+                        <div class="flex items-center justify-between pb-5 border-b border-slate-100">
                             <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mr-4">
+                                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mr-3.5">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-bold text-gray-900">Available Balance</p>
-                                    <a href="{{ route('client.payments.topup') }}" class="text-[11px] font-semibold text-gray-400 hover:text-brand transition">Tap + to add funds</a>
+                                    <p class="text-sm font-bold text-slate-900">Available Balance</p>
+                                    <a href="{{ route('client.payments.topup') }}" class="text-xs font-semibold text-amber-600 hover:underline">+ Add funds</a>
                                 </div>
                             </div>
-                            <span class="text-lg font-bold text-gray-900"><span class="price-convert" data-base-price="{{ auth()->user()->balance }}">${{ number_format(auth()->user()->balance, 0) }}</span></span>
+                            <span class="text-lg font-extrabold text-slate-900"><span class="price-convert" data-base-price="{{ auth()->user()->balance }}">${{ number_format(auth()->user()->balance, 2) }}</span></span>
                         </div>
                         
-                        <div class="flex items-center justify-between pb-6 border-b border-gray-50">
+                        <div class="flex items-center justify-between pb-5 border-b border-slate-100">
                             <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mr-4">
+                                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mr-3.5">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-bold text-gray-900">Active Orders</p>
-                                    <p class="text-[11px] font-semibold text-gray-400">In progress</p>
+                                    <p class="text-sm font-bold text-slate-900">Active Orders</p>
+                                    <p class="text-xs text-slate-500">In progress</p>
                                 </div>
                             </div>
-                            <span class="text-lg font-bold text-gray-900">{{ $activeOrders }}</span>
+                            <span class="text-lg font-extrabold text-slate-900">{{ $activeOrders }}</span>
                         </div>
                         
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
-                                <div class="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center mr-4">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mr-3.5">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-bold text-gray-900">Completed</p>
-                                    <p class="text-[11px] font-semibold text-gray-400">All time</p>
+                                    <p class="text-sm font-bold text-slate-900">Completed</p>
+                                    <p class="text-xs text-slate-500">All time</p>
                                 </div>
                             </div>
-                            <span class="text-lg font-bold text-gray-900">{{ $completedOrders }}</span>
+                            <span class="text-lg font-extrabold text-slate-900">{{ $completedOrders }}</span>
                         </div>
                     </div>
                 </div>
