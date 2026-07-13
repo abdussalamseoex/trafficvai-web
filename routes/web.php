@@ -233,6 +233,7 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             Route::put('/traffic-campaigns/{campaign}', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'update'])->name('traffic_campaigns.update');
             Route::get('/traffic-campaigns/{campaign}/monitor', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'monitor'])->name('traffic_campaigns.monitor');
             Route::get('/traffic-campaigns/{campaign}/live-status', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'liveStatus'])->name('traffic_campaigns.live_status');
+            Route::get('/traffic-campaigns/{campaign}/live-graph', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'liveGraph'])->name('traffic_campaigns.live_graph');
             Route::post('/traffic-campaigns/{campaign}/sync', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'syncStatus'])->name('traffic_campaigns.sync');
             Route::post('/traffic-campaigns/{campaign}/toggle', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'toggleStatus'])->name('traffic_campaigns.toggle');
             Route::delete('/traffic-campaigns/{campaign}', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'destroy'])->name('traffic_campaigns.destroy');

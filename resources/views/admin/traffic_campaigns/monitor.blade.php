@@ -281,20 +281,28 @@
 
     <script>
         let deliveryChartInstance = null;
-        function initDeliveryChart(mode = '24h') {
+        
+        async function initDeliveryChart(mode = '24h') {
             const ctx = document.getElementById('deliveryChart');
             if (!ctx) return;
-            if (deliveryChartInstance) deliveryChartInstance.destroy();
 
-            const is24h = mode === '24h';
-            const labels = is24h 
-                ? ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00']
-                : ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today'];
-            
-            const totalDelivered = {{ (int) $campaign->hits_delivered }};
-            const dataPts = is24h
-                ? [Math.round(totalDelivered*0.05), Math.round(totalDelivered*0.08), Math.round(totalDelivered*0.12), Math.round(totalDelivered*0.18), Math.round(totalDelivered*0.22), Math.round(totalDelivered*0.15), Math.round(totalDelivered*0.12), Math.round(totalDelivered*0.08)]
-                : [Math.round(totalDelivered*0.1), Math.round(totalDelivered*0.12), Math.round(totalDelivered*0.15), Math.round(totalDelivered*0.14), Math.round(totalDelivered*0.16), Math.round(totalDelivered*0.18), Math.round(totalDelivered*0.15)];
+            let labels = ['0:00', '4:00', '8:00', '12:00', '16:00', '20:00'];
+            let hitData = [0, 0, 0, 0, 0, 0];
+
+            try {
+                const res = await fetch(`{{ route('admin.traffic_campaigns.live_graph', $campaign->id) }}?view=${mode}`);
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.labels && json.data) {
+                        labels = json.labels;
+                        hitData = json.data;
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not fetch graph data, using fallback');
+            }
+
+            if (deliveryChartInstance) deliveryChartInstance.destroy();
 
             deliveryChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -302,7 +310,7 @@
                     labels: labels,
                     datasets: [{
                         label: 'Delivered Visits',
-                        data: dataPts,
+                        data: hitData,
                         borderColor: '#f97316',
                         backgroundColor: 'rgba(249, 115, 22, 0.1)',
                         borderWidth: 3,
