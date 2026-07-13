@@ -113,8 +113,8 @@ class TrafficCampaignController extends Controller
     private static function calculateRequiredPoints($campaignType, $duration, $subPageVisits, $subPageDuration, $totalLimit, $captchaMode)
     {
         $baseRate60s = 1.0; // Direct Traffic default: 1 point per 60 seconds
-        if ($campaignType === 'search') {
-            $baseRate60s = ($captchaMode === 'premium') ? 30.0 : 20.0;
+        if (strtolower(trim($campaignType)) === 'search') {
+            $baseRate60s = (strtolower(trim($captchaMode)) === 'premium') ? 30.0 : 20.0;
         }
 
         $totalSeconds = $duration + ($subPageVisits * $subPageDuration);
@@ -449,6 +449,15 @@ class TrafficCampaignController extends Controller
             }
         }
 
+        $newPointsDeducted = self::calculateRequiredPoints(
+            $campaign->campaign_type,
+            $validated['duration'] ?? $campaign->duration,
+            $subPageVisits,
+            (int) $request->input('sub_page_duration', $campaign->sub_page_duration),
+            $newTotalLimit,
+            $request->input('captcha_mode', $campaign->captcha_mode ?: 'normal')
+        );
+
         $campaign->update([
             'total_limit' => $newTotalLimit,
             'hourly_limit' => $validated['hourly_limit'],
@@ -468,7 +477,7 @@ class TrafficCampaignController extends Controller
             'link_click_type' => $request->input('link_click_type', $campaign->link_click_type ?: 'Both'),
             'distribution_type' => in_array(strtolower($request->input('distribution_type', $campaign->distribution_type ?: 'spread')), ['burst', 'asap']) ? 'burst' : 'spread',
             'captcha_mode' => $request->input('captcha_mode', $campaign->captcha_mode ?: 'normal'),
-            'points_deducted' => $campaign->points_deducted,
+            'points_deducted' => $newPointsDeducted,
         ]);
 
         // V4 Device Targeting Normalization
@@ -630,7 +639,24 @@ class TrafficCampaignController extends Controller
         $hitsDelivered = (int) $campaign->hits_delivered;
 
         if (($graphResponse['success'] ?? false) && !empty($graphResponse['data']['data']) && array_sum($graphResponse['data']['data']) > 0) {
-            return response()->json($graphResponse['data']);
+            $coreData = $graphResponse['data'];
+            // Override labels with actual dates/times
+            if (in_array($view, ['daily', '7d', '14d'])) {
+                $daysCount = count($coreData['data']);
+                $labels = [];
+                for ($i = $daysCount - 1; $i >= 0; $i--) {
+                    $labels[] = now()->subDays($i)->format('M d');
+                }
+                $coreData['labels'] = $labels;
+            } else {
+                $hoursCount = count($coreData['data']);
+                $labels = [];
+                for ($i = $hoursCount - 1; $i >= 0; $i--) {
+                    $labels[] = now()->subHours($i)->format('H:00');
+                }
+                $coreData['labels'] = $labels;
+            }
+            return response()->json($coreData);
         }
 
         $createdAt = $campaign->created_at ?: now();

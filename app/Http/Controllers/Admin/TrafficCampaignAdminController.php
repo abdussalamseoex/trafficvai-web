@@ -446,7 +446,10 @@ class TrafficCampaignAdminController extends Controller
             'traffic_source'    => $validated['traffic_source'] ?? $campaign->traffic_source,
             'custom_referrers'  => $validated['custom_referrers'] ?? $campaign->custom_referrers,
             'keywords'          => !empty($keywordsArray) ? $keywordsArray : $campaign->keywords,
-        ])->save();
+        ]);
+
+        $campaign->points_deducted = (int) ceil(\App\Console\Commands\SyncTrafficDelivery::calcExactPointsPerVisit($campaign) * $campaign->total_limit);
+        $campaign->save();
 
         return redirect()->route('admin.traffic_campaigns.index')
             ->with('success', "Campaign #{$campaign->external_order_id} updated successfully.");

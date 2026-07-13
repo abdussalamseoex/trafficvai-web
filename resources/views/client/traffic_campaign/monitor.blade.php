@@ -111,7 +111,8 @@
                 <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl">
                     <div class="text-xs font-extrabold uppercase text-gray-500 mb-2">Points Consumed / Total</div>
                     @php
-                        $consumedPts = $campaign->total_limit > 0 ? (int) round(($campaign->hits_delivered / max(1, $campaign->total_limit)) * $campaign->points_deducted) : 0;
+                        $pointsPerVisit = \App\Console\Commands\SyncTrafficDelivery::calcExactPointsPerVisit($campaign);
+                        $consumedPts = $campaign->hits_delivered * $pointsPerVisit;
                     @endphp
                     <div class="text-2xl font-black text-gray-900">
                         <span class="text-orange-500">{{ number_format($consumedPts) }}</span>
