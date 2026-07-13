@@ -337,4 +337,118 @@ class TrafficCampaignAdminController extends Controller
 
         return back()->with('success', $msg);
     }
+
+    /**
+     * Admin: Show edit form for a campaign (reuses client edit view)
+     */
+    public function edit(TrafficCampaign $campaign, SurfEngineApiService $apiService)
+    {
+        $availableCountries = [];
+        try {
+            $res = $apiService->getAvailableCountries();
+            if ($res['success'] ?? false) {
+                $availableCountries = $res['data']['countries'] ?? [];
+            }
+        } catch (\Throwable $e) {}
+
+        $activeTab = $campaign->campaign_type;
+
+        // For admin view, pass dummy balance (no deduction check)
+        $balance  = PHP_INT_MAX;
+
+        return view('admin.traffic_campaigns.edit', compact('campaign', 'availableCountries', 'activeTab', 'balance'));
+    }
+
+    /**
+     * Admin: Update a campaign (same logic as client update, but no ownership check)
+     */
+    public function update(Request $request, TrafficCampaign $campaign, SurfEngineApiService $apiService)
+    {
+        $validated = $request->validate([
+            'total_limit'       => 'required|integer|min:10',
+            'hourly_limit'      => 'required|integer|min:1',
+            'daily_limit'       => 'nullable|integer|min:1',
+            'duration'          => 'nullable|integer|min:60|max:600',
+            'target_country'    => 'nullable',
+            'device_type'       => 'nullable|in:All,desktop,mobile,random,Desktop,Mobile,ALL,RANDOM',
+            'distribution_type' => 'nullable|string',
+            'sub_page_visits'   => 'nullable|integer|min:0|max:10',
+            'search_engine'     => 'nullable|string',
+            'captcha_mode'      => 'nullable|in:normal,premium',
+            'keywords'          => 'nullable|string',
+            'traffic_source'    => 'nullable|string',
+            'custom_referrers'  => 'nullable|string',
+        ]);
+
+        // Handle keywords
+        $keywordTexts    = $request->input('keyword_texts', []);
+        $keywordPercents = $request->input('keyword_percents', []);
+        $keywordsArray   = $campaign->keywords;
+
+        if (is_array($keywordTexts) && count($keywordTexts) > 0) {
+            $keywordsArray = [];
+            foreach ($keywordTexts as $i => $kw) {
+                $trimmed = trim($kw);
+                if ($trimmed !== '') {
+                    $keywordsArray[] = ['kw' => $trimmed, 'weight' => intval($keywordPercents[$i] ?? 100)];
+                }
+            }
+        } elseif (!empty($validated['keywords'])) {
+            $keywordsArray = [];
+            foreach (preg_split('/[\r\n,]+/', $validated['keywords']) as $line) {
+                $trimmed = trim($line);
+                if ($trimmed !== '') {
+                    $keywordsArray[] = ['kw' => $trimmed, 'weight' => 100];
+                }
+            }
+        }
+
+        // Build API payload
+        $payload = array_filter([
+            'total_limit'       => (int) $validated['total_limit'],
+            'hourly_limit'      => (int) $validated['hourly_limit'],
+            'daily_limit'       => $validated['daily_limit'] ? (int) $validated['daily_limit'] : null,
+            'duration'          => $validated['duration'] ? (int) $validated['duration'] : null,
+            'target_country'    => $validated['target_country'] ?? null,
+            'device_type'       => $validated['device_type'] ?? null,
+            'distribution_type' => $validated['distribution_type'] ?? null,
+            'sub_page_visits'   => (int) ($validated['sub_page_visits'] ?? 0),
+            'sub_page_toggle'   => (int) ($validated['sub_page_visits'] ?? 0) > 0,
+            'search_engine'     => $validated['search_engine'] ?? null,
+            'captcha_mode'      => $validated['captcha_mode'] ?? null,
+            'traffic_source'    => $validated['traffic_source'] ?? null,
+            'custom_referrers'  => $validated['custom_referrers'] ?? null,
+            'keywords'          => !empty($keywordsArray) ? $keywordsArray : null,
+        ], fn($v) => !is_null($v));
+
+        try {
+            $apiResp = $apiService->updateCampaign($campaign->external_order_id, $payload);
+        } catch (\Throwable $e) {
+            $apiResp = ['success' => false, 'message' => $e->getMessage()];
+        }
+
+        if (!($apiResp['success'] ?? false)) {
+            return back()->with('error', 'Engine update failed: ' . ($apiResp['message'] ?? 'Unknown error'))->withInput();
+        }
+
+        // Update local DB
+        $campaign->fill([
+            'total_limit'       => (int) $validated['total_limit'],
+            'hourly_limit'      => (int) $validated['hourly_limit'],
+            'daily_limit'       => $validated['daily_limit'] ?? null,
+            'duration'          => $validated['duration'] ?? $campaign->duration,
+            'target_country'    => $validated['target_country'] ?? $campaign->target_country,
+            'device_type'       => $validated['device_type'] ?? $campaign->device_type,
+            'distribution_type' => $validated['distribution_type'] ?? $campaign->distribution_type,
+            'sub_page_visits'   => (int) ($validated['sub_page_visits'] ?? 0),
+            'search_engine'     => $validated['search_engine'] ?? $campaign->search_engine,
+            'captcha_mode'      => $validated['captcha_mode'] ?? $campaign->captcha_mode,
+            'traffic_source'    => $validated['traffic_source'] ?? $campaign->traffic_source,
+            'custom_referrers'  => $validated['custom_referrers'] ?? $campaign->custom_referrers,
+            'keywords'          => !empty($keywordsArray) ? $keywordsArray : $campaign->keywords,
+        ])->save();
+
+        return redirect()->route('admin.traffic_campaigns.index')
+            ->with('success', "Campaign #{$campaign->external_order_id} updated successfully.");
+    }
 }

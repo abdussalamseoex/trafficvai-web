@@ -91,41 +91,41 @@
                         <p class="text-gray-500 font-medium">No traffic campaigns found.</p>
                     </div>
                 @else
-                    <div class="overflow-x-auto">
+                    <div>
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-gray-50/80 border-b border-gray-100 text-xs font-bold uppercase tracking-wider text-gray-500">
-                                    <th class="p-4">Order / Client</th>
-                                    <th class="p-4">Target URL & Geo / Engine</th>
-                                    <th class="p-4">Delivery & Points Budget</th>
-                                    <th class="p-4">Status & Expiry</th>
-                                    <th class="p-4 text-right">Admin Actions</th>
+                                    <th class="p-3 w-8 text-center">#</th>
+                                    <th class="p-3">Order / Client</th>
+                                    <th class="p-3">URL & Type</th>
+                                    <th class="p-3">Delivery</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
                                 @foreach($campaigns as $camp)
                                     <tr class="hover:bg-gray-50/50 transition">
-                                        <td class="p-4">
-                                            <div class="font-black text-gray-900">{{ $camp->external_order_id }}</div>
+                                        <td class="p-3 text-center text-xs text-gray-400 font-bold">{{ $campaigns->firstItem() + $loop->index }}</td>
+                                        <td class="p-3">
+                                            <div class="font-black text-gray-900 text-xs">{{ $camp->external_order_id }}</div>
                                             <div class="text-xs font-bold text-gray-700 mt-0.5">{{ $camp->user->name ?? 'N/A' }}</div>
-                                            <div class="text-[11px] text-gray-400">{{ $camp->user->email ?? '' }}</div>
-                                            <div class="mt-1">
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-orange-50 text-orange-700 border border-orange-200">
-                                                    Balance: {{ number_format($camp->user->traffic_points ?? 0) }} Pts
-                                                </span>
-                                            </div>
+                                            <div class="text-[10px] text-gray-400">{{ $camp->user->email ?? '' }}</div>
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-orange-50 text-orange-700 border border-orange-200 mt-0.5">
+                                                {{ number_format($camp->user->traffic_points ?? 0) }} Pts
+                                            </span>
                                         </td>
-                                        <td class="p-4 max-w-[260px]">
+                                        <td class="p-3 max-w-[180px]">
                                             <a href="{{ $camp->url }}" target="_blank" class="text-blue-600 hover:underline font-bold block truncate text-xs" title="{{ $camp->url }}">{{ $camp->url }}</a>
-                                            <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase {{ strtolower($camp->campaign_type) === 'search' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-orange-50 text-orange-700 border border-orange-200' }}">
-                                                    {{ strtolower($camp->campaign_type) === 'search' ? 'Google Search' : 'Direct GOAT' }}
+                                            <div class="flex flex-wrap items-center gap-1 mt-1">
+                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase {{ strtolower($camp->campaign_type) === 'search' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-orange-50 text-orange-700 border border-orange-200' }}">
+                                                    {{ strtolower($camp->campaign_type) === 'search' ? 'Search' : 'Direct' }}
                                                 </span>
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700">
-                                                    Rate: {{ $camp->hourly_limit }}/hr
+                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gray-100 text-gray-600">
+                                                    {{ $camp->hourly_limit }}/hr
                                                 </span>
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700 max-w-[110px] truncate" title="{{ $camp->target_country ?: 'Worldwide' }}">
-                                                    🌍 {{ $camp->target_country ?: 'Worldwide' }}
+                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gray-100 text-gray-600 max-w-[80px] truncate" title="{{ $camp->target_country ?: 'Worldwide' }}">
+                                                    🌍 {{ Str::limit($camp->target_country ?: 'WW', 8) }}
                                                 </span>
                                             </div>
                                         </td>
@@ -134,50 +134,41 @@
                                                 ? (int) round(($camp->hits_delivered / max(1, $camp->total_limit)) * $camp->points_deducted)
                                                 : 0;
                                         @endphp
-                                        <td class="p-4 whitespace-nowrap">
-                                            <div class="flex items-center gap-2">
-                                                <span class="font-bold text-gray-900 text-xs">{{ number_format($camp->hits_delivered) }} / {{ number_format($camp->total_limit) }} Visits</span>
-                                                <span class="text-[11px] font-extrabold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">{{ number_format($consumedPts) }} / {{ number_format($camp->points_deducted) }} Pts</span>
-                                            </div>
-                                            <div class="w-full h-1.5 rounded-full bg-gray-200 mt-1.5 overflow-hidden max-w-[200px]">
+                                        <td class="p-3 whitespace-nowrap">
+                                            <div class="text-xs font-bold text-gray-900">{{ number_format($camp->hits_delivered) }}/{{ number_format($camp->total_limit) }}</div>
+                                            <div class="text-[10px] text-orange-600 font-bold">{{ number_format($consumedPts) }}/{{ number_format($camp->points_deducted) }} Pts</div>
+                                            <div class="w-full h-1 rounded-full bg-gray-200 mt-1 overflow-hidden max-w-[120px]">
                                                 <div class="h-full bg-orange-500" style="width: {{ $camp->delivery_percentage }}%"></div>
                                             </div>
                                         </td>
-                                        <td class="p-4 whitespace-nowrap">
-                                            <div class="flex flex-col gap-1">
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase w-fit {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
-                                                    {{ ucfirst($camp->status) }}
-                                                </span>
-                                                <span class="text-[10px] text-gray-400">Exp: {{ $camp->expires_at ? $camp->expires_at->format('M d, Y') : '30 Days' }}</span>
-                                            </div>
+                                        <td class="p-3 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase w-fit {{ $camp->status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
+                                                {{ ucfirst($camp->status) }}
+                                            </span>
+                                            <div class="text-[9px] text-gray-400 mt-0.5">{{ $camp->expires_at ? $camp->expires_at->format('M d, Y') : '30 Days' }}</div>
                                         </td>
-                                        <td class="p-4 text-right whitespace-nowrap">
-                                            <div class="flex items-center justify-end gap-1.5">
-                                                <a href="{{ route('admin.traffic_campaigns.monitor', $camp) }}" class="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold text-xs shadow-md hover:opacity-95 transition" title="View Executive Realtime Live Dashboard">
-                                                    📊 Live Dashboard
+                                        <td class="p-3 text-right whitespace-nowrap">
+                                            <div class="flex items-center justify-end gap-1 flex-wrap">
+                                                <a href="{{ route('admin.traffic_campaigns.edit', $camp) }}" class="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs hover:bg-indigo-100 transition" title="Edit Campaign">
+                                                    ✏️ Edit
                                                 </a>
-
+                                                <a href="{{ route('admin.traffic_campaigns.monitor', $camp) }}" class="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold text-xs shadow hover:opacity-95 transition" title="Live Dashboard">
+                                                    📊 Live
+                                                </a>
                                                 <form action="{{ route('admin.traffic_campaigns.sync', $camp) }}" method="POST" class="inline">
                                                     @csrf
-                                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition" title="Sync from Core Engine">
-                                                        Sync
-                                                    </button>
+                                                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition">Sync</button>
                                                 </form>
-
                                                 <form action="{{ route('admin.traffic_campaigns.toggle', $camp) }}" method="POST" class="inline">
                                                     @csrf
-                                                    @method('POST')
-                                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200 transition">
+                                                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-200 transition">
                                                         {{ $camp->status === 'active' ? 'Pause' : 'Resume' }}
                                                     </button>
                                                 </form>
-
-                                                <form action="{{ route('admin.traffic_campaigns.destroy', $camp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
+                                                <form action="{{ route('admin.traffic_campaigns.destroy', $camp) }}" method="POST" class="inline" onsubmit="return confirm('Delete this campaign?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition" title="Delete Campaign">
-                                                        Delete
-                                                    </button>
+                                                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition">Delete</button>
                                                 </form>
                                             </div>
                                         </td>
