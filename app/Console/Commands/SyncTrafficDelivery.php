@@ -61,19 +61,20 @@ class SyncTrafficDelivery extends Command
         $user = $campaign->user;
         $userPoints = (int) ($user ? $user->traffic_points : 0);
 
-        if ($deltaHits > 0 && $user && $userPoints > 0) {
+        if ($deltaHits > 0 && $user) {
             $ratePerHit = $campaign->total_limit > 0 ? ($campaign->points_deducted / max(1, $campaign->total_limit)) : 1.0;
             $ptsToDeduct = max(1, (int) round($deltaHits * $ratePerHit));
-            $deduct = min($userPoints, $ptsToDeduct);
-            $user->decrement('traffic_points', $deduct);
+            
+            $user->decrement('traffic_points', $ptsToDeduct);
+            $userPoints -= $ptsToDeduct;
 
             try {
                 TrafficPointLog::create([
                     'user_id' => $user->id,
                     'type' => 'usage',
-                    'points' => -$deduct,
+                    'points' => -$ptsToDeduct,
                     'cost_usd' => 0,
-                    'description' => "Pay-As-You-Go Delivery: {$deltaHits} visits delivered ({$deduct} Pts) for {$campaign->external_order_id}",
+                    'description' => "Pay-As-You-Go Delivery: {$deltaHits} visits delivered ({$ptsToDeduct} Pts) for {$campaign->external_order_id}",
                     'status' => 'completed',
                 ]);
             } catch (\Throwable $e) {}
@@ -83,6 +84,16 @@ class SyncTrafficDelivery extends Command
         if (isset($data['status'])) {
             $campaign->status = strtolower($data['status']);
         }
+        
+        // Auto-pause if insufficient funds
+        if ($user && $userPoints <= 0 && strtolower($campaign->status) === 'active') {
+            $pauseResp = $apiService->updateCampaignStatus($campaign->external_order_id, 'paused');
+            if ($pauseResp['success'] ?? false) {
+                $campaign->status = 'paused';
+                $campaign->auto_paused = true;
+            }
+        }
+        
         $campaign->save();
 
         return true;

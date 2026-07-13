@@ -132,7 +132,10 @@ class TrafficCampaignAdminController extends Controller
     public function toggleStatus(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
         $newStatus = $campaign->status === 'active' ? 'paused' : 'active';
-        $campaign->update(['status' => $newStatus]);
+        $campaign->update([
+            'status' => $newStatus,
+            'auto_paused' => false
+        ]);
 
         try {
             $apiService->updateCampaignStatus($campaign->external_order_id, $newStatus);

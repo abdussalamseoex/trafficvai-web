@@ -708,7 +708,10 @@ class TrafficCampaignController extends Controller
         abort_if(!$this->canAccessCampaign($campaign), 403);
 
         $newStatus = $campaign->status === 'active' ? 'paused' : 'active';
-        $campaign->update(['status' => $newStatus]);
+        $campaign->update([
+            'status' => $newStatus,
+            'auto_paused' => false
+        ]);
 
         // Sync status to Core Automation Engine
         try {
@@ -861,6 +864,24 @@ class TrafficCampaignController extends Controller
 
         // Credit points to user's traffic_points balance
         $user->increment('traffic_points', $points);
+        
+        // Auto-resume campaigns that were paused due to insufficient balance
+        $pausedCampaigns = \App\Models\TrafficCampaign::where('user_id', $user->id)
+            ->where('status', 'paused')
+            ->where('auto_paused', true)
+            ->get();
+            
+        if ($pausedCampaigns->count() > 0) {
+            $apiService = app(\App\Services\SurfEngineApiService::class);
+            foreach ($pausedCampaigns as $camp) {
+                $resumeResp = $apiService->updateCampaignStatus($camp->external_order_id, 'active');
+                if ($resumeResp['success'] ?? false) {
+                    $camp->status = 'active';
+                    $camp->auto_paused = false;
+                    $camp->save();
+                }
+            }
+        }
 
         try {
             TrafficPointLog::create([

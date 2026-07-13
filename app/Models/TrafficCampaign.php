@@ -38,6 +38,7 @@ class TrafficCampaign extends Model
         'points_deducted',
         'hits_delivered',
         'status',
+        'auto_paused',
         'expires_at',
     ];
 
@@ -53,6 +54,7 @@ class TrafficCampaign extends Model
         'sub_page_visits' => 'integer',
         'sub_page_duration' => 'integer',
         'max_page' => 'integer',
+        'auto_paused' => 'boolean',
     ];
 
     public function user(): BelongsTo
