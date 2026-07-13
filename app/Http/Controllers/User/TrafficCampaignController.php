@@ -51,6 +51,9 @@ class TrafficCampaignController extends Controller
                     if (!Schema::hasColumn('traffic_campaigns', 'distribution_type')) {
                         $table->string('distribution_type')->default('spread');
                     }
+                    if (!Schema::hasColumn('traffic_campaigns', 'auto_paused')) {
+                        $table->boolean('auto_paused')->default(false);
+                    }
                 });
             }
             if (!Schema::hasTable('traffic_point_logs')) {
