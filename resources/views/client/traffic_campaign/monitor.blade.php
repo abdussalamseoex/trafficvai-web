@@ -93,7 +93,14 @@
 
                 <!-- Campaign Type Card -->
                 <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl">
-                    <div class="text-xs font-extrabold uppercase text-gray-500 mb-2">Traffic Engine Type</div>
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-xs font-extrabold uppercase text-gray-500">Traffic Engine Type</div>
+                        @if(strtolower($campaign->campaign_type) === 'search')
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $campaign->captcha_mode === 'premium' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600' }}">
+                                {{ $campaign->captcha_mode === 'premium' ? 'Premium Guaranteed' : 'Normal Mode' }}
+                            </span>
+                        @endif
+                    </div>
                     <div class="text-xl font-black text-gray-900 capitalize">
                         {{ $campaign->campaign_type === 'search' ? 'Google Organic Search' : 'Direct GOAT Referrer' }}
                     </div>
