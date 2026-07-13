@@ -90,6 +90,9 @@
                     <x-sidebar-link :href="route('admin.traffic_campaigns.active')" :active="request()->routeIs('admin.traffic_campaigns.active')">
                         {{ __('Active Running') }}
                     </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.traffic_campaigns.clients')" :active="request()->routeIs('admin.traffic_campaigns.clients')">
+                        {{ __('👥 Clients Overview') }}
+                    </x-sidebar-link>
                     <x-sidebar-link :href="route('admin.traffic_campaigns.ledger')" :active="request()->routeIs('admin.traffic_campaigns.ledger')">
                         {{ __('Points Ledger & Topups') }}
                     </x-sidebar-link>
