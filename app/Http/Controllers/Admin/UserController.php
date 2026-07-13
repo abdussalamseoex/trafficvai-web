@@ -83,10 +83,9 @@ class UserController extends Controller
                 $ptsSigned = $request->points;
                 $msg = 'Added ' . number_format($request->points) . ' Traffic Points to client.';
 
-                // Auto-resume campaigns paused due to insufficient balance
+                // Auto-resume ALL paused campaigns when admin adds points
                 $pausedCampaigns = \App\Models\TrafficCampaign::where('user_id', $user->id)
                     ->where('status', 'paused')
-                    ->where('auto_paused', true)
                     ->get();
 
                 if ($pausedCampaigns->count() > 0) {
