@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\TrafficCampaign;
 use App\Models\TrafficPointLog;
+use App\Models\User;
 use App\Services\SurfEngineApiService;
 use Illuminate\Support\Facades\Log;
 
@@ -15,15 +16,45 @@ class SyncTrafficDelivery extends Command
 
     public function handle(SurfEngineApiService $apiService)
     {
-        $activeCampaigns = TrafficCampaign::with('user')->where('status', 'active')->get();
+        $activeCampaigns = TrafficCampaign::where('status', 'active')->get();
 
         $this->info("Syncing delivery for " . $activeCampaigns->count() . " active campaigns...");
 
+        // Track which users have run out of points during this sync cycle
+        $usersExhausted = [];
+
         foreach ($activeCampaigns as $campaign) {
             try {
-                self::syncSingleCampaign($campaign, $apiService);
+                $exhausted = self::syncSingleCampaign($campaign, $apiService);
+                if ($exhausted && $campaign->user_id) {
+                    $usersExhausted[$campaign->user_id] = true;
+                }
             } catch (\Throwable $e) {
                 Log::warning("Traffic sync failed for campaign #{$campaign->id}: " . $e->getMessage());
+            }
+        }
+
+        // Batch-pause ALL remaining active campaigns for users who ran out of points
+        // (covers campaigns that had 0 new hits so didn't individually trigger the check)
+        if (!empty($usersExhausted)) {
+            foreach (array_keys($usersExhausted) as $userId) {
+                $remaining = TrafficCampaign::where('user_id', $userId)
+                    ->where('status', 'active')
+                    ->get();
+
+                foreach ($remaining as $camp) {
+                    try {
+                        $pauseResp = $apiService->updateCampaignStatus($camp->external_order_id, 'paused');
+                        if ($pauseResp['success'] ?? false) {
+                            $camp->status = 'paused';
+                            $camp->auto_paused = true;
+                            $camp->save();
+                            $this->info("Batch auto-paused {$camp->external_order_id} for user #{$userId} (zero balance).");
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning("Batch auto-pause failed for campaign #{$camp->id}: " . $e->getMessage());
+                    }
+                }
             }
         }
 
@@ -31,8 +62,13 @@ class SyncTrafficDelivery extends Command
         return 0;
     }
 
-    public static function syncSingleCampaign(TrafficCampaign $campaign, SurfEngineApiService $apiService)
+    /**
+     * Sync a single campaign.
+     * Returns true if user's balance is now exhausted (caller will batch-pause remaining campaigns).
+     */
+    public static function syncSingleCampaign(TrafficCampaign $campaign, SurfEngineApiService $apiService): bool
     {
+        // Sanity-check: fix over-inflated points_deducted for direct campaigns
         if (strtolower(trim($campaign->campaign_type)) === 'direct' && $campaign->total_limit > 0) {
             $totalSeconds = (int) $campaign->duration + ((int) $campaign->sub_page_visits * (int) $campaign->sub_page_duration);
             if ($totalSeconds <= 0) $totalSeconds = 60;
@@ -54,28 +90,30 @@ class SyncTrafficDelivery extends Command
             return false;
         }
 
-        $newHits = (int) $data['hits_delivered'];
-        $currentHits = (int) $campaign->hits_delivered;
-        $deltaHits = max(0, $newHits - $currentHits);
+        $newHits  = (int) $data['hits_delivered'];
+        $deltaHits = max(0, $newHits - (int) $campaign->hits_delivered);
 
-        $user = $campaign->user;
+        // Always read FRESH user points from DB — avoids stale cached values across campaigns
+        $user = $campaign->user_id ? User::find($campaign->user_id) : null;
         $userPoints = (int) ($user ? $user->traffic_points : 0);
 
+        $balanceExhausted = false;
+
         if ($deltaHits > 0 && $user) {
-            $ratePerHit = $campaign->total_limit > 0 ? ($campaign->points_deducted / max(1, $campaign->total_limit)) : 1.0;
-            $ptsToDeduct = max(1, (int) round($deltaHits * $ratePerHit));
-            
+            $ratePerHit   = $campaign->total_limit > 0 ? ($campaign->points_deducted / max(1, $campaign->total_limit)) : 1.0;
+            $ptsToDeduct  = max(1, (int) round($deltaHits * $ratePerHit));
+
             $user->decrement('traffic_points', $ptsToDeduct);
-            $userPoints -= $ptsToDeduct;
+            $userPoints = max(0, $userPoints - $ptsToDeduct);
 
             try {
                 TrafficPointLog::create([
-                    'user_id' => $user->id,
-                    'type' => 'usage',
-                    'points' => -$ptsToDeduct,
-                    'cost_usd' => 0,
-                    'description' => "Pay-As-You-Go Delivery: {$deltaHits} visits delivered ({$ptsToDeduct} Pts) for {$campaign->external_order_id}",
-                    'status' => 'completed',
+                    'user_id'     => $user->id,
+                    'type'        => 'usage',
+                    'points'      => -$ptsToDeduct,
+                    'cost_usd'    => 0,
+                    'description' => "Pay-As-You-Go: {$deltaHits} visits delivered ({$ptsToDeduct} Pts) for {$campaign->external_order_id}",
+                    'status'      => 'completed',
                 ]);
             } catch (\Throwable $e) {}
         }
@@ -84,18 +122,19 @@ class SyncTrafficDelivery extends Command
         if (isset($data['status'])) {
             $campaign->status = strtolower($data['status']);
         }
-        
-        // Auto-pause if insufficient funds
+
+        // Auto-pause THIS campaign if balance is now zero or negative
         if ($user && $userPoints <= 0 && strtolower($campaign->status) === 'active') {
             $pauseResp = $apiService->updateCampaignStatus($campaign->external_order_id, 'paused');
             if ($pauseResp['success'] ?? false) {
-                $campaign->status = 'paused';
+                $campaign->status     = 'paused';
                 $campaign->auto_paused = true;
             }
+            $balanceExhausted = true; // Tell the caller to also pause the user's other campaigns
         }
-        
+
         $campaign->save();
 
-        return true;
+        return $balanceExhausted;
     }
 }
