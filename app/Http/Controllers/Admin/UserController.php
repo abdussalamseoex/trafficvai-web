@@ -82,6 +82,29 @@ class UserController extends Controller
                 $user->increment('traffic_points', $request->points);
                 $ptsSigned = $request->points;
                 $msg = 'Added ' . number_format($request->points) . ' Traffic Points to client.';
+
+                // Auto-resume campaigns paused due to insufficient balance
+                $pausedCampaigns = \App\Models\TrafficCampaign::where('user_id', $user->id)
+                    ->where('status', 'paused')
+                    ->where('auto_paused', true)
+                    ->get();
+
+                if ($pausedCampaigns->count() > 0) {
+                    $apiService = app(\App\Services\SurfEngineApiService::class);
+                    $resumed = 0;
+                    foreach ($pausedCampaigns as $camp) {
+                        $resumeResp = $apiService->updateCampaignStatus($camp->external_order_id, 'active');
+                        if ($resumeResp['success'] ?? false) {
+                            $camp->status = 'active';
+                            $camp->auto_paused = false;
+                            $camp->save();
+                            $resumed++;
+                        }
+                    }
+                    if ($resumed > 0) {
+                        $msg .= " {$resumed} paused campaign(s) auto-resumed.";
+                    }
+                }
             } else {
                 $user->decrement('traffic_points', $request->points);
                 $ptsSigned = -$request->points;
