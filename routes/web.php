@@ -227,6 +227,8 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
             Route::get('/traffic-campaigns', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'index'])->name('traffic_campaigns.index');
             Route::get('/traffic-campaigns/active', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'active'])->name('traffic_campaigns.active');
             Route::get('/traffic-campaigns/ledger', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'ledger'])->name('traffic_campaigns.ledger');
+            Route::get('/traffic-campaigns/clients', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'clients'])->name('traffic_campaigns.clients');
+            Route::post('/traffic-campaigns/clients/{user}/add-points', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'quickAddPoints'])->name('traffic_campaigns.quick_add_points');
             Route::get('/traffic-campaigns/{campaign}/monitor', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'monitor'])->name('traffic_campaigns.monitor');
             Route::get('/traffic-campaigns/{campaign}/live-status', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'liveStatus'])->name('traffic_campaigns.live_status');
             Route::post('/traffic-campaigns/{campaign}/sync', [\App\Http\Controllers\Admin\TrafficCampaignAdminController::class, 'syncStatus'])->name('traffic_campaigns.sync');

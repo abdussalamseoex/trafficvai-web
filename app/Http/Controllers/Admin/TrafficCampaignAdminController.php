@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TrafficCampaign;
+use App\Models\User;
 use App\Services\SurfEngineApiService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TrafficCampaignAdminController extends Controller
 {
@@ -217,5 +219,90 @@ class TrafficCampaignAdminController extends Controller
             'percentage'     => $campaign->delivery_percentage,
             'status'         => ucfirst($campaign->status),
         ]);
+    }
+
+    /**
+     * Clients Overview — per-client campaign stats
+     */
+    public function clients(Request $request)
+    {
+        $query = User::has('trafficCampaigns')
+            ->withCount([
+                'trafficCampaigns as total_campaigns',
+                'trafficCampaigns as active_campaigns'    => fn($q) => $q->where('status', 'active'),
+                'trafficCampaigns as paused_campaigns'    => fn($q) => $q->where('status', 'paused'),
+                'trafficCampaigns as completed_campaigns' => fn($q) => $q->whereIn('status', ['completed', 'deleted']),
+            ])
+            ->withSum('trafficCampaigns as total_hits', 'hits_delivered')
+            ->orderByDesc('active_campaigns')
+            ->orderByDesc('total_campaigns');
+
+        if ($request->filled('search')) {
+            $s = $request->query('search');
+            $query->where(fn($q) => $q->where('name', 'like', "%{$s}%")->orWhere('email', 'like', "%{$s}%"));
+        }
+
+        $clients = $query->paginate(25)->withQueryString();
+
+        $overallStats = [
+            'total_clients'       => User::has('trafficCampaigns')->count(),
+            'zero_balance'        => User::has('trafficCampaigns')->where('traffic_points', '<=', 0)->count(),
+            'total_active'        => TrafficCampaign::where('status', 'active')->count(),
+            'total_paused'        => TrafficCampaign::where('status', 'paused')->count(),
+        ];
+
+        return view('admin.traffic_campaigns.clients', compact('clients', 'overallStats'));
+    }
+
+    /**
+     * Quick Add Points from Clients Overview modal
+     */
+    public function quickAddPoints(Request $request, User $user)
+    {
+        $request->validate([
+            'points'      => 'required|integer|min:1|max:10000000',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $pts  = (int) $request->points;
+        $desc = $request->description ?: 'Admin Quick Top-Up from Traffic Dashboard';
+
+        $user->increment('traffic_points', $pts);
+
+        // Auto-resume all paused campaigns
+        $resumed = 0;
+        $paused  = TrafficCampaign::where('user_id', $user->id)->where('status', 'paused')->get();
+        if ($paused->count() > 0) {
+            $apiService = app(SurfEngineApiService::class);
+            foreach ($paused as $camp) {
+                try {
+                    $r = $apiService->updateCampaignStatus($camp->external_order_id, 'active');
+                    if ($r['success'] ?? false) {
+                        $camp->status     = 'active';
+                        $camp->auto_paused = false;
+                        $camp->save();
+                        $resumed++;
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Quick resume failed for ' . $camp->external_order_id . ': ' . $e->getMessage());
+                }
+            }
+        }
+
+        try {
+            \App\Models\TrafficPointLog::create([
+                'user_id'     => $user->id,
+                'type'        => 'adjustment',
+                'points'      => $pts,
+                'cost_usd'    => 0,
+                'description' => 'Admin: ' . $desc,
+                'status'      => 'completed',
+            ]);
+        } catch (\Throwable $e) {}
+
+        $msg = number_format($pts) . ' points added to ' . $user->name;
+        if ($resumed > 0) $msg .= " — {$resumed} campaign(s) auto-resumed!";
+
+        return back()->with('success', $msg);
     }
 }

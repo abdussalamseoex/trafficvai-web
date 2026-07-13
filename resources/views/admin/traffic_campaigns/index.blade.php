@@ -17,6 +17,9 @@
                 <a href="{{ route('admin.traffic_campaigns.active') }}" class="px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs shadow hover:bg-orange-600 transition">
                     Active Running
                 </a>
+                <a href="{{ route('admin.traffic_campaigns.clients') }}" class="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs shadow hover:bg-purple-700 transition">
+                    👥 Clients Overview
+                </a>
                 <a href="{{ route('admin.traffic_campaigns.ledger') }}" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs shadow hover:bg-blue-700 transition">
                     Points Ledger & Topups
                 </a>
