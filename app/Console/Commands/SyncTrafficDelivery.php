@@ -68,17 +68,6 @@ class SyncTrafficDelivery extends Command
      */
     public static function syncSingleCampaign(TrafficCampaign $campaign, SurfEngineApiService $apiService): bool
     {
-        // Sanity-check: fix over-inflated points_deducted for direct campaigns
-        if (strtolower(trim($campaign->campaign_type)) === 'direct' && $campaign->total_limit > 0) {
-            $totalSeconds = (int) $campaign->duration + ((int) $campaign->sub_page_visits * (int) $campaign->sub_page_duration);
-            if ($totalSeconds <= 0) $totalSeconds = 60;
-            $correctBudget = (int) ceil(1.0 * ($totalSeconds / 60.0) * $campaign->total_limit);
-            if ($campaign->points_deducted > ($correctBudget * 2)) {
-                $campaign->points_deducted = max($correctBudget, $campaign->total_limit);
-                $campaign->save();
-            }
-        }
-
         $statusResponse = $apiService->getCampaignStatus($campaign->external_order_id);
 
         if (!($statusResponse['success'] ?? false)) {
@@ -90,18 +79,20 @@ class SyncTrafficDelivery extends Command
             return false;
         }
 
-        $newHits  = (int) $data['hits_delivered'];
+        $newHits   = (int) $data['hits_delivered'];
         $deltaHits = max(0, $newHits - (int) $campaign->hits_delivered);
 
         // Always read FRESH user points from DB — avoids stale cached values across campaigns
-        $user = $campaign->user_id ? User::find($campaign->user_id) : null;
+        $user       = $campaign->user_id ? User::find($campaign->user_id) : null;
         $userPoints = (int) ($user ? $user->traffic_points : 0);
 
         $balanceExhausted = false;
 
         if ($deltaHits > 0 && $user) {
-            $ratePerHit   = $campaign->total_limit > 0 ? ($campaign->points_deducted / max(1, $campaign->total_limit)) : 1.0;
-            $ptsToDeduct  = max(1, (int) round($deltaHits * $ratePerHit));
+            // Calculate EXACT points per visit from campaign parameters
+            // This avoids rounding errors from stored points_deducted budget
+            $pointsPerVisit = self::calcExactPointsPerVisit($campaign);
+            $ptsToDeduct    = max(1, (int) round($deltaHits * $pointsPerVisit));
 
             $user->decrement('traffic_points', $ptsToDeduct);
             $userPoints = max(0, $userPoints - $ptsToDeduct);
@@ -112,7 +103,7 @@ class SyncTrafficDelivery extends Command
                     'type'        => 'usage',
                     'points'      => -$ptsToDeduct,
                     'cost_usd'    => 0,
-                    'description' => "Pay-As-You-Go: {$deltaHits} visits delivered ({$ptsToDeduct} Pts) for {$campaign->external_order_id}",
+                    'description' => "Pay-As-You-Go: {$deltaHits} visits × " . round($pointsPerVisit, 1) . " pts = {$ptsToDeduct} Pts for {$campaign->external_order_id}",
                     'status'      => 'completed',
                 ]);
             } catch (\Throwable $e) {}
@@ -127,7 +118,7 @@ class SyncTrafficDelivery extends Command
         if ($user && $userPoints <= 0 && strtolower($campaign->status) === 'active') {
             $pauseResp = $apiService->updateCampaignStatus($campaign->external_order_id, 'paused');
             if ($pauseResp['success'] ?? false) {
-                $campaign->status     = 'paused';
+                $campaign->status      = 'paused';
                 $campaign->auto_paused = true;
             }
             $balanceExhausted = true; // Tell the caller to also pause the user's other campaigns
@@ -136,5 +127,30 @@ class SyncTrafficDelivery extends Command
         $campaign->save();
 
         return $balanceExhausted;
+    }
+
+    /**
+     * Calculate the exact points-per-visit from actual campaign parameters.
+     * Search Normal  = 20 pts/min, Search Premium = 30 pts/min, Direct = 1 pt/min.
+     * Total time = main duration + (sub_page_visits × sub_page_duration), in seconds.
+     */
+    public static function calcExactPointsPerVisit(TrafficCampaign $campaign): float
+    {
+        $type        = strtolower(trim($campaign->campaign_type ?? 'direct'));
+        $captcha     = strtolower(trim($campaign->captcha_mode ?? 'normal'));
+
+        if ($type === 'search') {
+            $baseRate60s = ($captcha === 'premium') ? 30.0 : 20.0;
+        } else {
+            $baseRate60s = 1.0; // Direct traffic
+        }
+
+        $mainDuration    = max(1, (int) $campaign->duration);
+        $subVisits       = (int) ($campaign->sub_page_visits  ?? 0);
+        $subDuration     = (int) ($campaign->sub_page_duration ?? 0);
+        $totalSeconds    = $mainDuration + ($subVisits * $subDuration);
+        if ($totalSeconds <= 0) $totalSeconds = 60;
+
+        return $baseRate60s * ($totalSeconds / 60.0);
     }
 }
