@@ -14,14 +14,16 @@ class TrafficPointLog extends Model
         'user_id',
         'type',
         'points',
+        'hits_count',
         'cost_usd',
         'description',
         'status',
     ];
 
     protected $casts = [
-        'points' => 'integer',
-        'cost_usd' => 'decimal:2',
+        'points'     => 'integer',
+        'hits_count' => 'integer',
+        'cost_usd'   => 'decimal:2',
     ];
 
     public function user(): BelongsTo

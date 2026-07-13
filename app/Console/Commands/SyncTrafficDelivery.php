@@ -102,6 +102,7 @@ class SyncTrafficDelivery extends Command
                     'user_id'     => $user->id,
                     'type'        => 'usage',
                     'points'      => -$ptsToDeduct,
+                    'hits_count'  => $deltaHits,
                     'cost_usd'    => 0,
                     'description' => "Pay-As-You-Go: {$deltaHits} visits × " . round($pointsPerVisit, 1) . " pts = {$ptsToDeduct} Pts for {$campaign->external_order_id}",
                     'status'      => 'completed',

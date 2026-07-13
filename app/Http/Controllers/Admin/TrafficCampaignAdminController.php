@@ -226,6 +226,8 @@ class TrafficCampaignAdminController extends Controller
      */
     public function clients(Request $request)
     {
+        $today = now()->toDateString();
+
         $query = User::has('trafficCampaigns')
             ->withCount([
                 'trafficCampaigns as total_campaigns',
@@ -234,6 +236,14 @@ class TrafficCampaignAdminController extends Controller
                 'trafficCampaigns as completed_campaigns' => fn($q) => $q->whereIn('status', ['completed', 'deleted']),
             ])
             ->withSum('trafficCampaigns as total_hits', 'hits_delivered')
+            // Daily points deducted (today only, usage type = negative points)
+            ->withSum(['trafficPointLogs as daily_points_used' => fn($q) =>
+                $q->where('type', 'usage')->whereDate('created_at', $today)
+            ], 'points')
+            // Daily hits delivered (today only)
+            ->withSum(['trafficPointLogs as daily_hits' => fn($q) =>
+                $q->where('type', 'usage')->whereDate('created_at', $today)
+            ], 'hits_count')
             ->orderByDesc('active_campaigns')
             ->orderByDesc('total_campaigns');
 
@@ -249,6 +259,8 @@ class TrafficCampaignAdminController extends Controller
             'zero_balance'        => User::has('trafficCampaigns')->where('traffic_points', '<=', 0)->count(),
             'total_active'        => TrafficCampaign::where('status', 'active')->count(),
             'total_paused'        => TrafficCampaign::where('status', 'paused')->count(),
+            'total_daily_hits'    => \App\Models\TrafficPointLog::where('type', 'usage')->whereDate('created_at', $today)->sum('hits_count'),
+            'total_daily_pts'     => abs(\App\Models\TrafficPointLog::where('type', 'usage')->whereDate('created_at', $today)->sum('points')),
         ];
 
         return view('admin.traffic_campaigns.clients', compact('clients', 'overallStats'));

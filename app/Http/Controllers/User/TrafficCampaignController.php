@@ -62,11 +62,19 @@ class TrafficCampaignController extends Controller
                     $table->foreignId('user_id')->constrained()->onDelete('cascade');
                     $table->string('type'); // 'purchase' or 'usage'
                     $table->integer('points');
+                    $table->unsignedInteger('hits_count')->default(0); // hits delivered in this log entry
                     $table->decimal('cost_usd', 10, 2)->default(0.00);
                     $table->string('description');
                     $table->string('status')->default('completed');
                     $table->timestamps();
                 });
+            } else {
+                // Add hits_count if missing (for existing installations)
+                if (!Schema::hasColumn('traffic_point_logs', 'hits_count')) {
+                    Schema::table('traffic_point_logs', function (Blueprint $table) {
+                        $table->unsignedInteger('hits_count')->default(0)->after('points');
+                    });
+                }
             }
         } catch (\Throwable $e) {
             Log::warning("ensureTrafficSchema fallback check: " . $e->getMessage());

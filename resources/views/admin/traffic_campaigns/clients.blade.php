@@ -33,7 +33,7 @@
             @endif
 
             {{-- Summary Stats --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Total Clients</span>
                     <span class="text-3xl font-black text-gray-900">{{ number_format($overallStats['total_clients']) }}</span>
@@ -41,15 +41,25 @@
                 <div class="bg-white p-5 rounded-2xl border border-red-100 shadow-sm">
                     <span class="text-xs font-bold text-red-500 uppercase tracking-wider block mb-1">⚠️ Zero Balance</span>
                     <span class="text-3xl font-black text-red-600">{{ number_format($overallStats['zero_balance']) }}</span>
-                    <span class="text-xs text-red-400 block mt-1">Clients with no points</span>
+                    <span class="text-xs text-red-400 block mt-1">No points</span>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm">
-                    <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider block mb-1">🟢 Active Campaigns</span>
+                    <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider block mb-1">🟢 Active</span>
                     <span class="text-3xl font-black text-emerald-700">{{ number_format($overallStats['total_active']) }}</span>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
-                    <span class="text-xs font-bold text-amber-600 uppercase tracking-wider block mb-1">⏸ Paused Campaigns</span>
+                    <span class="text-xs font-bold text-amber-600 uppercase tracking-wider block mb-1">⏸ Paused</span>
                     <span class="text-3xl font-black text-amber-700">{{ number_format($overallStats['total_paused']) }}</span>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
+                    <span class="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-1">📈 Today's Hits</span>
+                    <span class="text-3xl font-black text-blue-700">{{ number_format($overallStats['total_daily_hits']) }}</span>
+                    <span class="text-xs text-blue-400 block mt-1">All clients today</span>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm">
+                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">💰 Today's Points</span>
+                    <span class="text-3xl font-black text-indigo-700">{{ number_format($overallStats['total_daily_pts']) }}</span>
+                    <span class="text-xs text-indigo-400 block mt-1">Points used today</span>
                 </div>
             </div>
 
@@ -79,6 +89,8 @@
                                 <th class="px-5 py-4 text-center text-xs font-bold text-amber-600 uppercase tracking-wider">⏸ Paused</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">✅ Done</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Total Hits</th>
+                                <th class="px-5 py-4 text-center text-xs font-bold text-blue-600 uppercase tracking-wider">📈 Today's Hits</th>
+                                <th class="px-5 py-4 text-center text-xs font-bold text-indigo-600 uppercase tracking-wider">💰 Today's Pts</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -144,6 +156,20 @@
                                     <td class="px-5 py-4 text-center">
                                         <span class="font-bold text-gray-700 text-sm">{{ number_format($client->total_hits ?? 0) }}</span>
                                     </td>
+                                    <td class="px-5 py-4 text-center">
+                                        @if(($client->daily_hits ?? 0) > 0)
+                                            <span class="font-black text-blue-700 text-sm">{{ number_format($client->daily_hits) }}</span>
+                                        @else
+                                            <span class="text-gray-300 text-sm font-bold">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-5 py-4 text-center">
+                                        @if(($client->daily_points_used ?? 0) != 0)
+                                            <span class="font-black text-indigo-700 text-sm">{{ number_format(abs($client->daily_points_used)) }}</span>
+                                        @else
+                                            <span class="text-gray-300 text-sm font-bold">—</span>
+                                        @endif
+                                    </td>
                                     <td class="px-5 py-4">
                                         <div class="flex items-center justify-center gap-2">
                                             <a href="{{ route('admin.traffic_campaigns.index') }}?search={{ urlencode($client->email) }}"
@@ -162,7 +188,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-5 py-16 text-center text-gray-400">
+                                    <td colspan="10" class="px-5 py-16 text-center text-gray-400">
                                         <div class="text-5xl mb-3">👥</div>
                                         <div class="font-bold text-lg">No clients found</div>
                                         <div class="text-sm mt-1">No client has created a traffic campaign yet.</div>
