@@ -574,51 +574,20 @@ class TrafficCampaignController extends Controller
     {
         abort_if(!$this->canAccessCampaign($campaign), 403);
 
-        $user = $campaign->user;
-        $userPoints = (int) ($user ? $user->traffic_points : 0);
-
-        // Fetch live status from surf.abguestpost.net
-        $statusResponse = $apiService->getCampaignStatus($campaign->external_order_id);
-
-        if ($statusResponse['success'] ?? false) {
-            $data = $statusResponse['data'];
-            if (isset($data['hits_delivered'])) {
-                $newHits = (int) $data['hits_delivered'];
-                $deltaHits = max(0, $newHits - (int) $campaign->hits_delivered);
-
-                if ($deltaHits > 0 && $user && $userPoints > 0) {
-                    $ratePerHit = $campaign->total_limit > 0 ? ($campaign->points_deducted / max(1, $campaign->total_limit)) : 1.0;
-                    $ptsToDeduct = max(1, (int) round($deltaHits * $ratePerHit));
-                    $deduct = min($userPoints, $ptsToDeduct);
-                    $user->decrement('traffic_points', $deduct);
-
-                    // Record incremental usage log
-                    try {
-                        TrafficPointLog::create([
-                            'user_id' => $user->id,
-                            'type' => 'usage',
-                            'points' => -$deduct,
-                            'cost_usd' => 0,
-                            'description' => "Pay-As-You-Go Delivery: {$deltaHits} visits delivered ({$deduct} Pts) for {$campaign->external_order_id}",
-                            'status' => 'completed',
-                        ]);
-                    } catch (\Throwable $e) {}
-                }
-
-                $campaign->hits_delivered = $newHits;
-            }
-            if (isset($data['status'])) {
-                $campaign->status = strtolower($data['status']);
-            }
-            $campaign->save();
+        // Standardized delivery sync to ensure identical point calculation and accurate hits_count in logs
+        try {
+            \App\Console\Commands\SyncTrafficDelivery::syncSingleCampaign($campaign, $apiService);
+        } catch (\Throwable $e) {
+            Log::warning('Live status sync failed for #' . $campaign->external_order_id . ': ' . $e->getMessage());
         }
 
+        $user = $campaign->user;
         $userPointsAfter = (int) ($user ? $user->fresh()->traffic_points : 0);
         $deliverySuspended = ($userPointsAfter <= 0);
 
         return response()->json([
-            'hits_delivered' => $campaign->hits_delivered,
-            'total_limit' => $campaign->total_limit,
+            'hits_delivered' => (int) $campaign->hits_delivered,
+            'total_limit' => (int) $campaign->total_limit,
             'percentage' => $campaign->delivery_percentage,
             'status' => ucfirst($campaign->status),
             'expires_at' => $campaign->expires_at ? $campaign->expires_at->format('M d, Y') : 'N/A',

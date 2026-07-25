@@ -54,12 +54,40 @@
                 <div class="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
                     <span class="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-1">📈 Today's Hits</span>
                     <span class="text-3xl font-black text-blue-700">{{ number_format($overallStats['total_daily_hits']) }}</span>
-                    <span class="text-xs text-blue-400 block mt-1">All clients today</span>
+                    <span class="text-[10px] text-gray-400 block mt-1">Yd: {{ number_format($overallStats['total_yesterday_hits'] ?? 0) }} hits</span>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm">
                     <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">💰 Today's Points</span>
                     <span class="text-3xl font-black text-indigo-700">{{ number_format($overallStats['total_daily_pts']) }}</span>
-                    <span class="text-xs text-indigo-400 block mt-1">Points used today</span>
+                    <span class="text-[10px] text-gray-400 block mt-1">Yd: {{ number_format($overallStats['total_yesterday_pts'] ?? 0) }} Pts</span>
+                </div>
+            </div>
+
+            {{-- Direct vs Search & Time Horizon Breakdown Banner --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-gradient-to-r from-orange-500/10 to-amber-500/10 p-4 rounded-2xl border border-orange-200/60 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-black text-orange-700 uppercase tracking-wider block">🚀 Total Direct Traffic</span>
+                        <span class="text-xl font-black text-gray-900">{{ number_format($overallStats['total_direct_hits'] ?? 0) }} <span class="text-xs font-bold text-gray-500">Hits</span></span>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 p-4 rounded-2xl border border-blue-200/60 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-black text-blue-700 uppercase tracking-wider block">🔍 Total Search Traffic</span>
+                        <span class="text-xl font-black text-gray-900">{{ number_format($overallStats['total_search_hits'] ?? 0) }} <span class="text-xs font-bold text-gray-500">Hits</span></span>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 p-4 rounded-2xl border border-emerald-200/60 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-black text-emerald-700 uppercase tracking-wider block">📅 Yesterday Delivered</span>
+                        <span class="text-xl font-black text-gray-900">+{{ number_format($overallStats['total_yesterday_hits'] ?? 0) }} <span class="text-xs font-bold text-gray-500">Hits</span></span>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-4 rounded-2xl border border-purple-200/60 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-black text-purple-700 uppercase tracking-wider block">💰 Yesterday Pts Used</span>
+                        <span class="text-xl font-black text-gray-900">{{ number_format($overallStats['total_yesterday_pts'] ?? 0) }} <span class="text-xs font-bold text-gray-500">Pts</span></span>
+                    </div>
                 </div>
             </div>
 
@@ -88,9 +116,9 @@
                                 <th class="px-5 py-4 text-center text-xs font-bold text-emerald-600 uppercase tracking-wider">🟢 Active</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-amber-600 uppercase tracking-wider">⏸ Paused</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">✅ Done</th>
-                                <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Total Hits</th>
-                                <th class="px-5 py-4 text-center text-xs font-bold text-blue-600 uppercase tracking-wider">📈 Today's Hits</th>
-                                <th class="px-5 py-4 text-center text-xs font-bold text-indigo-600 uppercase tracking-wider">💰 Today's Pts</th>
+                                <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Total Hits (D/S)</th>
+                                <th class="px-5 py-4 text-center text-xs font-bold text-blue-600 uppercase tracking-wider">📈 Today / Yd Hits</th>
+                                <th class="px-5 py-4 text-center text-xs font-bold text-indigo-600 uppercase tracking-wider">💰 Today / Yd Pts</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -153,19 +181,22 @@
                                             <span class="text-gray-300 font-bold">—</span>
                                         @endif
                                     </td>
-                                    <td class="px-5 py-4 text-center">
-                                        <span class="font-bold text-gray-700 text-sm">{{ number_format($client->total_hits ?? 0) }}</span>
+                                    <td class="px-5 py-4 text-center whitespace-nowrap">
+                                        <div class="font-black text-gray-800 text-sm">{{ number_format($client->total_hits ?? 0) }}</div>
+                                        <div class="text-[10px] text-gray-500 font-semibold mt-0.5">🚀 {{ number_format($client->direct_hits ?? 0) }} | 🔍 {{ number_format($client->search_hits ?? 0) }}</div>
                                     </td>
-                                    <td class="px-5 py-4 text-center">
-                                        @if(($client->daily_hits ?? 0) > 0)
-                                            <span class="font-black text-blue-700 text-sm">{{ number_format($client->daily_hits) }}</span>
+                                    <td class="px-5 py-4 text-center whitespace-nowrap">
+                                        @if(($client->daily_hits ?? 0) > 0 || ($client->yesterday_hits ?? 0) > 0)
+                                            <div class="font-black text-blue-700 text-sm">Td: +{{ number_format($client->daily_hits ?? 0) }}</div>
+                                            <div class="text-[10px] text-gray-500 font-semibold mt-0.5">Yd: +{{ number_format($client->yesterday_hits ?? 0) }}</div>
                                         @else
                                             <span class="text-gray-300 text-sm font-bold">—</span>
                                         @endif
                                     </td>
-                                    <td class="px-5 py-4 text-center">
-                                        @if(($client->daily_points_used ?? 0) != 0)
-                                            <span class="font-black text-indigo-700 text-sm">{{ number_format(abs($client->daily_points_used)) }}</span>
+                                    <td class="px-5 py-4 text-center whitespace-nowrap">
+                                        @if(($client->daily_points_used ?? 0) != 0 || ($client->yesterday_points_used ?? 0) != 0)
+                                            <div class="font-black text-indigo-700 text-sm">Td: {{ number_format(abs($client->daily_points_used ?? 0)) }}</div>
+                                            <div class="text-[10px] text-gray-500 font-semibold mt-0.5">Yd: {{ number_format(abs($client->yesterday_points_used ?? 0)) }}</div>
                                         @else
                                             <span class="text-gray-300 text-sm font-bold">—</span>
                                         @endif

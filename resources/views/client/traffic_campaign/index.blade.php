@@ -25,6 +25,24 @@
                 $totalDeliveredAll = $userCamps->sum('hits_delivered');
                 $totalLimitAll = $userCamps->sum('total_limit');
                 $activeCount = $userCamps->where('status', 'active')->count();
+
+                $directCamps = $userCamps->where('campaign_type', 'direct');
+                $searchCamps = $userCamps->where('campaign_type', 'search');
+
+                $directHits = $directCamps->sum('hits_delivered');
+                $directBudget = $directCamps->sum('points_deducted');
+                $searchHits = $searchCamps->sum('hits_delivered');
+                $searchBudget = $searchCamps->sum('points_deducted');
+
+                $today = now()->toDateString();
+                $yesterday = now()->subDay()->toDateString();
+                $userId = auth()->id();
+
+                $todayHits = \App\Models\TrafficPointLog::where('user_id', $userId)->where('type', 'usage')->whereDate('created_at', $today)->sum('hits_count');
+                $todayPts = abs(\App\Models\TrafficPointLog::where('user_id', $userId)->where('type', 'usage')->whereDate('created_at', $today)->sum('points'));
+                
+                $yesterdayHits = \App\Models\TrafficPointLog::where('user_id', $userId)->where('type', 'usage')->whereDate('created_at', $yesterday)->sum('hits_count');
+                $yesterdayPts = abs(\App\Models\TrafficPointLog::where('user_id', $userId)->where('type', 'usage')->whereDate('created_at', $yesterday)->sum('points'));
             @endphp
 
             <!-- Quick Overview Cards -->
@@ -44,6 +62,41 @@
                 <div class="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm">
                     <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Points Balance</span>
                     <span class="text-2xl font-black text-orange-500">{{ number_format(auth()->user()->traffic_points) }} <span class="text-xs font-bold text-gray-400">Pts</span></span>
+                </div>
+            </div>
+
+            <!-- Detailed Traffic Analytics Breakdown Banner -->
+            <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-orange-50 to-white border border-orange-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-orange-500/10 text-orange-600 mb-1">🚀 DIRECT GOAT TRAFFIC</span>
+                        <div class="text-xl font-black text-gray-900">{{ number_format($directHits) }} <span class="text-xs font-bold text-gray-500">Visits</span></div>
+                        <div class="text-xs text-gray-500 mt-1">Budget: <strong class="text-orange-600">{{ number_format($directBudget) }} Pts</strong> (1 Pt / min)</div>
+                    </div>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-white border border-blue-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-blue-500/10 text-blue-600 mb-1">🔍 GOOGLE SEARCH ENGINE</span>
+                        <div class="text-xl font-black text-gray-900">{{ number_format($searchHits) }} <span class="text-xs font-bold text-gray-500">Visits</span></div>
+                        <div class="text-xs text-gray-500 mt-1">Budget: <strong class="text-blue-600">{{ number_format($searchBudget) }} Pts</strong> (20-30 Pts / min + sub-pages)</div>
+                    </div>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-purple-50 to-white border border-purple-200/80 shadow-sm">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-purple-500/10 text-purple-600 mb-2">📅 RECENT DAILY ACTIVITY</span>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="border-r border-purple-100 pr-2">
+                            <span class="font-bold text-gray-500 block uppercase text-[10px]">Today</span>
+                            <span class="font-black text-gray-900 text-sm">+{{ number_format($todayHits) }} Hits</span>
+                            <span class="text-[11px] font-bold text-purple-600 block">{{ number_format($todayPts) }} Pts</span>
+                        </div>
+                        <div class="pl-1">
+                            <span class="font-bold text-gray-400 block uppercase text-[10px]">Yesterday</span>
+                            <span class="font-black text-gray-700 text-sm">+{{ number_format($yesterdayHits) }} Hits</span>
+                            <span class="text-[11px] font-bold text-gray-500 block">{{ number_format($yesterdayPts) }} Pts</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

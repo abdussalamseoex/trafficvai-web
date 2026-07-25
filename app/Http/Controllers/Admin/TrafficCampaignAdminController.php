@@ -43,12 +43,49 @@ class TrafficCampaignAdminController extends Controller
 
         $campaigns = $query->paginate(20)->withQueryString();
 
+        // Dynamically calculate statistics based on search filter so viewing a client shows only their metrics
+        $statsQuery = TrafficCampaign::query();
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $statsQuery->where(function($q) use ($search) {
+                $q->where('external_order_id', 'like', "%{$search}%")
+                  ->orWhere('url', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($u) use ($search) {
+                      $u->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $logQuery = \App\Models\TrafficPointLog::where('type', 'usage');
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $userIds = User::where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")->pluck('id');
+            if ($userIds->isNotEmpty()) {
+                $logQuery->whereIn('user_id', $userIds);
+            } else {
+                $campUserIds = (clone $statsQuery)->pluck('user_id')->filter()->unique();
+                if ($campUserIds->isNotEmpty()) {
+                    $logQuery->whereIn('user_id', $campUserIds);
+                }
+            }
+        }
+
         $stats = [
-            'total' => TrafficCampaign::count(),
-            'active' => TrafficCampaign::where('status', 'active')->count(),
-            'paused' => TrafficCampaign::where('status', 'paused')->count(),
-            'total_hits' => TrafficCampaign::sum('hits_delivered'),
-            'total_points' => TrafficCampaign::sum('points_deducted'),
+            'total' => (clone $statsQuery)->count(),
+            'active' => (clone $statsQuery)->where('status', 'active')->count(),
+            'paused' => (clone $statsQuery)->where('status', 'paused')->count(),
+            'total_hits' => (clone $statsQuery)->sum('hits_delivered'),
+            'total_points' => (clone $statsQuery)->sum('points_deducted'),
+            'direct_hits' => (clone $statsQuery)->where('campaign_type', 'direct')->sum('hits_delivered'),
+            'direct_points' => (clone $statsQuery)->where('campaign_type', 'direct')->sum('points_deducted'),
+            'search_hits' => (clone $statsQuery)->where('campaign_type', 'search')->sum('hits_delivered'),
+            'search_points' => (clone $statsQuery)->where('campaign_type', 'search')->sum('points_deducted'),
+            'today_hits' => (clone $logQuery)->whereDate('created_at', now()->toDateString())->sum('hits_count'),
+            'today_points' => abs((clone $logQuery)->whereDate('created_at', now()->toDateString())->sum('points')),
+            'yesterday_hits' => (clone $logQuery)->whereDate('created_at', now()->subDay()->toDateString())->sum('hits_count'),
+            'yesterday_points' => abs((clone $logQuery)->whereDate('created_at', now()->subDay()->toDateString())->sum('points')),
         ];
 
         return view('admin.traffic_campaigns.index', compact('campaigns', 'stats'));
@@ -61,12 +98,22 @@ class TrafficCampaignAdminController extends Controller
     {
         $campaigns = TrafficCampaign::with('user')->where('status', 'active')->latest()->paginate(20);
 
+        $logQuery = \App\Models\TrafficPointLog::where('type', 'usage');
+
         $stats = [
             'total' => TrafficCampaign::count(),
             'active' => TrafficCampaign::where('status', 'active')->count(),
             'paused' => TrafficCampaign::where('status', 'paused')->count(),
             'total_hits' => TrafficCampaign::sum('hits_delivered'),
             'total_points' => TrafficCampaign::sum('points_deducted'),
+            'direct_hits' => TrafficCampaign::where('campaign_type', 'direct')->sum('hits_delivered'),
+            'direct_points' => TrafficCampaign::where('campaign_type', 'direct')->sum('points_deducted'),
+            'search_hits' => TrafficCampaign::where('campaign_type', 'search')->sum('hits_delivered'),
+            'search_points' => TrafficCampaign::where('campaign_type', 'search')->sum('points_deducted'),
+            'today_hits' => (clone $logQuery)->whereDate('created_at', now()->toDateString())->sum('hits_count'),
+            'today_points' => abs((clone $logQuery)->whereDate('created_at', now()->toDateString())->sum('points')),
+            'yesterday_hits' => (clone $logQuery)->whereDate('created_at', now()->subDay()->toDateString())->sum('hits_count'),
+            'yesterday_points' => abs((clone $logQuery)->whereDate('created_at', now()->subDay()->toDateString())->sum('points')),
         ];
 
         return view('admin.traffic_campaigns.index', compact('campaigns', 'stats'));
@@ -197,20 +244,10 @@ class TrafficCampaignAdminController extends Controller
      */
     public function liveStatus(TrafficCampaign $campaign, SurfEngineApiService $apiService)
     {
-        // Fetch live status from Core Automation Engine
-        $statusResponse = $apiService->getCampaignStatus($campaign->external_order_id);
-
-        if ($statusResponse['success'] ?? false) {
-            $data = $statusResponse['data'];
-            if (isset($data['hits_delivered'])) {
-                $newHits = (int) $data['hits_delivered'];
-                $campaign->hits_delivered = max($campaign->hits_delivered, $newHits);
-                $campaign->save();
-            }
-            if (isset($data['status'])) {
-                $campaign->status = strtolower($data['status']);
-                $campaign->save();
-            }
+        try {
+            \App\Console\Commands\SyncTrafficDelivery::syncSingleCampaign($campaign, $apiService);
+        } catch (\Throwable $e) {
+            Log::warning('Admin live status sync failed for #' . $campaign->external_order_id . ': ' . $e->getMessage());
         }
 
         return response()->json([
@@ -227,6 +264,7 @@ class TrafficCampaignAdminController extends Controller
     public function clients(Request $request)
     {
         $today = now()->toDateString();
+        $yesterday = now()->subDay()->toDateString();
 
         // Ensure hits_count column exists (auto-migrate if missing)
         $hasHitsCount = false;
@@ -251,17 +289,25 @@ class TrafficCampaignAdminController extends Controller
                 'trafficCampaigns as completed_campaigns' => fn($q) => $q->whereIn('status', ['completed', 'deleted']),
             ])
             ->withSum('trafficCampaigns as total_hits', 'hits_delivered')
-            // Daily points deducted (today only)
+            ->withSum(['trafficCampaigns as direct_hits' => fn($q) => $q->where('campaign_type', 'direct')], 'hits_delivered')
+            ->withSum(['trafficCampaigns as search_hits' => fn($q) => $q->where('campaign_type', 'search')], 'hits_delivered')
+            // Daily points deducted (today & yesterday)
             ->withSum(['trafficPointLogs as daily_points_used' => fn($q) =>
                 $q->where('type', 'usage')->whereDate('created_at', $today)
+            ], 'points')
+            ->withSum(['trafficPointLogs as yesterday_points_used' => fn($q) =>
+                $q->where('type', 'usage')->whereDate('created_at', $yesterday)
             ], 'points')
             ->orderByDesc('active_campaigns')
             ->orderByDesc('total_campaigns');
 
-        // Only add daily_hits if the column exists
+        // Only add daily and yesterday hits if the column exists
         if ($hasHitsCount) {
             $query->withSum(['trafficPointLogs as daily_hits' => fn($q) =>
                 $q->where('type', 'usage')->whereDate('created_at', $today)
+            ], 'hits_count');
+            $query->withSum(['trafficPointLogs as yesterday_hits' => fn($q) =>
+                $q->where('type', 'usage')->whereDate('created_at', $yesterday)
             ], 'hits_count');
         }
 
@@ -277,10 +323,16 @@ class TrafficCampaignAdminController extends Controller
             'zero_balance'     => User::has('trafficCampaigns')->where('traffic_points', '<=', 0)->count(),
             'total_active'     => TrafficCampaign::where('status', 'active')->count(),
             'total_paused'     => TrafficCampaign::where('status', 'paused')->count(),
+            'total_direct_hits'=> TrafficCampaign::where('campaign_type', 'direct')->sum('hits_delivered'),
+            'total_search_hits'=> TrafficCampaign::where('campaign_type', 'search')->sum('hits_delivered'),
             'total_daily_hits' => $hasHitsCount
                 ? \App\Models\TrafficPointLog::where('type', 'usage')->whereDate('created_at', $today)->sum('hits_count')
                 : 0,
             'total_daily_pts'  => abs(\App\Models\TrafficPointLog::where('type', 'usage')->whereDate('created_at', $today)->sum('points')),
+            'total_yesterday_hits' => $hasHitsCount
+                ? \App\Models\TrafficPointLog::where('type', 'usage')->whereDate('created_at', $yesterday)->sum('hits_count')
+                : 0,
+            'total_yesterday_pts'  => abs(\App\Models\TrafficPointLog::where('type', 'usage')->whereDate('created_at', $yesterday)->sum('points')),
         ];
 
         return view('admin.traffic_campaigns.clients', compact('clients', 'overallStats'));

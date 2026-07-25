@@ -50,6 +50,52 @@
                 </div>
             </div>
 
+            @php
+                $userId = auth()->id();
+                $dailySummary = \App\Models\TrafficPointLog::where('user_id', $userId)
+                    ->where('type', 'usage')
+                    ->where('created_at', '>=', now()->subDays(7)->startOfDay())
+                    ->selectRaw('DATE(created_at) as date_str, SUM(hits_count) as total_hits, SUM(ABS(points)) as total_pts')
+                    ->groupBy('date_str')
+                    ->orderByDesc('date_str')
+                    ->get();
+            @endphp
+
+            <!-- Daily Traffic & Points Consumption Report (Last 7 Days) -->
+            <div class="p-8 rounded-3xl bg-white border border-gray-200 shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900">📊 Daily Traffic & Points Consumption Report</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Transparent day-by-day record of visits delivered and points spent over the last 7 days.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-purple-50 text-purple-700 text-xs font-bold rounded-xl border border-purple-200">Daily Breakdown</span>
+                </div>
+
+                @if($dailySummary->isEmpty())
+                    <div class="py-6 text-center text-gray-500 text-xs font-bold">
+                        No usage deductions recorded in the past 7 days.
+                    </div>
+                @else
+                    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                        @foreach($dailySummary as $day)
+                            @php
+                                $dayDate = \Carbon\Carbon::parse($day->date_str);
+                                $isToday = $dayDate->isToday();
+                                $isYesterday = $dayDate->isYesterday();
+                                $label = $isToday ? 'Today' : ($isYesterday ? 'Yesterday' : $dayDate->format('M d'));
+                            @endphp
+                            <div class="p-3.5 rounded-2xl border {{ $isToday ? 'border-orange-300 bg-orange-50/40 shadow-sm' : 'border-gray-100 bg-gray-50/50' }}">
+                                <span class="text-[11px] font-black uppercase {{ $isToday ? 'text-orange-600' : ($isYesterday ? 'text-blue-600' : 'text-gray-500') }} block mb-1">
+                                    {{ $label }}
+                                </span>
+                                <div class="text-base font-black text-gray-900">{{ number_format($day->total_hits) }} <span class="text-[10px] font-bold text-gray-400">Hits</span></div>
+                                <div class="text-xs font-extrabold text-orange-500 mt-0.5">{{ number_format($day->total_pts) }} <span class="text-[10px] font-bold text-gray-400">Pts</span></div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
             <!-- Ledger Table with Tabs -->
             <div class="p-8 rounded-3xl bg-white border border-gray-200 shadow-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
@@ -109,8 +155,15 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="p-4 font-black {{ $isCredit ? 'text-emerald-600' : 'text-orange-500' }}">
-                                            {{ $isCredit ? '+' : '' }}{{ number_format($log->points) }} Pts
+                                        <td class="p-4 whitespace-nowrap">
+                                            <div class="font-black {{ $isCredit ? 'text-emerald-600' : 'text-orange-500' }}">
+                                                {{ $isCredit ? '+' : '' }}{{ number_format($log->points) }} Pts
+                                            </div>
+                                            @if(($log->hits_count ?? 0) > 0)
+                                                <span class="inline-flex items-center text-[11px] font-extrabold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded mt-0.5 border border-blue-100">
+                                                    🎯 {{ number_format($log->hits_count) }} Visits
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="p-4 text-gray-700 font-medium">
                                             {{ $log->description }}

@@ -43,26 +43,77 @@
             @endif
 
             <!-- Stat Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            @if(request('search'))
+                <div class="mb-4 flex items-center justify-between bg-purple-50 border border-purple-200 p-4 rounded-2xl text-purple-950 font-medium text-sm">
+                    <span>🔍 Displaying dynamically filtered metrics for: <strong>{{ request('search') }}</strong></span>
+                    <a href="{{ route('admin.traffic_campaigns.index') }}" class="text-xs font-bold text-purple-700 hover:underline">Clear Filter ✖</a>
+                </div>
+            @endif
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-4">
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Total Orders</span>
                     <span class="text-2xl font-black text-gray-900">{{ number_format($stats['total'] ?? 0) }}</span>
+                    <span class="text-[11px] text-gray-500 font-semibold block mt-1">Direct: {{ number_format($stats['direct_hits'] ?? 0) }} | Search: {{ number_format($stats['search_hits'] ?? 0) }}</span>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                     <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider block mb-1">Active Running</span>
-                    <span class="text-2xl font-black text-emerald-700">{{ number_format($stats['active'] ?? 0) }}</span>
+                    <span class="text-2xl font-black text-emerald-700">{{ number_format($stats['active'] ?? 0) }} <span class="text-xs text-emerald-500">Live</span></span>
+                    <span class="text-[11px] text-emerald-600/80 font-semibold block mt-1">Executing via automation engine</span>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                     <span class="text-xs font-bold text-amber-600 uppercase tracking-wider block mb-1">Paused</span>
                     <span class="text-2xl font-black text-amber-700">{{ number_format($stats['paused'] ?? 0) }}</span>
+                    <span class="text-[11px] text-amber-600/80 font-semibold block mt-1">Temporarily stopped</span>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                    <span class="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-1">Total Delivered Hits</span>
+                    <span class="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-1">Delivered Hits</span>
                     <span class="text-2xl font-black text-blue-700">{{ number_format($stats['total_hits'] ?? 0) }}</span>
+                    <span class="text-[11px] text-blue-600/80 font-semibold block mt-1">Today: +{{ number_format($stats['today_hits'] ?? 0) }} | Yd: +{{ number_format($stats['yesterday_hits'] ?? 0) }}</span>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                     <span class="text-xs font-bold text-orange-600 uppercase tracking-wider block mb-1">Points Allocated</span>
                     <span class="text-2xl font-black text-orange-700">{{ number_format($stats['total_points'] ?? 0) }}</span>
+                    <span class="text-[11px] text-orange-600/80 font-semibold block mt-1">Today Used: {{ number_format($stats['today_points'] ?? 0) }} Pts</span>
+                </div>
+            </div>
+
+            <!-- Traffic Type & Time Analytics Breakdown Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <div class="bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-white p-4 rounded-2xl border border-orange-500/20 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-black text-orange-600 uppercase tracking-wider block">🚀 Direct GOAT Traffic</span>
+                        <span class="text-lg font-black text-gray-900">{{ number_format($stats['direct_hits'] ?? 0) }} <span class="text-xs font-bold text-gray-500">Visits Delivered</span></span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-bold text-gray-400 block uppercase">Allocated Budget</span>
+                        <span class="text-sm font-extrabold text-orange-700">{{ number_format($stats['direct_points'] ?? 0) }} Pts</span>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-white p-4 rounded-2xl border border-blue-500/20 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-black text-blue-600 uppercase tracking-wider block">🔍 Google Search Traffic</span>
+                        <span class="text-lg font-black text-gray-900">{{ number_format($stats['search_hits'] ?? 0) }} <span class="text-xs font-bold text-gray-500">Visits Delivered</span></span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-bold text-gray-400 block uppercase">Allocated Budget</span>
+                        <span class="text-sm font-extrabold text-blue-700">{{ number_format($stats['search_points'] ?? 0) }} Pts</span>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-white p-4 rounded-2xl border border-purple-500/20 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-black text-purple-600 uppercase tracking-wider block">📅 Daily Delivery Trend</span>
+                        <div class="flex items-center gap-3 mt-1">
+                            <div>
+                                <span class="text-[10px] font-extrabold text-gray-500 block uppercase">Today</span>
+                                <span class="text-sm font-black text-purple-700">+{{ number_format($stats['today_hits'] ?? 0) }} Hits <span class="text-[10px] text-gray-500">({{ number_format($stats['today_points'] ?? 0) }} Pts)</span></span>
+                            </div>
+                            <div class="border-l border-purple-200 pl-2">
+                                <span class="text-[10px] font-extrabold text-gray-400 block uppercase">Yesterday</span>
+                                <span class="text-sm font-black text-gray-700">+{{ number_format($stats['yesterday_hits'] ?? 0) }} Hits <span class="text-[10px] text-gray-400">({{ number_format($stats['yesterday_points'] ?? 0) }} Pts)</span></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
