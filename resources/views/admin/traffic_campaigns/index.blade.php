@@ -44,10 +44,45 @@
 
             <!-- Stat Cards -->
             @if(request('search'))
-                <div class="mb-4 flex items-center justify-between bg-purple-50 border border-purple-200 p-4 rounded-2xl text-purple-950 font-medium text-sm">
-                    <span>🔍 Displaying dynamically filtered metrics for: <strong>{{ request('search') }}</strong></span>
-                    <a href="{{ route('admin.traffic_campaigns.index') }}" class="text-xs font-bold text-purple-700 hover:underline">Clear Filter ✖</a>
-                </div>
+                @if(isset($filterClient) && $filterClient)
+                    <div class="mb-4 bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="bg-indigo-50 border-b border-indigo-100 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-black text-gray-900">🔍 {{ $filterClient->name }}</h3>
+                                <p class="text-sm font-bold text-indigo-600">{{ $filterClient->email }}</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <a href="{{ route('admin.users.show', $filterClient->id) }}" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-indigo-700 transition">View Full Profile</a>
+                                <a href="{{ route('admin.traffic_campaigns.index') }}" class="px-4 py-2 bg-white text-gray-700 border border-gray-200 text-xs font-bold rounded-xl shadow-sm hover:bg-gray-50 transition">Clear Filter ✖</a>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-100 bg-gray-50/50">
+                            <div class="p-4 text-center">
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">USD Wallet Balance</div>
+                                <div class="text-lg font-black text-emerald-600">${{ number_format($filterClient->balance ?? 0, 2) }}</div>
+                                <div class="text-[10px] text-gray-500 font-bold mt-1">Traffic USD Spend: ${{ number_format($filterClient->total_usd_spent ?? 0, 2) }}</div>
+                            </div>
+                            <div class="p-4 text-center">
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">Total Points Bought</div>
+                                <div class="text-lg font-black text-indigo-600">+{{ number_format($filterClient->total_points_purchased ?? 0) }}</div>
+                            </div>
+                            <div class="p-4 text-center">
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">Total Points Spent</div>
+                                <div class="text-lg font-black text-red-500">-{{ number_format($filterClient->total_points_spent_logs ?? 0) }}</div>
+                                <div class="text-[10px] text-gray-500 font-bold mt-1">All Campaigns Cost: {{ number_format($filterClient->total_campaign_points_spent ?? 0) }} Pts</div>
+                            </div>
+                            <div class="p-4 text-center bg-orange-50/30">
+                                <div class="text-[10px] font-black text-orange-400 uppercase tracking-wider mb-1">Available Points</div>
+                                <div class="text-2xl font-black text-orange-600">{{ number_format($filterClient->traffic_points ?? 0) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="mb-4 flex items-center justify-between bg-purple-50 border border-purple-200 p-4 rounded-2xl text-purple-950 font-medium text-sm">
+                        <span>🔍 Displaying dynamically filtered metrics for: <strong>{{ request('search') }}</strong></span>
+                        <a href="{{ route('admin.traffic_campaigns.index') }}" class="text-xs font-bold text-purple-700 hover:underline">Clear Filter ✖</a>
+                    </div>
+                @endif
             @endif
 
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-4">

@@ -40,23 +40,42 @@
                             </div>
                             @php
                                 $seoSpent = $user->orders->where('status', 'completed')->sum('total_amount');
-                                $trafficTopupSpent = $user->trafficPointLogs->where('type', 'credit')->sum('cost_usd');
+                                $trafficTopupSpent = $user->trafficPointLogs->where('cost_usd', '>', 0)->sum('cost_usd');
                                 $totalSpentAll = $seoSpent + $trafficTopupSpent;
                                 $totalOrdersAll = $user->orders->count() + $user->trafficCampaigns->count();
+                                
+                                $totalPointsBought = $user->trafficPointLogs->where('points', '>', 0)->sum('points');
+                                $totalPointsSpentLogs = abs($user->trafficPointLogs->where('points', '<', 0)->sum('points'));
+                                $totalCampaignsCost = $user->trafficCampaigns->sum('points_deducted');
                             @endphp
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-400">USD Balance</span>
                                 <span class="font-black text-emerald-600">${{ number_format($user->balance ?? 0, 2) }}</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-400">Traffic Points</span>
-                                <span class="font-black text-orange-600">{{ number_format($user->traffic_points ?? 0) }} Pts</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
                                 <span class="text-gray-400">Total Spent</span>
                                 <span class="font-bold text-gray-900">${{ number_format($totalSpentAll, 2) }}</span>
                             </div>
-                            <div class="flex justify-between text-sm">
+                            <div class="mt-4 p-4 rounded-xl bg-orange-50/50 border border-orange-100/50 space-y-3">
+                                <div class="text-[10px] font-black uppercase text-orange-600 tracking-wider">Traffic Points Ledger</div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-500 font-bold">Available Balance</span>
+                                    <span class="font-black text-orange-600">{{ number_format($user->traffic_points ?? 0) }} Pts</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-500">Total Bought/Credited</span>
+                                    <span class="font-bold text-emerald-600">+{{ number_format($totalPointsBought) }} Pts</span>
+                                </div>
+                                <div class="flex justify-between text-xs border-b border-orange-100 pb-2">
+                                    <span class="text-gray-500">Total Used (Logs)</span>
+                                    <span class="font-bold text-red-500">-{{ number_format($totalPointsSpentLogs) }} Pts</span>
+                                </div>
+                                <div class="flex justify-between text-xs pt-1">
+                                    <span class="text-gray-600 font-bold">All Campaigns Cost</span>
+                                    <span class="font-black text-gray-900">{{ number_format($totalCampaignsCost) }} Pts</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-sm pt-2">
                                 <span class="text-gray-400">Total Orders</span>
                                 <span class="font-bold text-gray-900">{{ $totalOrdersAll }} <span class="text-xs text-gray-400">({{ $user->trafficCampaigns->count() }} Traffic)</span></span>
                             </div>

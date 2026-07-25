@@ -91,6 +91,30 @@
                 </div>
             </div>
 
+            {{-- Global Point & Financial Ledger Banner --}}
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-gray-900 p-4 rounded-2xl shadow-sm text-center">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-1">Total USD Spent</span>
+                    <span class="text-xl font-black text-emerald-400">${{ number_format($overallStats['total_usd_spent_all'] ?? 0, 2) }}</span>
+                </div>
+                <div class="bg-gray-900 p-4 rounded-2xl shadow-sm text-center">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-1">Total Points Bought</span>
+                    <span class="text-xl font-black text-indigo-400">+{{ number_format($overallStats['total_purchased_pts_all'] ?? 0) }}</span>
+                </div>
+                <div class="bg-gray-900 p-4 rounded-2xl shadow-sm text-center">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-1">Total Points Used (Logs)</span>
+                    <span class="text-xl font-black text-red-400">-{{ number_format($overallStats['total_spent_pts_all'] ?? 0) }}</span>
+                </div>
+                <div class="bg-gray-900 p-4 rounded-2xl shadow-sm text-center">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-1">All Campaigns Cost</span>
+                    <span class="text-xl font-black text-gray-100">{{ number_format($overallStats['total_campaign_cost_all'] ?? 0) }} Pts</span>
+                </div>
+                <div class="bg-gray-900 p-4 rounded-2xl shadow-sm text-center border border-orange-500/50">
+                    <span class="text-[10px] font-black text-orange-400 uppercase tracking-wider block mb-1">Available Points in Wallets</span>
+                    <span class="text-2xl font-black text-orange-500">{{ number_format($overallStats['total_available_points_all'] ?? 0) }}</span>
+                </div>
+            </div>
+
             {{-- Search --}}
             <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                 <form method="GET" action="{{ route('admin.traffic_campaigns.clients') }}" class="flex items-center gap-3">
@@ -111,13 +135,12 @@
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-100">
                                 <th class="px-5 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">#</th>
-                                <th class="px-5 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Client</th>
-                                <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Points Balance</th>
+                                <th class="px-5 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Client & Wallet</th>
+                                <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Points Economy</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-emerald-600 uppercase tracking-wider">🟢 Active</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-amber-600 uppercase tracking-wider">⏸ Paused</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">✅ Done</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Total Hits (D/S)</th>
-                                <th class="px-5 py-4 text-center text-xs font-bold text-blue-600 uppercase tracking-wider">📈 Today / Yd Hits</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-indigo-600 uppercase tracking-wider">💰 Today / Yd Pts</th>
                                 <th class="px-5 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
@@ -133,26 +156,42 @@
                                         {{ $clients->firstItem() + $i }}
                                     </td>
                                     <td class="px-5 py-4">
-                                        <div class="flex items-center gap-3">
+                                        <div class="flex items-center gap-3 mb-2">
                                             <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">
                                                 {{ strtoupper(substr($client->name, 0, 1)) }}
                                             </div>
                                             <div>
                                                 <div class="font-bold text-gray-900 text-sm">{{ $client->name }}</div>
-                                                <div class="text-xs text-gray-400">{{ $client->email }}</div>
+                                                <div class="text-[11px] text-gray-400 font-medium">{{ $client->email }}</div>
                                             </div>
                                         </div>
+                                        <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 flex flex-col sm:flex-row justify-between text-[11px] mt-1 gap-2">
+                                            <span class="font-bold text-gray-500">Wallet: <strong class="text-emerald-600">${{ number_format($client->balance ?? 0, 2) }}</strong></span>
+                                            <span class="font-bold text-gray-500">Traffic USD Spent: <strong class="text-gray-900">${{ number_format($client->total_usd_spent ?? 0, 2) }}</strong></span>
+                                        </div>
                                     </td>
-                                    <td class="px-5 py-4 text-center">
+                                    <td class="px-5 py-4 text-center whitespace-nowrap space-y-1">
                                         @if($isZeroBalance)
-                                            <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-100 text-red-700 font-black text-sm border border-red-200">
-                                                ⚠️ 0 pts
-                                            </span>
+                                            <div class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-red-100 text-red-700 font-black text-xs border border-red-200">
+                                                ⚠️ 0 Available
+                                            </div>
                                         @else
-                                            <span class="inline-flex items-center px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 font-bold text-sm border border-emerald-100">
-                                                {{ number_format($client->traffic_points) }} pts
-                                            </span>
+                                            <div class="inline-flex items-center px-3 py-1 rounded-xl bg-orange-100 text-orange-700 font-black text-xs border border-orange-200">
+                                                {{ number_format($client->traffic_points) }} Available
+                                            </div>
                                         @endif
+                                        <div class="flex justify-between items-center text-[10px] mt-2 gap-3 px-1 border-t border-gray-100 pt-1">
+                                            <div class="text-left">
+                                                <span class="block text-gray-400 font-bold uppercase">Bought</span>
+                                                <span class="font-black text-indigo-600">+{{ number_format($client->total_points_purchased ?? 0) }}</span>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="block text-gray-400 font-bold uppercase">Logs / Campaigns</span>
+                                                <span class="font-black text-red-500">-{{ number_format(abs($client->total_points_spent_logs ?? 0)) }}</span>
+                                                <span class="text-gray-300 mx-0.5">|</span>
+                                                <span class="font-black text-gray-700">{{ number_format($client->total_campaign_points_spent ?? 0) }}</span>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="px-5 py-4 text-center">
                                         @if($client->active_campaigns > 0)
@@ -184,14 +223,6 @@
                                     <td class="px-5 py-4 text-center whitespace-nowrap">
                                         <div class="font-black text-gray-800 text-sm">{{ number_format($client->total_hits ?? 0) }}</div>
                                         <div class="text-[10px] text-gray-500 font-semibold mt-0.5">🚀 {{ number_format($client->direct_hits ?? 0) }} | 🔍 {{ number_format($client->search_hits ?? 0) }}</div>
-                                    </td>
-                                    <td class="px-5 py-4 text-center whitespace-nowrap">
-                                        @if(($client->daily_hits ?? 0) > 0 || ($client->yesterday_hits ?? 0) > 0)
-                                            <div class="font-black text-blue-700 text-sm">Td: +{{ number_format($client->daily_hits ?? 0) }}</div>
-                                            <div class="text-[10px] text-gray-500 font-semibold mt-0.5">Yd: +{{ number_format($client->yesterday_hits ?? 0) }}</div>
-                                        @else
-                                            <span class="text-gray-300 text-sm font-bold">—</span>
-                                        @endif
                                     </td>
                                     <td class="px-5 py-4 text-center whitespace-nowrap">
                                         @if(($client->daily_points_used ?? 0) != 0 || ($client->yesterday_points_used ?? 0) != 0)

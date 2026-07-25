@@ -29,29 +29,15 @@
                 </div>
             </div>
 
-            <!-- Balance Summary Banner -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl">
-                    <div class="text-xs font-extrabold uppercase text-gray-500 mb-2">Available Traffic Points</div>
-                    <div class="text-3xl font-black text-orange-500">{{ number_format($pointsBalance) }} <span class="text-sm font-bold text-gray-500">Pts</span></div>
-                    <div class="text-xs text-gray-500 mt-2">Ready for Pay-As-You-Go delivery</div>
-                </div>
-
-                <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl">
-                    <div class="text-xs font-extrabold uppercase text-gray-500 mb-2">Deduction Model</div>
-                    <div class="text-xl font-black text-gray-900">Pay-As-You-Go Active</div>
-                    <div class="text-xs text-emerald-600 mt-2">● Only charges per delivered visit</div>
-                </div>
-
-                <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl">
-                    <div class="text-xs font-extrabold uppercase text-gray-500 mb-2">Point Expiry Guarantee</div>
-                    <div class="text-xl font-black text-gray-900">30 Days Rolling</div>
-                    <div class="text-xs text-gray-500 mt-2">Extended automatically on new top-up</div>
-                </div>
-            </div>
-
             @php
                 $userId = auth()->id();
+                $userCamps = auth()->user()->trafficCampaigns ?? collect();
+                $totalPointsPurchased = \App\Models\TrafficPointLog::where('user_id', $userId)->where('points', '>', 0)->sum('points');
+                $totalPointsSpentLogs = abs(\App\Models\TrafficPointLog::where('user_id', $userId)->where('points', '<', 0)->sum('points'));
+                $totalCampaignsCost = $userCamps->sum('points_deducted');
+                $totalUsdSpent = \App\Models\TrafficPointLog::where('user_id', $userId)->where('cost_usd', '>', 0)->sum('cost_usd');
+                $usdBalance = auth()->user()->balance ?? 0;
+
                 $dailySummary = \App\Models\TrafficPointLog::where('user_id', $userId)
                     ->where('type', 'usage')
                     ->where('created_at', '>=', now()->subDays(7)->startOfDay())
@@ -60,6 +46,33 @@
                     ->orderByDesc('date_str')
                     ->get();
             @endphp
+
+            <!-- Balance Summary Banner -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-6 rounded-3xl bg-gradient-to-br from-orange-50 to-white border border-orange-200 shadow-xl">
+                    <div class="text-xs font-extrabold uppercase text-orange-600 mb-2">Available Points Balance</div>
+                    <div class="text-3xl font-black text-orange-600">{{ number_format($pointsBalance) }} <span class="text-sm font-bold text-gray-500">Pts</span></div>
+                    <div class="text-[11px] text-gray-500 font-bold mt-2">Ready for Pay-As-You-Go delivery</div>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl">
+                    <div class="text-xs font-extrabold uppercase text-indigo-600 mb-2">Total Points Bought</div>
+                    <div class="text-2xl font-black text-gray-900">+{{ number_format($totalPointsPurchased) }} <span class="text-xs font-bold text-gray-400">Pts</span></div>
+                    <div class="text-[11px] text-gray-500 mt-2">Traffic USD Spent: <strong class="text-indigo-600">${{ number_format($totalUsdSpent, 2) }}</strong></div>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-white border border-gray-200 shadow-xl">
+                    <div class="text-xs font-extrabold uppercase text-red-500 mb-2">Total Points Consumed</div>
+                    <div class="text-2xl font-black text-gray-900">-{{ number_format($totalPointsSpentLogs) }} <span class="text-xs font-bold text-gray-400">Pts</span></div>
+                    <div class="text-[11px] text-gray-500 mt-2">All Campaigns Cost: <strong class="text-gray-900">{{ number_format($totalCampaignsCost) }} Pts</strong></div>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 shadow-xl">
+                    <div class="text-xs font-extrabold uppercase text-emerald-600 mb-2">USD Wallet Balance</div>
+                    <div class="text-3xl font-black text-emerald-700">${{ number_format($usdBalance, 2) }}</div>
+                    <div class="text-[11px] text-emerald-600 font-bold mt-2">● Active Wallet Account</div>
+                </div>
+            </div>
 
             <!-- Daily Traffic & Points Consumption Report (Last 7 Days) -->
             <div class="p-8 rounded-3xl bg-white border border-gray-200 shadow-xl space-y-4">

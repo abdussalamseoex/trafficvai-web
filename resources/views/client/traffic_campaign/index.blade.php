@@ -43,7 +43,48 @@
                 
                 $yesterdayHits = \App\Models\TrafficPointLog::where('user_id', $userId)->where('type', 'usage')->whereDate('created_at', $yesterday)->sum('hits_count');
                 $yesterdayPts = abs(\App\Models\TrafficPointLog::where('user_id', $userId)->where('type', 'usage')->whereDate('created_at', $yesterday)->sum('points'));
+                
+                $totalPointsPurchased = \App\Models\TrafficPointLog::where('user_id', $userId)->where('points', '>', 0)->sum('points');
+                $totalPointsSpentLogs = abs(\App\Models\TrafficPointLog::where('user_id', $userId)->where('points', '<', 0)->sum('points'));
+                $totalCampaignsCost = $userCamps->sum('points_deducted');
+                $totalUsdSpent = \App\Models\TrafficPointLog::where('user_id', $userId)->where('cost_usd', '>', 0)->sum('cost_usd');
+                $usdBalance = auth()->user()->balance ?? 0;
             @endphp
+
+            <!-- Wallet & Point Ledger Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="md:col-span-2 bg-gradient-to-r from-gray-900 to-gray-800 p-6 rounded-[2rem] border border-gray-700 shadow-lg text-white">
+                    <span class="text-xs font-black uppercase tracking-widest text-emerald-400 opacity-80">My USD Wallet</span>
+                    <div class="flex items-end justify-between mt-2">
+                        <div>
+                            <span class="text-4xl font-black">${{ number_format($usdBalance, 2) }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Traffic Spent</span>
+                            <span class="font-black text-emerald-300">${{ number_format($totalUsdSpent, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-3 bg-white p-6 rounded-[2rem] border border-orange-100 shadow-sm relative overflow-hidden flex flex-col justify-center">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                    <span class="text-xs font-black uppercase tracking-widest text-orange-600">Traffic Points Ledger</span>
+                    <div class="grid grid-cols-3 gap-4 mt-3 relative z-10 divide-x divide-gray-100">
+                        <div class="pr-2">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Available Balance</span>
+                            <span class="text-2xl font-black text-orange-600">{{ number_format(auth()->user()->traffic_points) }} <span class="text-xs">Pts</span></span>
+                        </div>
+                        <div class="px-4">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Bought</span>
+                            <span class="text-xl font-black text-indigo-600">+{{ number_format($totalPointsPurchased) }}</span>
+                        </div>
+                        <div class="pl-4">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Used</span>
+                            <span class="text-xl font-black text-red-500">-{{ number_format($totalPointsSpentLogs) }}</span>
+                            <span class="text-[10px] font-bold text-gray-400 block mt-0.5">Campaigns Cost: {{ number_format($totalCampaignsCost) }} Pts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Quick Overview Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -59,9 +100,12 @@
                     <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Delivered / Total</span>
                     <span class="text-xl font-black text-gray-900">{{ number_format($totalDeliveredAll) }} <span class="text-xs font-bold text-gray-400">/ {{ number_format($totalLimitAll) }}</span></span>
                 </div>
-                <div class="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm">
-                    <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Points Balance</span>
-                    <span class="text-2xl font-black text-orange-500">{{ number_format(auth()->user()->traffic_points) }} <span class="text-xs font-bold text-gray-400">Pts</span></span>
+                <div class="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="block text-xs font-bold uppercase text-gray-500 mb-1">Success Rate</span>
+                        <span class="text-2xl font-black text-indigo-600">{{ $totalLimitAll > 0 ? round(($totalDeliveredAll / $totalLimitAll) * 100) : 0 }}%</span>
+                    </div>
+                    <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center">🎯</div>
                 </div>
             </div>
 

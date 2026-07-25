@@ -88,7 +88,23 @@ class TrafficCampaignAdminController extends Controller
             'yesterday_points' => abs((clone $logQuery)->whereDate('created_at', now()->subDay()->toDateString())->sum('points')),
         ];
 
-        return view('admin.traffic_campaigns.index', compact('campaigns', 'stats'));
+        $filterClient = null;
+        if ($request->filled('search')) {
+            $s = trim($request->query('search'));
+            $filterClient = User::with('wallet')
+                ->where('email', $s)
+                ->orWhere('name', 'like', "%{$s}%")
+                ->orWhere('id', $s)
+                ->first();
+            if ($filterClient) {
+                $filterClient->total_points_purchased = \App\Models\TrafficPointLog::where('user_id', $filterClient->id)->where('points', '>', 0)->sum('points');
+                $filterClient->total_points_spent_logs = abs(\App\Models\TrafficPointLog::where('user_id', $filterClient->id)->where('points', '<', 0)->sum('points'));
+                $filterClient->total_campaign_points_spent = TrafficCampaign::where('user_id', $filterClient->id)->sum('points_deducted');
+                $filterClient->total_usd_spent = \App\Models\TrafficPointLog::where('user_id', $filterClient->id)->where('cost_usd', '>', 0)->sum('cost_usd');
+            }
+        }
+
+        return view('admin.traffic_campaigns.index', compact('campaigns', 'stats', 'filterClient'));
     }
 
     /**
@@ -116,7 +132,8 @@ class TrafficCampaignAdminController extends Controller
             'yesterday_points' => abs((clone $logQuery)->whereDate('created_at', now()->subDay()->toDateString())->sum('points')),
         ];
 
-        return view('admin.traffic_campaigns.index', compact('campaigns', 'stats'));
+        $filterClient = null;
+        return view('admin.traffic_campaigns.index', compact('campaigns', 'stats', 'filterClient'));
     }
 
     /**
@@ -282,6 +299,7 @@ class TrafficCampaignAdminController extends Controller
         }
 
         $query = User::has('trafficCampaigns')
+            ->with('wallet')
             ->withCount([
                 'trafficCampaigns as total_campaigns',
                 'trafficCampaigns as active_campaigns'    => fn($q) => $q->where('status', 'active'),
@@ -291,6 +309,11 @@ class TrafficCampaignAdminController extends Controller
             ->withSum('trafficCampaigns as total_hits', 'hits_delivered')
             ->withSum(['trafficCampaigns as direct_hits' => fn($q) => $q->where('campaign_type', 'direct')], 'hits_delivered')
             ->withSum(['trafficCampaigns as search_hits' => fn($q) => $q->where('campaign_type', 'search')], 'hits_delivered')
+            // Detailed point & financial tracking
+            ->withSum(['trafficPointLogs as total_points_purchased' => fn($q) => $q->where('points', '>', 0)], 'points')
+            ->withSum(['trafficPointLogs as total_points_spent_logs' => fn($q) => $q->where('points', '<', 0)], 'points')
+            ->withSum('trafficCampaigns as total_campaign_points_spent', 'points_deducted')
+            ->withSum(['trafficPointLogs as total_usd_spent' => fn($q) => $q->where('cost_usd', '>', 0)], 'cost_usd')
             // Daily points deducted (today & yesterday)
             ->withSum(['trafficPointLogs as daily_points_used' => fn($q) =>
                 $q->where('type', 'usage')->whereDate('created_at', $today)
@@ -333,6 +356,11 @@ class TrafficCampaignAdminController extends Controller
                 ? \App\Models\TrafficPointLog::where('type', 'usage')->whereDate('created_at', $yesterday)->sum('hits_count')
                 : 0,
             'total_yesterday_pts'  => abs(\App\Models\TrafficPointLog::where('type', 'usage')->whereDate('created_at', $yesterday)->sum('points')),
+            'total_purchased_pts_all' => \App\Models\TrafficPointLog::where('points', '>', 0)->sum('points'),
+            'total_spent_pts_all' => abs(\App\Models\TrafficPointLog::where('points', '<', 0)->sum('points')),
+            'total_campaign_cost_all' => TrafficCampaign::sum('points_deducted'),
+            'total_usd_spent_all' => \App\Models\TrafficPointLog::where('cost_usd', '>', 0)->sum('cost_usd'),
+            'total_available_points_all' => User::has('trafficCampaigns')->sum('traffic_points'),
         ];
 
         return view('admin.traffic_campaigns.clients', compact('clients', 'overallStats'));
