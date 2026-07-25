@@ -92,9 +92,13 @@ class TrafficCampaignAdminController extends Controller
         if ($request->filled('search')) {
             $s = trim($request->query('search'));
             $filterClient = User::with('wallet')
-                ->where('email', $s)
-                ->orWhere('name', 'like', "%{$s}%")
-                ->orWhere('id', $s)
+                ->where(function($q) use ($s) {
+                    $q->where('email', $s)
+                      ->orWhere('name', 'like', "%{$s}%");
+                    if (is_numeric($s)) {
+                        $q->orWhere('id', (int) $s);
+                    }
+                })
                 ->first();
             if ($filterClient) {
                 $filterClient->total_points_purchased = \App\Models\TrafficPointLog::where('user_id', $filterClient->id)->where('points', '>', 0)->sum('points');
