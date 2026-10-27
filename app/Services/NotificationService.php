@@ -68,7 +68,7 @@ class NotificationService
         ]);
 
         // Email Implementation
-        $this->sendEmail($templateSlug, $user->email, $data);
+        return $this->sendEmail($templateSlug, $user->email, $data);
     }
 
     /**

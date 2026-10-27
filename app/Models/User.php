@@ -162,15 +162,22 @@ class User extends Authenticatable
             'email' => $this->getEmailForPasswordReset(),
         ], false));
 
+        $sent = false;
         try {
-            app(\App\Services\NotificationService::class)->send('password_reset', $this, [
+            $sent = app(\App\Services\NotificationService::class)->send('password_reset', $this, [
                 'action_url' => $resetUrl,
             ]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Custom Password Reset Email Error: ' . $e->getMessage());
-            
-            // Fallback to default if NotificationService fails
-            parent::sendPasswordResetNotification($token);
+        }
+
+        if (!$sent) {
+            try {
+                app(\App\Services\NotificationService::class)->applyMailConfig();
+                parent::sendPasswordResetNotification($token);
+            } catch (\Exception $fallbackEx) {
+                \Illuminate\Support\Facades\Log::error('Fallback Password Reset Email Error: ' . $fallbackEx->getMessage());
+            }
         }
     }
 }

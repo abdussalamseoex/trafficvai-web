@@ -134,4 +134,77 @@ class UserController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+
+    public function updatePassword(Request $request, \App\Models\User $user)
+    {
+        $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user->forceFill([
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'remember_token' => \Illuminate\Support\Str::random(60),
+        ])->save();
+
+        $emailSent = false;
+        if ($request->boolean('notify_user')) {
+            try {
+                $emailBody = "Hello {$user->name},<br><br>Your TrafficVai account password has been updated by an administrator.<br><br><strong>Your New Password:</strong> <code>{$request->password}</code><br><br>You can log in to your account here:<br><a href=\"" . route('login') . "\">" . route('login') . "</a><br><br>After logging in, you may change your password anytime from your profile settings.<br><br>Best regards,<br>TrafficVai Team";
+
+                $emailSent = app(\App\Services\NotificationService::class)->sendEmail(
+                    'admin_notification',
+                    $user->email,
+                    [
+                        'user_name' => $user->name,
+                        'title' => 'Your Account Password Has Been Updated',
+                        'message' => $emailBody,
+                        'login_url' => route('login'),
+                        'action_url' => route('login'),
+                    ]
+                );
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Admin update password email error: ' . $e->getMessage());
+            }
+        }
+
+        $message = "Password updated successfully for {$user->name}.";
+        if ($request->boolean('notify_user')) {
+            $message .= $emailSent ? " Notification email sent to {$user->email}." : " (Email delivery failed or SMTP disabled).";
+        }
+
+        return back()
+            ->with('success', $message)
+            ->with('copied_password', $request->password);
+    }
+
+    public function sendResetLink(Request $request, \App\Models\User $user)
+    {
+        try {
+            $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
+            $resetUrl = url(route('password.reset', [
+                'token' => $token,
+                'email' => $user->email,
+            ], false));
+
+            $emailSent = false;
+            try {
+                $emailSent = app(\App\Services\NotificationService::class)->send('password_reset', $user, [
+                    'action_url' => $resetUrl,
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Send reset link error: ' . $e->getMessage());
+            }
+
+            $message = "Password reset link generated successfully!";
+            if ($emailSent) {
+                $message .= " An email has been dispatched to {$user->email}.";
+            }
+
+            return back()
+                ->with('success', $message)
+                ->with('generated_reset_url', $resetUrl);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to generate reset link: ' . $e->getMessage());
+        }
+    }
 }

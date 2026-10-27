@@ -269,6 +269,8 @@ Route::middleware(['auth'])->group(function () use ($seoTypes) {
                 Route::resource('/users', \App\Http\Controllers\Admin\UserController::class);
                 Route::post('/users/{user}/adjust-balance', [\App\Http\Controllers\Admin\UserController::class, 'adjustBalance'])->name('users.adjust_balance');
                 Route::post('/users/{user}/adjust-points', [\App\Http\Controllers\Admin\UserController::class, 'adjustPoints'])->name('users.adjust_points');
+                Route::post('/users/{user}/update-password', [\App\Http\Controllers\Admin\UserController::class, 'updatePassword'])->name('users.update_password');
+                Route::post('/users/{user}/send-reset-link', [\App\Http\Controllers\Admin\UserController::class, 'sendResetLink'])->name('users.send_reset_link');
                 Route::resource('/staff', \App\Http\Controllers\Admin\StaffController::class)->except(['show']);
                 Route::post('/media/sync', [\App\Http\Controllers\Admin\MediaController::class, 'sync'])->name('media.sync');
                 Route::delete('/media/bulk-destroy', [\App\Http\Controllers\Admin\MediaController::class, 'bulkDestroy'])->name('media.bulk-destroy');

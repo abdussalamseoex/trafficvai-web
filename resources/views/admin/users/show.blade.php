@@ -10,6 +10,30 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if(session('success'))
+                <div class="mb-6 p-4 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-sm flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span>✅</span>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-6 p-4 rounded-2xl bg-red-50 text-red-800 border border-red-200 font-semibold text-sm flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mb-6 p-4 rounded-2xl bg-red-50 text-red-800 border border-red-200 font-semibold text-sm space-y-1">
+                    @foreach($errors->all() as $err)
+                        <div>⚠️ {{ $err }}</div>
+                    @endforeach
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- User Info & Adjustment Sidebar -->
                 <div class="space-y-6">
@@ -123,6 +147,94 @@
                             <input type="text" name="description" placeholder="Reason / Description (e.g. Bonus points or Deduction)" required class="w-full text-xs rounded-xl border-gray-200">
                             <button type="submit" class="w-full py-2 bg-orange-600 hover:bg-orange-700 text-white font-black text-xs rounded-xl transition shadow">
                                 Update Traffic Points
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Password Management -->
+                    <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-5"
+                         x-data="{
+                             newPass: '',
+                             newPassConfirm: '',
+                             copied: false,
+                             generatePassword() {
+                                 const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+                                 let res = '';
+                                 for (let i = 0; i < 12; i++) {
+                                     res += chars.charAt(Math.floor(Math.random() * chars.length));
+                                 }
+                                 this.newPass = res;
+                                 this.newPassConfirm = res;
+                             },
+                             copyText(text) {
+                                 navigator.clipboard.writeText(text);
+                                 this.copied = true;
+                                 setTimeout(() => this.copied = false, 2500);
+                             }
+                         }">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-base font-black text-gray-900 flex items-center gap-2">
+                                <span>🔐 Password Management</span>
+                            </h4>
+                        </div>
+
+                        @if(session('copied_password'))
+                            <div class="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200">
+                                <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1">Newly Set Password</div>
+                                <div class="flex items-center justify-between gap-2 bg-white px-3 py-2 rounded-xl border border-emerald-100 font-mono text-xs font-bold text-emerald-900">
+                                    <span class="truncate">{{ session('copied_password') }}</span>
+                                    <button type="button" @click="copyText('{{ session('copied_password') }}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold transition flex-shrink-0">
+                                        <span x-text="copied ? 'Copied!' : 'Copy'">Copy</span>
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-emerald-700 mt-1.5">You can copy and send this password directly to the client.</p>
+                            </div>
+                        @endif
+
+                        @if(session('generated_reset_url'))
+                            <div class="p-3.5 bg-indigo-50 rounded-2xl border border-indigo-200">
+                                <div class="text-[11px] font-bold text-indigo-800 uppercase tracking-wider mb-1">Direct Reset Link</div>
+                                <div class="flex items-center justify-between gap-2 bg-white px-3 py-2 rounded-xl border border-indigo-100 font-mono text-[11px] text-indigo-900">
+                                    <span class="truncate select-all">{{ session('generated_reset_url') }}</span>
+                                    <button type="button" @click="copyText('{{ session('generated_reset_url') }}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-bold transition flex-shrink-0">
+                                        <span x-text="copied ? 'Copied!' : 'Copy Link'">Copy Link</span>
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-indigo-700 mt-1.5">Send this link to the client in chat to let them set their new password directly.</p>
+                            </div>
+                        @endif
+
+                        <!-- Option 1: Manual Password Set -->
+                        <form action="{{ route('admin.users.update_password', $user) }}" method="POST" class="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            @csrf
+                            <div class="flex items-center justify-between">
+                                <div class="text-xs font-black text-gray-700 uppercase tracking-wider">Set New Password</div>
+                                <button type="button" @click="generatePassword()" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 hover:underline">
+                                    ⚡ Generate
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <input type="text" name="password" x-model="newPass" placeholder="New Password (min 8 chars)" required class="w-full text-xs rounded-xl border-gray-200 font-mono">
+                                <input type="text" name="password_confirmation" x-model="newPassConfirm" placeholder="Confirm Password" required class="w-full text-xs rounded-xl border-gray-200 font-mono">
+                            </div>
+
+                            <label class="flex items-center gap-2 cursor-pointer pt-1">
+                                <input type="checkbox" name="notify_user" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                <span class="text-xs text-gray-600 font-medium">Send password to client's email</span>
+                            </label>
+
+                            <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs rounded-xl transition shadow">
+                                Update Password
+                            </button>
+                        </form>
+
+                        <!-- Option 2: Generate & Send Reset Link -->
+                        <form action="{{ route('admin.users.send_reset_link', $user) }}" method="POST" class="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-2">
+                            @csrf
+                            <div class="text-xs font-black text-gray-700 uppercase tracking-wider">Password Reset Link</div>
+                            <p class="text-[11px] text-gray-500">Generate an official password reset link. It will be emailed to the client and also displayed here so you can copy and give it to them directly.</p>
+                            <button type="submit" class="w-full py-2 bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs rounded-xl transition shadow">
+                                🔗 Generate & Send Reset Link
                             </button>
                         </form>
                     </div>
