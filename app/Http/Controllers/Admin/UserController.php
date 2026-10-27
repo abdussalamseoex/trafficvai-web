@@ -10,9 +10,19 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = \App\Models\User::where('is_admin', false)->withCount('orders')->latest()->paginate(20);
+        $query = \App\Models\User::where('is_admin', false)->withCount('orders');
+
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->latest()->paginate(20)->withQueryString();
         return view('admin.users.index', compact('users'));
     }
 
